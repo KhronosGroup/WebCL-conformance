@@ -1,0 +1,53 @@
+<html>
+<head>
+<meta charset="utf-8">
+    <title>WebCL_getInfo</title>
+    <link rel="stylesheet" href="../../resources/js-test-style.css"/>
+    <script src="../../resources/js-test-pre.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+<script>
+/***************************WebCLDevice getInfo with DEVICE_LOCAL_MEM_SIZE******************************************/
+try {
+	debug("WebCLDevice getInfo with DEVICE_LOCAL_MEM_SIZE");
+	var webcl = new WebCL();
+	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
+		testFailed("WebCL context does not exist");notifyFinishedToHarness();
+	} else {
+		try {
+			var platforms = webcl.getPlatforms();
+		
+			if(( typeof(platforms) == 'object' )  && (platforms.length)) {
+				try {
+					var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_CPU);
+					if(( typeof(devices) == 'object' )  && (devices.length)) {
+						try {
+							var deviceInfo = devices[0].getInfo(webcl.DEVICE_LOCAL_MEM_SIZE);
+							testPassed("getInfo with DEVICE_LOCAL_MEM_SIZE returns : "+deviceInfo);notifyFinishedToHarness();
+						} catch(e) {
+							testFailed("devices getInfo() with parameter DEVICE_LOCAL_MEM_SIZE throws an exception : "+e.message);notifyFinishedToHarness();
+						}
+					} else {
+						testFailed("getDevices() is not returned an array. It returns : "+devices);notifyFinishedToHarness();
+					}
+				} catch(e) {
+					testFailed("getSupportedExtensions throws an exception : "+e.message);notifyFinishedToHarness();
+				}
+			} else {
+				testFailed("getPlatforms is not returned an array.");notifyFinishedToHarness();
+			}
+		} catch(e) {
+			testFailed("getPlatforms API throws an exception : "+e.message);notifyFinishedToHarness();
+		}
+	}
+} catch (e) {
+	testFailed("WebCL context does not exist, exception : "+e.message);notifyFinishedToHarness();
+}
+
+successfullyParsed = true;
+</script>
+<script src="../../resources/js-test-post.js"></script>
+</body>
+</html>
