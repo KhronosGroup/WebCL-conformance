@@ -56,41 +56,36 @@ function getKernel (id ) {
 /**************WebCLProgram build with invalid object, -cl-single-precision-constant, WebCLCallback and userdata parameters****************************/
 try {
 	debug("WebCLProgram build with invalid object, -cl-single-precision-constant, WebCLCallback and userdata parameters");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		var context = webcl.createContext();
-		if(context instanceof WebCLContext) {
-			try {
-				var kernelSource = getKernel("square");
-				var webCLProgram = context.createProgram(kernelSource);
-				
-				/*var platforms = webcl.getPlatforms();
-				var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);*/
-				
-				if(webCLProgram instanceof WebCLProgram) {
-					try {
-						webCLProgram.build(invalid_object, "-cl-single-precision-constant", callback, "data");
-						testFailed("build() passed.");notifyFinishedToHarness();
-					} catch(e) {
-						if(e.message == "INVALID_DEVICE: DOM WebCL Exception -33") {
-							testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-						} else {
-							testFailed("Instead of 'INVALID_DEVICE' it throws : "+e.message);notifyFinishedToHarness();
-						}
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
+		try {
+			var kernelSource = getKernel("square");
+			var webCLProgram = context.createProgram(kernelSource);
+			
+			/*var platforms = webcl.getPlatforms();
+			var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);*/
+			
+			if(webCLProgram instanceof WebCLProgram) {
+				try {
+					webCLProgram.build(invalid_object, "-cl-single-precision-constant", callback, "data");
+					testFailed("build() passed.");notifyFinishedToHarness();
+				} catch(e) {
+					if(e.message == "INVALID_DEVICE: DOM WebCL Exception -33") {
+						testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
+					} else {
+						testFailed("Instead of 'INVALID_DEVICE' it throws : "+e.message);notifyFinishedToHarness();
 					}
-				} else {
-					testFailed("createProgram() is returned : "+webCLProgram);notifyFinishedToHarness();
 				}
-			} catch(e) {
-				testFailed("context WebCLProgram() throws an exception : "+e.message);notifyFinishedToHarness();
+			} else {
+				testFailed("createProgram() is returned : "+webCLProgram);notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);notifyFinishedToHarness();
+		} catch(e) {
+			testFailed("context WebCLProgram() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
 } catch (e) {
 	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
 }

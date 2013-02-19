@@ -38,25 +38,14 @@
 /***************************WebCL createContext with Invalid ShareGroup ************************************/
 try {
 	debug("WebCL createContext with Invalid ShareGroup");
-	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
-		try {
-			//var context = webcl.createContext(null, null, null, invalid_object, null);
-			var context = webcl.createContext({platform:null, devices:null, deviceType:null, shareGroup:invalid_object, hint:null});//Making the case valid thinking context is creating for invalid values
-                        //testFailed("It should throw an exception.");notifyFinishedToHarness();// It should fail we are not using platform object
-                        testPassed("Context created with invalid shareGroup(supports only WebGL currently) : "+context);notifyFinishedToHarness();
-                } catch(e) {
-                        //testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-                        testFailed("exception thrown : "+e.message);notifyFinishedToHarness();
-		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
-}
 
+	var context = webcl.createContext({platform:null, devices:null, deviceType:null, shareGroup:invalid_object, hint:null});//Making the case valid thinking context is creating for invalid values
+	//testFailed("It should throw an exception.");notifyFinishedToHarness();// It should fail we are not using platform object
+	testPassed("Context created with invalid shareGroup(supports only WebGL currently) : "+context);notifyFinishedToHarness();
+} catch(e) {
+	//testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
+	testFailed("exception thrown : "+e.message);notifyFinishedToHarness();
+}
 
 successfullyParsed = true;
 </script>

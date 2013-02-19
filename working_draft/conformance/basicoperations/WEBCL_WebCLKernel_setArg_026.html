@@ -56,52 +56,44 @@ function getKernel (id ) {
 }
 </script>
 <script>
-/********************WebCLKernel setArg with 0, [1.23, 2.34] and WebCLKernelArgumentTypes.VEC2 parameters**********************/
+/********************WebCLKernel setArg with 2, [1.23, 2.34] and WebCLKernelArgumentTypes.VEC2 parameters**********************/
 try {
-	debug("WebCLKernel setArg with 0, [1.23, 2.34] and WebCLKernelArgumentTypes.VEC2 parameters");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
+	debug("WebCLKernel setArg with 2, [1.23, 2.34] and WebCLKernelArgumentTypes.VEC2 parameters");
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
 		try {
-			var context = webcl.createContext();
-			if(context instanceof WebCLContext) {
+			var kernelSource = getKernel("square");
+			var webCLProgram = context.createProgram(kernelSource);
+			if(webCLProgram instanceof WebCLProgram) {
 				try {
-					var kernelSource = getKernel("square");
-					var webCLProgram = context.createProgram(kernelSource);
-					if(webCLProgram instanceof WebCLProgram) {
+					var platforms = webcl.getPlatforms();
+					var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
+					webCLProgram.build(devices, "-cl-single-precision-constant");
+					var webCLKernel = webCLProgram.createKernel("square");
+					if(webCLKernel instanceof WebCLKernel) {
 						try {
-							var platforms = webcl.getPlatforms();
-                            var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
-                            webCLProgram.build(devices, "-cl-single-precision-constant");
-							var webCLKernel = webCLProgram.createKernel("square");
-							if(webCLKernel instanceof WebCLKernel) {
-								try {
-									webCLKernel.setArg(0, [1.23, 2.34], WebCLKernelArgumentTypes.VEC2);
-									testPassed("setArg passed");notifyFinishedToHarness();
-								} catch(e) {
-									testFailed("WebCLKernel setArg throws an exception : "+e.message);notifyFinishedToHarness();
-								}
-							} else {
-								testFailed("createKernel is retunred : "+webCLKernel);notifyFinishedToHarness();
-							}
+							webCLKernel.setArg(2, [1.23, 2.34], WebCLKernelArgumentTypes.VEC2);
+							testPassed("setArg passed");notifyFinishedToHarness();
 						} catch(e) {
-							testFailed("createKernel throws an exception : "+e.message);notifyFinishedToHarness();
+							testFailed("WebCLKernel setArg throws an exception : "+e.message);notifyFinishedToHarness();
 						}
+					} else {
+						testFailed("createKernel is retunred : "+webCLKernel);notifyFinishedToHarness();
 					}
-					else testFailed("createProgram() is returned : "+webCLProgram);notifyFinishedToHarness();
 				} catch(e) {
-					testFailed("context createProgram() throws an exception : "+e.message);notifyFinishedToHarness();
+					testFailed("createKernel throws an exception : "+e.message);notifyFinishedToHarness();
 				}
-			} else {
-				testFailed("createContext returned : "+context);notifyFinishedToHarness();
 			}
+			else testFailed("createProgram() is returned : "+webCLProgram);notifyFinishedToHarness();
 		} catch(e) {
-			testFailed("createContext() throws an exception : "+e.message);notifyFinishedToHarness();
+			testFailed("context createProgram() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
 	}
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+} catch(e) {
+	testFailed("createContext() throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

@@ -1,17 +1,17 @@
 <!--
  Copyright (C) 2012 Samsung Electronics Corporation. All rights reserved.
- 
+
  Redistribution and use in source and binary forms, with or without
- modification, are permitted provided the following conditions
+ modification, are permitted provided the following condition
  are met:
- 
+
  1.  Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
- 
+
  2.  Redistributions in binary form must reproduce the above copyright
      notice, this list of conditions and the following disclaimer in the
      documentation and/or other materials provided with the distribution.
- 
+
  THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
  CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
  BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -52,49 +52,44 @@ try {
 function execute() {
 	try {
 		debug("WebCLCommandQueue enqueueCopyImageToBuffer with WebCLImage obj(MEM_READ_WRITE), WebCLBuffer Obj(MEM_READ_ONLY), 0, region(2D) and origin(2D)");
-		var webcl = new WebCL();
-		if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-			testFailed("WebCL context does not exist");
-			notifyFinishedToHarness();
-		} else {
-			var width = jsInputImage.width;
-			var height = jsInputImage.height;
-			var context = webcl.createContext();
-			if( context instanceof WebCLContext ) {
-				try {
-					var webCLCommandQueue = context.createCommandQueue();
-					var input = context.createBuffer(webcl.MEM_READ_ONLY,  Float32Array.BYTES_PER_ELEMENT * width *height*4, null);
-					var webCLImage = context.createImage(webcl.MEM_READ_WRITE | webcl.MEM_USE_HOST_PTR, jsInputImage);
-					if(webCLCommandQueue instanceof WebCLCommandQueue) {
-						var origin = new Int32Array(3);
-						origin[0] = 12;
-						origin[0] = 25;
-						origin[0] = 0;
-						var region = new Int32Array(3);
-						region[0] = 10;
-						region[0] = 20;
-						region[0] = 1;
-						try {
-							webCLCommandQueue.enqueueCopyImageToBuffer(webCLImage, input, 0, region, origin);
-							testPassed("enqueueCopyImageToBuffer Passed.");notifyFinishedToHarness();
-						} catch(e) {
-							testFailed("enqueueCopyImageToBuffer throws an exception : "+e.message);notifyFinishedToHarness();
-						}
-					} else {
-						testFailed("createCommandQueue is returned : "+webCLCommandQueue);
-						notifyFinishedToHarness();
+
+		var width = jsInputImage.width;
+		var height = jsInputImage.height;
+		var context = webcl.createContext();
+		if( context instanceof WebCLContext ) {
+			try {
+				var webCLCommandQueue = context.createCommandQueue();
+				var input = context.createBuffer(webcl.MEM_READ_ONLY,  Float32Array.BYTES_PER_ELEMENT * width *height*4);
+				var webCLImage = context.createImage(webcl.MEM_READ_WRITE  , jsInputImage);
+				if(webCLCommandQueue instanceof WebCLCommandQueue) {
+					var origin = new Int32Array(3);
+					origin[0] = 12;
+					origin[1] = 25;
+					origin[2] = 0;
+					var region = new Int32Array(3);
+					region[0] = 10;
+					region[1] = 20;
+					region[2] = 1;
+					try {
+						webCLCommandQueue.enqueueCopyImageToBuffer(webCLImage, input, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);
+						testPassed("enqueueCopyImageToBuffer Passed.");notifyFinishedToHarness();
+					} catch(e) {
+						testFailed("enqueueCopyImageToBuffer throws an exception : "+e.message);notifyFinishedToHarness();
 					}
-				} catch(e) {
-					testFailed("context createCommandQueue() throws an exception : "+e.message);
+				} else {
+					testFailed("createCommandQueue is returned : "+webCLCommandQueue);
 					notifyFinishedToHarness();
 				}
-			} else {
-				testFailed("createContext returned : "+context);
+			} catch(e) {
+				testFailed("context createCommandQueue() throws an exception : "+e.message);
 				notifyFinishedToHarness();
 			}
-		}		
+		} else {
+			testFailed("createContext returned : "+context);
+			notifyFinishedToHarness();
+		}
 	} catch (e) {
-		testFailed("WebCL throws an exception : "+e.message);
+		testFailed("createContext throws an exception : "+e.message);
 		notifyFinishedToHarness();
 	}
 }

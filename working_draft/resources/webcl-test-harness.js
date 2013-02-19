@@ -211,11 +211,9 @@ TestHarness.prototype.startNextFile = function() {
   }*/
 	try {
     if (this.nextFileIndex >= this.lastFileIndex) {
-		//alert("done");
 		this.reportFunc(TestHarness.reportType.FINISHED_ALL_TESTS, '', true);
 	} else {
 		this.currentFile = this.files[this.nextFileIndex++];
-	//	alert("loading: " + this.currentFile.url);
 		if (this.reportFunc(TestHarness.reportType.START_PAGE, this.currentFile.url, undefined)) {
 			this.iframe.src = this.currentFile.url;
 			this.setTimeout();

@@ -39,30 +39,22 @@
 try {
 	debug("WebCL createContext with only Device DEVICE_TYPE_ALL");
 	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		var platforms = webcl.getPlatforms();
-		if(( typeof(platforms) == 'object' )  && (platforms.length)) {
-			var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_ALL);
-			if(( typeof(devices) == 'object' )  && (devices.length)) {
-				//var context = webcl.createContext(null, devices, null, null, null);
-				var context = webcl.createContext({platform:null, devices:devices, deviceType:null, shareGroup:null, hint:null});
-				isInstanceOf(context, WebCLContext);notifyFinishedToHarness();
-			} else {
-				testFailed("getDevices() is not returned an array.");notifyFinishedToHarness();
-			}
+	var platforms = webcl.getPlatforms();
+	if(( typeof(platforms) == 'object' )  && (platforms.length)) {
+		var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_ALL);
+		if(( typeof(devices) == 'object' )  && (devices.length)) {
+			//var context = webcl.createContext(null, devices, null, null, null);
+			var context = webcl.createContext({platform:null, devices:devices, deviceType:null, shareGroup:null, hint:null});
+			isInstanceOf(context, WebCLContext);notifyFinishedToHarness();
 		} else {
-			testFailed("getPlatforms is not returned an array.");notifyFinishedToHarness();
+			testFailed("getDevices() is not returned an array.");notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("getPlatforms is not returned an array.");notifyFinishedToHarness();
+	}
 } catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	testFailed("getPlatforms throws an exception : "+e.message);notifyFinishedToHarness();
 }
-
-
 
 successfullyParsed = true;
 </script>

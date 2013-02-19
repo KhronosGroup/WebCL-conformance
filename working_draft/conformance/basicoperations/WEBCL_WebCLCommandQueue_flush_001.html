@@ -38,33 +38,28 @@
 /**********************************************WebCLCommandQueue flush*******************************************/
 try {
 	debug("WebCLCommandQueue flush");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");
-		notifyFinishedToHarness();
-	} else {
-		var context = webcl.createContext();
-		if( context instanceof WebCLContext ) {
+	
+	var context = webcl.createContext();
+	if( context instanceof WebCLContext ) {
+		try {
+			var webCLCommandQueue = context.createCommandQueue();
 			try {
-				var webCLCommandQueue = context.createCommandQueue();
-				try {
-					webCLCommandQueue.flush();
-					testPassed("flush Passed.");
-					notifyFinishedToHarness();
-				} catch(e) {
-					testFailed("flush throws an exception : "+e.message);
-					notifyFinishedToHarness();
-				}
-				
+				webCLCommandQueue.flush();
+				testPassed("flush Passed.");
+				notifyFinishedToHarness();
 			} catch(e) {
-				testFailed("createCommandQueue throws an exception : "+e.message);
+				testFailed("flush throws an exception : "+e.message);
 				notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);
+			
+		} catch(e) {
+			testFailed("createCommandQueue throws an exception : "+e.message);
 			notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);
+		notifyFinishedToHarness();
+	}
 } catch (e) {
 	testFailed("WebCL throws an exception : "+e.message);
 	notifyFinishedToHarness();

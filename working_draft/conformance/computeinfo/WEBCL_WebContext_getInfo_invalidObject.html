@@ -39,26 +39,20 @@
 try {
 	debug("WebContext getInfo with invalid Object");
 	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		var context = webcl.createContext();
-		//if(context != null && context != undefined) {
-		if(context instanceof WebCLContext) {
-			try {
-				var result = context.getInfo(invalid_object);
-				testFailed("It should throw an exception.");notifyFinishedToHarness();
-			} catch(e) {
-				testPassed("context getInfo with invalid object parameter throws an exception : "+e.message);notifyFinishedToHarness();
-			}
-		} else {
-			testFailed("createContext returned null.");notifyFinishedToHarness();
+	var context = webcl.createContext();
+	//if(context != null && context != undefined) {
+	if(context instanceof WebCLContext) {
+		try {
+			var result = context.getInfo(invalid_object);
+			testFailed("It should throw an exception.");notifyFinishedToHarness();
+		} catch(e) {
+			testPassed("context getInfo with invalid object parameter throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned null.");notifyFinishedToHarness();
+	}
 } catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

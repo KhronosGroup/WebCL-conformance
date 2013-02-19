@@ -38,40 +38,31 @@
 /***************************WebCLDevice getInfo with Invalid Object******************************************/
 try {
 	debug("WebCLDevice getInfo with DEVICE_OPENCL_C_VERSION");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
+	
+	var platforms = webcl.getPlatforms();
+
+	if(( typeof(platforms) == 'object' )  && (platforms.length)) {
 		try {
-			var platforms = webcl.getPlatforms();
-		
-			if(( typeof(platforms) == 'object' )  && (platforms.length)) {
+			var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_CPU);
+			if(( typeof(devices) == 'object' )  && (devices.length)) {
 				try {
-					var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_CPU);
-					if(( typeof(devices) == 'object' )  && (devices.length)) {
-						try {
-							var deviceInfo = devices[0].getInfo(invalid_object);
-							testFailed("It should throw an exception.");notifyFinishedToHarness();
-						} catch(e) {
-							testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-						}
-					} else {
-						testFailed("getDevices() is not returned an array. It returns : "+devices);notifyFinishedToHarness();
-					}
+					var deviceInfo = devices[0].getInfo(invalid_object);
+					testFailed("It should throw an exception.");notifyFinishedToHarness();
 				} catch(e) {
-					testFailed("getSupportedExtensions throws an exception : "+e.message);notifyFinishedToHarness();
+					testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
 				}
 			} else {
-				testFailed("getPlatforms is not returned an array.");notifyFinishedToHarness();
+				testFailed("getDevices() is not returned an array. It returns : "+devices);notifyFinishedToHarness();
 			}
 		} catch(e) {
-			testFailed("getPlatforms API throws an exception : "+e.message);notifyFinishedToHarness();
+			testFailed("getDevices throws an exception : "+e.message);notifyFinishedToHarness();
 		}
+	} else {
+		testFailed("getPlatforms is not returned an array.");notifyFinishedToHarness();
 	}
-} catch (e) {
-	testFailed("WebCL context does not exist, exception : "+e.message);notifyFinishedToHarness();
+} catch(e) {
+	testFailed("getPlatforms API throws an exception : "+e.message);notifyFinishedToHarness();
 }
-
 
 successfullyParsed = true;
 </script>

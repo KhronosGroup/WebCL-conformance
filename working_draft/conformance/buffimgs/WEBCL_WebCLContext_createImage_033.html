@@ -2,7 +2,7 @@
  Copyright (C) 2012 Samsung Electronics Corporation. All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
- modification, are permitted provided the following conditions
+ modification, are permitted provided the following condition
  are met:
  
  1.  Redistributions of source code must retain the above copyright
@@ -36,35 +36,27 @@
 <div id="console"></div>
 <script>
 /***********************WebCLContext createImage no parameters*****************************/
-
 try {
 	debug("WebCLContext createImage no parameters");
 	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
+	var context = webcl.createContext();
+	if( context instanceof WebCLContext ) {
 		try {
-			var context = webcl.createContext();
-			if( context instanceof WebCLContext ) {
-				try {
-					var buffer = context.createImage();
-					testFailed("It should throw an exception but returned : "+buffer);notifyFinishedToHarness();
-				} catch(e) {
-					testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-				}
+			var image = context.createImage();
+			if(image instanceof WebCLImage) {
+				testFailed("It should throw an exception but returned : "+image);notifyFinishedToHarness();
 			} else {
-				testFailed("createContext is returned : "+context);notifyFinishedToHarness();
+				testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
 			}
 		} catch(e) {
-			testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
+			testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	} else {
+		testFailed("createContext is returned : "+context);notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
 }
-
 
 successfullyParsed = true;
 </script>

@@ -23,7 +23,8 @@
  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
  NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- --><html>
+ -->
+<html>
 <head>
 <meta charset="utf-8">
     <title>WebCL_getInfo</title>
@@ -38,46 +39,39 @@
 /***************************webCLCommandQueue getInfo with QUEUE_CONTEXT******************************************/
 try {
 	debug("webCLCommandQueue getInfo with QUEUE_CONTEXT");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");
-		notifyFinishedToHarness();
-	}
-	else {
-		var context = webcl.createContext();
-		if( context instanceof WebCLContext ) {
-			try {
-				//var webCLCommandQueue = context.createCommandQueue();
-				var platforms = webcl.getPlatforms();
-				var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
-				var webCLCommandQueue = context.createCommandQueue(devices,null);
-				if(webCLCommandQueue instanceof WebCLCommandQueue) {
-					try {
-						var getInfoObj = webCLCommandQueue.getInfo(webcl.QUEUE_CONTEXT);
-						if((getInfoObj != null) && (getInfoObj != undefined)) {
-							testPassed("webCLCommandQueue getInfo with parameter QUEUE_CONTEXT retunred : "+getInfoObj);
-							notifyFinishedToHarness();
-						} else {
-							testFailed("webCLCommandQueue getInfo with parameter QUEUE_CONTEXT retunred : "+getInfoObj);
-							notifyFinishedToHarness();
-						}
-					} catch(e) {
-						testFailed("webCLCommandQueue getInfo with parameter QUEUE_CONTEXT throws an exception : "+e.message);
+	
+	var context = webcl.createContext();
+	if( context instanceof WebCLContext ) {
+		try {
+			var platforms = webcl.getPlatforms();
+			var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
+			var webCLCommandQueue = context.createCommandQueue(devices,null);
+			if(webCLCommandQueue instanceof WebCLCommandQueue) {
+				try {
+					var getInfoObj = webCLCommandQueue.getInfo(webcl.QUEUE_CONTEXT);
+					if((getInfoObj != null) && (getInfoObj != undefined)) {
+						testPassed("webCLCommandQueue getInfo with parameter QUEUE_CONTEXT retunred : "+getInfoObj);
+						notifyFinishedToHarness();
+					} else {
+						testFailed("webCLCommandQueue getInfo with parameter QUEUE_CONTEXT retunred : "+getInfoObj);
 						notifyFinishedToHarness();
 					}
-				} else {
-					testFailed("createCommandQueue is returned : "+webCLCommandQueue);
+				} catch(e) {
+					testFailed("webCLCommandQueue getInfo with parameter QUEUE_CONTEXT throws an exception : "+e.message);
 					notifyFinishedToHarness();
 				}
-			} catch(e) {
-				testFailed("context createCommandQueue() throws an exception : "+e.message);
+			} else {
+				testFailed("createCommandQueue is returned : "+webCLCommandQueue);
 				notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);
+		} catch(e) {
+			testFailed("context createCommandQueue() throws an exception : "+e.message);
 			notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);
+		notifyFinishedToHarness();
+	}
 } catch (e) {
 	testFailed("WebCL throws an exception : "+e.message);
 	notifyFinishedToHarness();

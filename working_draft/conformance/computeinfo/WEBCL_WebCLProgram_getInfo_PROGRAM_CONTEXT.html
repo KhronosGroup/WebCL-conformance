@@ -56,36 +56,31 @@ function getKernel (id ) {
 /***************************WebCLProgram getInfo with PROGRAM_CONTEXT******************************************/
 try {
 	debug("WebCLProgram getInfo with PROGRAM_CONTEXT");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		var context = webcl.createContext();
-		if(context instanceof WebCLContext) {
-			try {
-				var kernelSource = getKernel("square");
-				var webCLProgram = context.createProgram(kernelSource);
-				if(webCLProgram instanceof WebCLProgram) {
-					try {
-						var obj = webCLProgram.getInfo(webcl.PROGRAM_CONTEXT);
-						if((obj != null) && (obj != undefined)) {
-							testPassed("WebCLProgram getInfo with PROGRAM_CONTEXT retunred : "+obj);notifyFinishedToHarness();
-						} else {
-							testFailed("WebCLProgram getInfo with PROGRAM_CONTEXT retunred : "+obj);notifyFinishedToHarness();
-						}
-					} catch(e) {
-						testFailed("WebCLProgram getInfo with PROGRAM_CONTEXT throws an exception : "+e.message);notifyFinishedToHarness();
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
+		try {
+			var kernelSource = getKernel("square");
+			var webCLProgram = context.createProgram(kernelSource);
+			if(webCLProgram instanceof WebCLProgram) {
+				try {
+					var obj = webCLProgram.getInfo(webcl.PROGRAM_CONTEXT);
+					if((obj != null) && (obj != undefined)) {
+						testPassed("WebCLProgram getInfo with PROGRAM_CONTEXT retunred : "+obj);notifyFinishedToHarness();
+					} else {
+						testFailed("WebCLProgram getInfo with PROGRAM_CONTEXT retunred : "+obj);notifyFinishedToHarness();
 					}
+				} catch(e) {
+					testFailed("WebCLProgram getInfo with PROGRAM_CONTEXT throws an exception : "+e.message);notifyFinishedToHarness();
 				}
-				else testFailed("createProgram() is returned : "+webCLProgram);notifyFinishedToHarness();
-			} catch(e) {
-				testFailed("context WebCLProgram() throws an exception : "+e.message);notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);notifyFinishedToHarness();
+			else testFailed("createProgram() is returned : "+webCLProgram);notifyFinishedToHarness();
+		} catch(e) {
+			testFailed("context WebCLProgram() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
 } catch (e) {
 	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
 }

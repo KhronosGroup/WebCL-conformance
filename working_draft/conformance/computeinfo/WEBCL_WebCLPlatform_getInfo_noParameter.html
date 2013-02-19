@@ -38,32 +38,23 @@
 /****************************************WebCLPlatform getInfo with Invalid Object**********************************************/
 try {
 	debug("WebCLPlatform getInfo without Parameter");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
+	
+	var platforms = webcl.getPlatforms();
+	//platforms[0].getDevices(webcl.DEVICE_TYPE_CPU);
+	if(( typeof(platforms) == 'object' )  && (platforms.length)) {
+	//if(platforms instanceof Array) {
 		try {
-			var platforms = webcl.getPlatforms();
-			//platforms[0].getDevices(webcl.DEVICE_TYPE_CPU);
-			if(( typeof(platforms) == 'object' )  && (platforms.length)) {
-			//if(platforms instanceof Array) {
-				try {
-					var result = platforms[0].getInfo();
-					testFailed("It should throw an exception.");notifyFinishedToHarness();
-				} catch(e) {
-					testPassed("Exception : "+e.message);notifyFinishedToHarness();
-				}
-			} else {
-				testFailed("getPlatforms is not returned an array.");notifyFinishedToHarness();
-			}
+			var result = platforms[0].getInfo();
+			testFailed("It should throw an exception.");notifyFinishedToHarness();
 		} catch(e) {
-			testFailed("getPlatforms API throws an exception : "+e.message);notifyFinishedToHarness();
+			testPassed("Exception : "+e.message);notifyFinishedToHarness();
 		}
+	} else {
+		testFailed("getPlatforms is not returned an array.");notifyFinishedToHarness();
 	}
-} catch (e) {
-	testFailed("WebCL context does not exist, exception : "+e.message);notifyFinishedToHarness();
+} catch(e) {
+	testFailed("getPlatforms API throws an exception : "+e.message);notifyFinishedToHarness();
 }
-
 
 successfullyParsed = true;
 </script>

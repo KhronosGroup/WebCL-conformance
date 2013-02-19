@@ -53,36 +53,27 @@ function getKernel (id ) {
 /******WebCLCommandQueue enqueueTask with webCLKernel, invalid value and null Parameters*************/
 try {
 	debug("WebCLCommandQueue enqueueTask with webCLKernel, invalid value and null Parameters");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");
-		notifyFinishedToHarness();
-	} else {
-		try {
-			var context = webcl.createContext();
-			var kernelSource = getKernel("square");
-			var webCLProgram = context.createProgram(kernelSource);
-			var platforms = webcl.getPlatforms();
-            var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
+	
+	var context = webcl.createContext();
+	var kernelSource = getKernel("square");
+	var webCLProgram = context.createProgram(kernelSource);
+	//webCLProgram.buildProgram( null, null, null);
+	var platforms = webcl.getPlatforms();
+	var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
+	webCLProgram.build(devices, "-cl-single-precision-constant");
 
-			webCLProgram.build(devices, "-cl-finite-math-only");
-			var webCLKernel = webCLProgram.createKernel("square");
-			
-			var webCLCommandQueue = context.createCommandQueue();
-			try {
-				webCLCommandQueue.enqueueTask(webCLKernel, invalid_object, null);
-				testFailed("It should throw an exception.");notifyFinishedToHarness();
-			} catch(e) {
-				testPassed("Throws an exception : "+e.message);
-				notifyFinishedToHarness();
-			}
-		} catch(e) {
-			testFailed("Throws an exception : "+e.message);
-			notifyFinishedToHarness();
-		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);
+	var webCLKernel = webCLProgram.createKernel("square");
+	
+	var webCLCommandQueue = context.createCommandQueue();
+	try {
+		webCLCommandQueue.enqueueTask(webCLKernel, invalid_object, null);
+		testFailed("It should throw an exception.");notifyFinishedToHarness();
+	} catch(e) {
+		testPassed("Throws an exception : "+e.message);
+		notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("Throws an exception : "+e.message);
 	notifyFinishedToHarness();
 }
 

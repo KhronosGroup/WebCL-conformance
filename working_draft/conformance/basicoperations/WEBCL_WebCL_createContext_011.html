@@ -39,22 +39,12 @@
 try {
 	debug("WebCL createContext with only DeviceType DEVICE_TYPE_ALL");
 	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
-		try {
-			//var context = webcl.createContext(null, null, webcl.DEVICE_TYPE_ALL, null, null, null);
-			var context = webcl.createContext({platform:null, devices:null, deviceType:webcl.DEVICE_TYPE_ALL, shareGroup:null, hint:null});
-			isInstanceOf(context, WebCLContext);notifyFinishedToHarness();
-		} catch(e) {
-			testFailed("createContext() throws an exception : "+e.message);notifyFinishedToHarness();
-		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	//var context = webcl.createContext(null, null, webcl.DEVICE_TYPE_ALL, null, null, null);
+	var context = webcl.createContext({platform:null, devices:null, deviceType:webcl.DEVICE_TYPE_ALL, shareGroup:null, hint:null});
+	isInstanceOf(context, WebCLContext);notifyFinishedToHarness();
+} catch(e) {
+	testFailed("createContext() throws an exception : "+e.message);notifyFinishedToHarness();
 }
-
 
 successfullyParsed = true;
 </script>

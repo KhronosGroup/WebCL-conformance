@@ -37,37 +37,31 @@
 /***************************webCLCommandQueue getInfo with Invalid Object******************************************/
 try {
 	debug("webCLCommandQueue getInfo with Invalid Object");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		var context = webcl.createContext();
-		if( context instanceof WebCLContext ) {
-			try {
-				var platforms = webcl.getPlatforms();
-				var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
-				var webCLCommandQueue = context.createCommandQueue(devices,null);
-				if(webCLCommandQueue instanceof WebCLCommandQueue) {
-					try {
-						var getInfoObj = webCLCommandQueue.getInfo(invalid_object);
-						testFailed("It should throw an exception");
-					} catch(e) {
-						testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-					}
+	
+	var context = webcl.createContext();
+	if( context instanceof WebCLContext ) {
+		try {
+			var platforms = webcl.getPlatforms();
+			var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
+			var webCLCommandQueue = context.createCommandQueue(devices,null);
+			if(webCLCommandQueue instanceof WebCLCommandQueue) {
+				try {
+					var getInfoObj = webCLCommandQueue.getInfo(invalid_object);
+					testFailed("It should throw an exception");
+				} catch(e) {
+					testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
 				}
-				else testFailed("createCommandQueue is returned : "+webCLCommandQueue);notifyFinishedToHarness();
-			} catch(e) {
-				testFailed("context createCommandQueue() throws an exception : "+e.message);notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);notifyFinishedToHarness();
+			else testFailed("createCommandQueue is returned : "+webCLCommandQueue);notifyFinishedToHarness();
+		} catch(e) {
+			testFailed("context createCommandQueue() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
 } catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
 }
-
 
 successfullyParsed = true;
 </script>

@@ -15,7 +15,6 @@ WEBCL_WebCL_createContext_014.html
 WEBCL_WebCL_createContext_015.html
 WEBCL_WebCL_createContext_016.html
 WEBCL_WebCL_createContext_017.html
-WEBCL_WebCL_UnloadCompiler_001.html
 WEBCL_WebCL_getPlatforms_001.html
 WEBCL_WebCLPlatform_getDevices_001.html
 WEBCL_WebCLPlatform_getDevices_002.html
@@ -39,6 +38,7 @@ WEBCL_WebCLContext_createProgram_001.html
 WEBCL_WebCLContext_createProgram_002.html
 WEBCL_WebCLContext_createProgram_003.html
 WEBCL_WebCLContext_createSampler_001.html
+WEBCL_WebCLContext_createSampler_002.html
 WEBCL_WebCLContext_createSampler_003.html
 WEBCL_WebCLContext_createSampler_004.html
 WEBCL_WebCLContext_createSampler_005.html
@@ -46,6 +46,7 @@ WEBCL_WebCLContext_createSampler_006.html
 WEBCL_WebCLContext_createSampler_007.html
 WEBCL_WebCLContext_createSampler_008.html
 WEBCL_WebCLContext_createSampler_009.html
+WEBCL_WebCLContext_createSampler_010.html
 WEBCL_WebCLContext_createSampler_011.html
 WEBCL_WebCLContext_createSampler_012.html
 WEBCL_WebCLContext_createSampler_013.html

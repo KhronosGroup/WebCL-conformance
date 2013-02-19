@@ -36,24 +36,14 @@
 <div id="console"></div>
 <script>
 /***************************WebCL createContext with Nulls ************************************/
-
 try {
 	debug("WebCL createContext with Passing all null parameters");
 	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
-		try {
-			//var context = webcl.createContext(null, null, null, null, null, null);
-			var context = webcl.createContext({platform:null, devices:null, deviceType:null, shareGroup:null, hint:null});
-                        isInstanceOf(context, WebCLContext);notifyFinishedToHarness();
-		} catch(e) {
-			testFailed("createContext() throws an exception : "+e.message);notifyFinishedToHarness();
-		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	//var context = webcl.createContext(null, null, null, null, null, null);
+	var context = webcl.createContext({platform:null, devices:null, deviceType:null, shareGroup:null, hint:null});
+	isInstanceOf(context, WebCLContext);notifyFinishedToHarness();
+} catch(e) {
+	testFailed("createContext() throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

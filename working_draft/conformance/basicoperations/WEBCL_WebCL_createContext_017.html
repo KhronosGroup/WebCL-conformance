@@ -39,23 +39,13 @@
 try {
 	debug("WebCL createContext with Invalid Hint");
 	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
-		try {
-			var context = webcl.createContext({platform:null, devices:null, deviceType:null, shareGroup:null, hint:invalid_string});
-			//var context = webcl.createContext(null, null, null, null, invalid_string);
-			//var context = webcl.createContext({platform:null, devices:null, deviceType:null, shareGroup:null, hint:invalid_string});
-			testFailed("It should throw an exception.");notifyFinishedToHarness();
-		} catch(e) {
-			testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	var context = webcl.createContext({platform:null, devices:null, deviceType:null, shareGroup:null, hint:invalid_string});
+	//var context = webcl.createContext(null, null, null, null, invalid_string);
+	//var context = webcl.createContext({platform:null, devices:null, deviceType:null, shareGroup:null, hint:invalid_string});
+	testFailed("It should throw an exception.");notifyFinishedToHarness();
+} catch(e) {
+	testPassed("createContext an exception : "+e.message);notifyFinishedToHarness();
 }
-
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

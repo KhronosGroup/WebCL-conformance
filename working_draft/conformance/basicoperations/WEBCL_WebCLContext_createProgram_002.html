@@ -39,25 +39,20 @@
 /***************************WebCLContext createProgram with Source******************************************/
 try {
 	debug("WebCLContext createProgram with Source.");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		var context = webcl.createContext();
-		if(context instanceof WebCLContext) {
-			try {
-				var webCLProgram = context.createProgram(invalid_string);
-				testFailed("It should throw an exception.");notifyFinishedToHarness();
-			} catch(e) {
-				testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-			}
-		} else {
-			testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
+		try {
+			var webCLProgram = context.createProgram(invalid_string);
+			testFailed("It should throw an exception.");notifyFinishedToHarness();
+		} catch(e) {
+			testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
 } catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

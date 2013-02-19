@@ -40,7 +40,7 @@ __kernel void square(
 	__global float* output,
 	const unsigned int count)
 {
-	unsigned int i = get_global_id(0);
+	int i = get_global_id(0);
 	if(i < count)
 		output[i] = input[i] * input[i];
 }
@@ -59,45 +59,35 @@ function getKernel (id) {
 /***************************WebCLProgram createKernel with kernel******************************************/
 try {
 	debug("WebCLProgram createKernel with kernel");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
 		try {
-			var context = webcl.createContext();
-			if(context instanceof WebCLContext) {
+			var kernelSource = getKernel("square");
+			var webCLProgram = context.createProgram(kernelSource);
+			webCLProgram.buildProgram( null, null, null);
+			if(webCLProgram instanceof WebCLProgram) {
 				try {
-					var kernelSource = getKernel("square");
-					var webCLProgram = context.createProgram(kernelSource);
-					var platforms = webcl.getPlatforms();
-					var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
-					webCLProgram.build(devices, null);
-					if(webCLProgram instanceof WebCLProgram) {
-						try {
-							var webCLKernel = webCLProgram.createKernel("square");
-							if(webCLKernel instanceof WebCLKernel) {
-								testPassed("createKernel passed, returned value: "+webCLKernel);notifyFinishedToHarness();
-							} else {
-								testFailed("createKernel is retunred : "+webCLKernel);notifyFinishedToHarness();
-							}
-						} catch(e) {
-							testFailed("createKernel throws an exception : "+e.message);notifyFinishedToHarness();
-						}
+					var webCLKernel = webCLProgram.createKernel("square");
+					if(webCLKernel instanceof WebCLKernel) {
+						testPassed("createKernel passed, returned value: "+webCLKernel);notifyFinishedToHarness();
 					} else {
-						testFailed("createProgram() is returned : "+webCLProgram);notifyFinishedToHarness();
+						testFailed("createKernel is retunred : "+webCLKernel);notifyFinishedToHarness();
 					}
 				} catch(e) {
-					testFailed("context createProgram() throws an exception : "+e.message);notifyFinishedToHarness();
-				} 
+					testFailed("createKernel throws an exception : "+e.message);notifyFinishedToHarness();
+				}
 			} else {
-				testFailed("createContext returned : "+context);notifyFinishedToHarness();
+				testFailed("createProgram() is returned : "+webCLProgram);notifyFinishedToHarness();
 			}
 		} catch(e) {
-			testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
-		}
+			testFailed("context createProgram() throws an exception : "+e.message);notifyFinishedToHarness();
+		} 
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
 	}
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+} catch(e) {
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
 }
 successfullyParsed = true;
 </script>

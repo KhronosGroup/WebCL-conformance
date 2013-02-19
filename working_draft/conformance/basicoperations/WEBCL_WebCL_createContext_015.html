@@ -39,24 +39,14 @@
 try {
 	debug("WebCL createContext with Invalid DeviceType");
 	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
-		try {
-			//var context = webcl.createContext(null, null, invalid_object, null, null);
-			var context = webcl.createContext({platform:null, devices:null, deviceType:invalid_object, shareGroup:null, hint:null});//Making the case valid thinking context is creating for invalid values
-                        //testFailed("It should throw an exception.");notifyFinishedToHarness();// It should fail we are not using platform object
-                        testPassed("Context created with invalid device Type : "+context);notifyFinishedToHarness();
-                } catch(e) {
-                        //testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-                        testFailed("exception thrown : "+e.message);notifyFinishedToHarness();
-		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	//var context = webcl.createContext(null, null, invalid_object, null, null);
+	var context = webcl.createContext({platform:null, devices:null, deviceType:invalid_object, shareGroup:null, hint:null});//Making the case valid thinking context is creating for invalid values
+	//testFailed("It should throw an exception.");notifyFinishedToHarness();// It should fail we are not using platform object
+	testPassed("Context created with invalid device Type : "+context);notifyFinishedToHarness();
+} catch(e) {
+	//testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
+	testFailed("exception thrown : "+e.message);notifyFinishedToHarness();
 }
-
 
 successfullyParsed = true;
 </script>

@@ -38,32 +38,24 @@
 /***************************WebCLMemoryObject getInfo with Invalid Object******************************************/
 try {
 	debug("WebCLMemoryObject getInfo with Invalid Object");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
+    	
+	//var webCLMemoryObject = new WebCLMemoryObject();
+    var webcl = self.webcl;
+    var context = webcl.createContext();
+    var webCLMemoryObject = context.createBuffer(self.webcl.MEM_READ_ONLY,Float32Array.BYTES_PER_ELEMENT * 1024);
+	if(webCLMemoryObject instanceof WebCLMemoryObject) {
 		try {
-			var webCLMemoryObject = new WebCLMemoryObject();
-			if(webCLMemoryObject instanceof WebCLMemoryObject) {
-				try {
-					var obj = webCLMemoryObject.getInfo(invalid_object);
-					testFailed("It should throw an exception.");notifyFinishedToHarness();
-				} catch(e) {
-					testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-				}
-			} else {
-				testFailed("WebCLMemoryObject context does not exist");notifyFinishedToHarness();
-			}
+			var obj = webCLMemoryObject.getInfo(invalid_object);
+			testFailed("It should throw an exception.");notifyFinishedToHarness();
 		} catch(e) {
-			testFailed("WebCLMemoryObject throws an exception : "+e.message);notifyFinishedToHarness();
+			testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	} else {
+		testFailed("WebCLMemoryObject context does not exist");notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("WebCLMemoryObject throws an exception : "+e.message);notifyFinishedToHarness();
 }
-
-
 
 successfullyParsed = true;
 </script>

@@ -38,29 +38,20 @@
 /*****************WebCLContext createSampler with normalized_coords as Invalid Object***********************/
 try {
 	debug("WebCLContext createSampler with normalized_coords as Invalid Object");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
 		try {
-			var context = webcl.createContext();
-			if(context instanceof WebCLContext) {
-				try {
-					var sampler = context.createSampler(invalid_object, webcl.ADDRESS_NONE, webcl.FILTER_LINEAR);
-					testPassed("It should not throw an exception. Any value except 'false' and '0' is considered as bool true");notifyFinishedToHarness();
-				} catch(e) {
-					testFailed("Throws an exception : "+e.message);notifyFinishedToHarness();
-				}
-			} else {
-				testFailed("createContext() returned : "+context);notifyFinishedToHarness();
-			}
+			var sampler = context.createSampler(invalid_object, webcl.ADDRESS_NONE, webcl.FILTER_LINEAR);
+			testPassed("It should not throw an exception. Any value except 'false' and '0' is considered as bool true");notifyFinishedToHarness();
 		} catch(e) {
-			testFailed("createContext() throws an exception : "+e.message);notifyFinishedToHarness();
+			testFailed("Throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	} else {
+		testFailed("createContext() returned : "+context);notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("createContext() throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

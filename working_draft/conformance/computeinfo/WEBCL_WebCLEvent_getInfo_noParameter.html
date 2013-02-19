@@ -38,32 +38,27 @@
 /***************************WebCLEvent getInfo without parameter******************************************/
 try {
 	debug("WebCLEvent getInfo without parameter");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		var context = webcl.createContext();
-		if((context != null) && (context != undefined)) {
-			try {
-				var webCLEvent = context.createUserEvent();
-				if((webCLEvent != null) && (webCLEvent != undefined)) {
-					try {
-						var obj = webCLEvent.getInfo();
-						testFailed("It should throw an exception");
-					} catch(e) {
-						testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-					}
-				} else {
-					testFailed("createUserEvent() is returned : "+webCLEvent);notifyFinishedToHarness();
+	
+	var context = webcl.createContext();
+	if((context != null) && (context != undefined)) {
+		try {
+			var webCLEvent = context.createUserEvent();
+			if((webCLEvent != null) && (webCLEvent != undefined)) {
+				try {
+					var obj = webCLEvent.getInfo();
+					testFailed("It should throw an exception");
+				} catch(e) {
+					testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
 				}
-			} catch(e) {
-				testFailed("context createUserEvent() throws an exception : "+e.message);notifyFinishedToHarness();
+			} else {
+				testFailed("createUserEvent() is returned : "+webCLEvent);notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);notifyFinishedToHarness();
+		} catch(e) {
+			testFailed("context createUserEvent() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
 } catch (e) {
 	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
 }

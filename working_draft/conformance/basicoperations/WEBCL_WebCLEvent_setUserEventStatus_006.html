@@ -38,36 +38,28 @@
 /***************************WebCLEvent setUserEventStatus with invalid Parameter******************************************/
 try {
 	debug("WebCLEvent setUserEventStatus with invalid Parameter");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
 		try {
-			var context = webcl.createContext();
-			if(context instanceof WebCLContext) {
+			var webCLEvent = context.createUserEvent();
+			if(webCLEvent instanceof WebCLEvent) {
 				try {
-					var webCLEvent = context.createUserEvent();
-					if(webCLEvent instanceof WebCLEvent) {
-						try {
-							webCLEvent.setUserEventStatus(invalid_object);
-							testFailed("It should throw an exception.");notifyFinishedToHarness();
-						} catch(e) {
-							testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-						}
-					}
-					else testFailed("createUserEvent() is returned : "+webCLEvent);notifyFinishedToHarness();
+					webCLEvent.setUserEventStatus(invalid_object);
+					testFailed("It should throw an exception.");notifyFinishedToHarness();
 				} catch(e) {
-					testFailed("context createUserEvent() throws an exception : "+e.message);notifyFinishedToHarness();
+					testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
 				}
-			} else {
-				testFailed("createContext returned : "+context);notifyFinishedToHarness();
 			}
+			else testFailed("createUserEvent() is returned : "+webCLEvent);notifyFinishedToHarness();
 		} catch(e) {
-			testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
+			testFailed("context createUserEvent() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

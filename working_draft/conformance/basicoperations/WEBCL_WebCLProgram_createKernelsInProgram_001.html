@@ -56,46 +56,38 @@ function getKernel (id ) {
 /***************************WebCLProgram createKernelsInProgram******************************************/
 try {
 	debug("WebCLProgram createKernelsInProgram");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
 		try {
-			var context = webcl.createContext();
-			if(context instanceof WebCLContext) {
+			var kernelSource = getKernel("square");
+			var webCLProgram = context.createProgram(kernelSource);
+			
+			var platforms = webcl.getPlatforms();
+			var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
+			webCLProgram.build(devices, "-cl-single-precision-constant");					
+				if(webCLProgram instanceof WebCLProgram) {
 				try {
-					var kernelSource = getKernel("square");
-					var webCLProgram = context.createProgram(kernelSource);
-                    
-                    var platforms = webcl.getPlatforms();
-                    var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
-                    webCLProgram.build(devices, null);					
-if(webCLProgram instanceof WebCLProgram) {
-						try {
-							var webCLKernels = webCLProgram.createKernelsInProgram();
-							if((typeof(webCLKernels) == 'object' )  && (webCLKernels.length)) {
-								testPassed("Passed.");notifyFinishedToHarness();
-							} else {
-								testFailed("createProgram() is returned : "+webCLKernels);notifyFinishedToHarness();
-							}
-						} catch(e) {
-							testFailed("WebCLProgram createKernelsInProgram throws an exception : "+e.message);notifyFinishedToHarness();
-						}
+					var webCLKernels = webCLProgram.createKernelsInProgram();
+					if((typeof(webCLKernels) == 'object' )  && (webCLKernels.length)) {
+						testPassed("Passed.");notifyFinishedToHarness();
 					} else {
-						testFailed("createProgram() is returned : "+webCLProgram);notifyFinishedToHarness();
+						testFailed("createProgram() is returned : "+webCLKernels);notifyFinishedToHarness();
 					}
 				} catch(e) {
-					testFailed("context WebCLProgram() throws an exception : "+e.message);notifyFinishedToHarness();
+					testFailed("WebCLProgram createKernelsInProgram throws an exception : "+e.message);notifyFinishedToHarness();
 				}
 			} else {
-				testFailed("createContext returned : "+context);notifyFinishedToHarness();
+				testFailed("createProgram() is returned : "+webCLProgram);notifyFinishedToHarness();
 			}
 		} catch(e) {
-			testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
+			testFailed("context WebCLProgram() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

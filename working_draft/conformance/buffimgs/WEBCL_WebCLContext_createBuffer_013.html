@@ -2,7 +2,7 @@
  Copyright (C) 2012 Samsung Electronics Corporation. All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
- modification, are permitted provided the following conditions
+ modification, are permitted provided the following condition
  are met:
  
  1.  Redistributions of source code must retain the above copyright
@@ -38,32 +38,21 @@
 /***********************WebCLContext createBuffer with memFlag as invalid object*****************************/
 try {
 	debug("WebCLContext createBuffer with memFlag as invalid object");
-	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		try {
-			var context = webcl.createContext();
-			if( context instanceof WebCLContext ) {
-				try {
-					var buffer = context.createBuffer(invalid_object, Float32Array.BYTES_PER_ELEMENT * 1024);
-					testFailed("It should throw an exception.");notifyFinishedToHarness();
-				} catch(e) {
-					testPassed("createBuffer() with memFlag as invalid object throws an exception : "+e.message);notifyFinishedToHarness();
-				}
-			} else {
-				testFailed("createContext is returned : "+context);notifyFinishedToHarness();
-			}
-		} catch(e) {
-			testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
-		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
-}
 
+	var context = webcl.createContext();
+	if( context instanceof WebCLContext ) {
+		try {
+			var buffer = context.createBuffer(invalid_object, Float32Array.BYTES_PER_ELEMENT * 1024);
+			testFailed("It should throw an exception.");notifyFinishedToHarness();
+		} catch(e) {
+			testPassed("createBuffer() with memFlag as invalid object throws an exception : "+e.message);notifyFinishedToHarness();
+		}
+	} else {
+		testFailed("createContext is returned : "+context);notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
+}
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

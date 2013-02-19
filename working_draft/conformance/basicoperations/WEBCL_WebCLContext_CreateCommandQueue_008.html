@@ -39,33 +39,23 @@
 try {
 	debug("WebCLContext CreateCommandQueue with null and CL_QUEUE_PROFILING_ENABLE");
 	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
+	var context = webcl.createContext();
+	if( context instanceof WebCLContext ) {
 		try {
-			var context = webcl.createContext();
-			if( context instanceof WebCLContext ) {
-				try {
-					var webCLCommandQueue = context.createCommandQueue(null, webcl.QUEUE_PROFILING_ENABLE);
-					if(webCLCommandQueue instanceof WebCLCommandQueue) {
-						testPassed("createCommandQueue() returns : "+webCLCommandQueue);notifyFinishedToHarness();
-					} else {
-						testFailed("createCommandQueue() returns : "+webCLCommandQueue);notifyFinishedToHarness();
-					}
-				} catch(e) {
-					testFailed("createCommandQueue() throws an exception : "+e.message);notifyFinishedToHarness();
-				}
+			var webCLCommandQueue = context.createCommandQueue(null, webcl.QUEUE_PROFILING_ENABLE);
+			if(webCLCommandQueue instanceof WebCLCommandQueue) {
+				testPassed("createCommandQueue() with invalid device id returns : "+webCLCommandQueue);notifyFinishedToHarness();
 			} else {
-				testFailed("createContext is returned : "+context);notifyFinishedToHarness();
+				testFailed("createCommandQueue() returns : "+webCLCommandQueue);notifyFinishedToHarness();
 			}
 		} catch(e) {
-			testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
+			testFailed("createCommandQueue() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	} else {
+		testFailed("createContext is returned : "+context);notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

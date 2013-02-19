@@ -39,28 +39,17 @@
 try {
 	debug("WEBCL_CreateContext_noParameter");
 	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
+	var context = webcl.createContext();
+	//isInstanceOf(context, WebCLContext);notifyFinishedToHarness();
+	
+	if(context instanceof WebCLContext){
+		testPassed("passed");notifyFinishedToHarness();
+	} else {
+		testFailed("failed");notifyFinishedToHarness();
 	}
-	else {
-		try {
-			var context = webcl.createContext();
-			//isInstanceOf(context, WebCLContext);notifyFinishedToHarness();
-			
-		        if(context instanceof WebCLContext){
-				testPassed("passed");notifyFinishedToHarness();
-			} else {
-				testFailed("failed");notifyFinishedToHarness();
-			}
-		} catch(e) {
-			testFailed("Throws an exception : "+e.message);notifyFinishedToHarness();
-		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+} catch(e) {
+	testFailed("Throws an exception : "+e.message);notifyFinishedToHarness();
 }
-
 
 successfullyParsed = true;
 </script>

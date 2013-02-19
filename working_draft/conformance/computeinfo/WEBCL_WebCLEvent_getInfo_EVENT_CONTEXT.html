@@ -38,44 +38,35 @@
 /***************************WebCLEvent getInfo with EVENT_CONTEXT******************************************/
 try {
 	debug("WebCLEvent getInfo with EVENT_CONTEXT");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		var context = webcl.createContext();
-		if(context instanceof WebCLContext) {
-			try {
-				//alert(context);
-				var webCLEvent = context.createUserEvent();
-				//alert(" after call " + webCLEvent);
-				if(webCLEvent instanceof WebCLEvent) {
-					try {
-						var obj = webCLEvent.getInfo(webcl.EVENT_COMMAND_TYPE);
-						//alert(" after getinfo call ");
-						if((obj != null) && (obj != undefined)) {
-							testPassed("webCLEvent getInfo with EVENT_CONTEXT retunred : "+obj);notifyFinishedToHarness();
-						} else {
-							testFailed("webCLEvent getInfo with EVENT_CONTEXT retunred : "+obj);notifyFinishedToHarness();
-						}
-					} catch(e) {
-						testFailed("webCLEvent getInfo with EVENT_CONTEXT throws an exception : "+e.message);notifyFinishedToHarness();
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
+		try {
+			var webCLEvent = context.createUserEvent();
+			if(webCLEvent instanceof WebCLEvent) {
+				try {
+					var obj = webCLEvent.getInfo(webcl.EVENT_COMMAND_TYPE);
+					if((obj != null) && (obj != undefined)) {
+						testPassed("webCLEvent getInfo with EVENT_CONTEXT retunred : "+obj);notifyFinishedToHarness();
+					} else {
+						testFailed("webCLEvent getInfo with EVENT_CONTEXT retunred : "+obj);notifyFinishedToHarness();
 					}
-				} else {
-					testFailed("createUserEvent() is returned : "+webCLEvent);notifyFinishedToHarness();
+				} catch(e) {
+					testFailed("webCLEvent getInfo with EVENT_CONTEXT throws an exception : "+e.message);notifyFinishedToHarness();
 				}
-			
-			} catch(e) {
-				testFailed("context createUserEvent() throws an exception : "+e.message);notifyFinishedToHarness();
+			} else {
+				testFailed("createUserEvent() is returned : "+webCLEvent);notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);notifyFinishedToHarness();
+		
+		} catch(e) {
+			testFailed("context createUserEvent() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
 } catch (e) {
 	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
 }
-
 
 successfullyParsed = true;
 </script>

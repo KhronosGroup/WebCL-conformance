@@ -40,9 +40,9 @@ __kernel void square(
                 __global float* output,
                 const unsigned int count)
 {
-        int i = get_global_id(0);
-        if(i < count)
-                output[i] = input[i] * input[i];
+	int i = get_global_id(0);
+	if(i < count)
+		output[i] = input[i] * input[i];
 }
 </script>
 
@@ -50,7 +50,7 @@ __kernel void square(
 function getKernel (id ) {
 	var kernelScript = document.getElementById( id );
 	if(kernelScript === null || kernelScript.type !== "x-kernel")
-			return null;
+		return null;
 
 	return kernelScript.firstChild.textContent;
 }
@@ -59,11 +59,7 @@ function getKernel (id ) {
 /***************************WebCLKernel getInfo with KERNEL_NUM_ARGS******************************************/
 try {
 	debug("WebCLKernel getInfo with KERNEL_NUM_ARGS");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
+	
 		var context = webcl.createContext();
 		if(context instanceof WebCLContext) {
 			try {
@@ -73,7 +69,7 @@ try {
 				var platforms = webcl.getPlatforms();
 				var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
 				var webCLCommandQueue = context.createCommandQueue();
-				webCLProgram.build(devices, null);
+				webCLProgram.build(devices, "-cl-fast-relaxed-math"); //null);
 				
 				if(webCLProgram instanceof WebCLProgram) {
 					try {
@@ -103,7 +99,6 @@ try {
 		} else {
 			testFailed("createContext returned : "+context);notifyFinishedToHarness();
 		}
-	}		
 } catch (e) {
 	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
 }

@@ -40,7 +40,7 @@ __kernel void square(
 	__global float* output,
 	const unsigned int count)
 {
-	unsigned int i = get_global_id(0);
+	int i = get_global_id(0);
 	if(i < count)
 		output[i] = input[i] * input[i];
 }
@@ -59,36 +59,76 @@ function getKernel (id ) {
 /******WebCLCommandQueue enqueueNDRangeKernel with webCLKernel, invalid object, Int32Array([300, 400]) and null Parameters*************/
 try {
 	debug("WebCLCommandQueue enqueueNDRangeKernel with webCLKernel, invalid object, Int32Array([300, 400]) and null Parameters");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");
-		notifyFinishedToHarness();
-	} else {
-		try {
-			var context = webcl.createContext();
-			var kernelSource = getKernel("square");
-			var webCLProgram = context.createProgram(kernelSource);
-			var platforms = webcl.getPlatforms();
-            var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
+	
+	/*var context = webcl.createContext();
+	var kernelSource = getKernel("square");
+	var webCLProgram = context.createProgram(kernelSource);
+	var platforms = webcl.getPlatforms();
+	var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
 
-			webCLProgram.build(devices, "-cl-finite-math-only");
-			var webCLKernel = webCLProgram.createKernel("square");
-			
-			var webCLCommandQueue = context.createCommandQueue();
-			try {
-				webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, invalid_object, new Int32Array([300, 400]), null);
-				testFailed("It should throw an exception.");notifyFinishedToHarness();
-			} catch(e) {
-				testPassed("Throws an exception : "+e.message);
-				notifyFinishedToHarness();
+	webCLProgram.build(devices, "-cl-finite-math-only");
+	var webCLKernel = webCLProgram.createKernel("square");
+	
+	var webCLCommandQueue = context.createCommandQueue();*/
+
+	var platforms = webcl.getPlatforms();
+    var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
+    var context = webcl.createContext();
+    var DATA_SIZE = 1024;
+    var data = new Float32Array(DATA_SIZE); 
+    var count = DATA_SIZE;
+    for(var i = 0; i < count; i++){
+        data[i] = Math.random();
+    }
+
+	if(context instanceof WebCLContext) {
+		var webCLCommandQueue = context.createCommandQueue(devices[0], webcl.QUEUE_PROFILING_ENABLE);
+		try {
+			var webCLEvent = context.createUserEvent();
+			if(webCLEvent instanceof WebCLEvent) {
+				var webCLKernel = getKernel("square");
+				var localWorkSize = new Int32Array(1);
+				var globalWorkSize = new Int32Array(1); 
+				var webCLProgram = context.createProgram(webCLKernel);
+				webCLProgram.build(devices, "-cl-finite-math-only");
+				var kernal = webCLProgram.createKernel("square"); 
+				input = context.createBuffer(webcl.MEM_READ_ONLY,  Float32Array.BYTES_PER_ELEMENT * count);
+				output = context.createBuffer( webcl.MEM_WRITE_ONLY, Float32Array.BYTES_PER_ELEMENT * count);
+
+				webCLCommandQueue.enqueueWriteBuffer( input, true, 0, Float32Array.BYTES_PER_ELEMENT * count, data );
+				kernal.setArg(0, input);
+				kernal.setArg(1, output);
+				kernal.setArg(2, count, webcl.SIGNED_INT8);
+
+				var workGroupSize = kernal.getWorkGroupInfo(devices[0], webcl.KERNEL_WORK_GROUP_SIZE);
+
+				globalWorkSize[0] = count;
+				localWorkSize[0] = workGroupSize;
+
+				var gl = new Int32Array();
+				gl[0] = 300;
+				gl[1] = 400;
+				var Ll = new Int32Array();
+				Ll[0] = 2;
+				Ll[1] = 2;
+				var Offset = new Int32Array();
+				Offset[0] = 2;
+				Offset[1] = 2;
 			}
 		} catch(e) {
 			testFailed("Throws an exception : "+e.message);
 			notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);
+		try {
+			webCLCommandQueue.enqueueNDRangeKernel(kernal, invalid_object, new Int32Array([300, 400]), null);
+			testFailed("It should throw an exception.");notifyFinishedToHarness();
+		} catch(e) {
+			testPassed("Throws an exception : "+e.message);
+			notifyFinishedToHarness();
+		}
+	}
+} catch(e) {
+	testFailed("Throws an exception : "+e.message);
 	notifyFinishedToHarness();
 }
 

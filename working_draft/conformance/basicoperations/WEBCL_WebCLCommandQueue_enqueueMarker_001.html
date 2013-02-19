@@ -38,35 +38,30 @@
 /******WebCLCommandQueue enqueueMarker with no Parameters*************/
 try {
 	debug("WebCLCommandQueue enqueueMarker with no Parameters");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");
-		notifyFinishedToHarness();
-	} else {
-		var context = webcl.createContext();
-		if( context instanceof WebCLContext ) {
+	
+	var context = webcl.createContext();
+	if( context instanceof WebCLContext ) {
+		try {
+			var webCLCommandQueue = context.createCommandQueue();
 			try {
-				var webCLCommandQueue = context.createCommandQueue();
-				try {
-					webCLCommandQueue.enqueueMarker();
-					testPassed("enqueueMarker Passed.");
-					notifyFinishedToHarness();
-				} catch(e) {
-					testFailed("enqueueMarker throws an exception : "+e.message);
-					notifyFinishedToHarness();
-				}
-				
+				webCLCommandQueue.enqueueMarker();
+				testPassed("enqueueMarker Passed.");
+				notifyFinishedToHarness();
 			} catch(e) {
-				testFailed("createCommandQueue throws an exception : "+e.message);
+				testFailed("enqueueMarker throws an exception : "+e.message);
 				notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);
+			
+		} catch(e) {
+			testFailed("createCommandQueue throws an exception : "+e.message);
 			notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);
+		notifyFinishedToHarness();
+	}
 } catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);
+	testFailed("createContext throws an exception : "+e.message);
 	notifyFinishedToHarness();
 }
 

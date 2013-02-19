@@ -38,33 +38,28 @@
 /***************************WebCLMemoryObject getInfo with MEM_CONTEXT******************************************/
 try {
 	debug("WebCLMemoryObject getInfo with MEM_CONTEXT");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
+	
+	//var webCLMemoryObject = new WebCLMemoryObject();
+    var webcl = self.webcl;
+    var context = webcl.createContext();
+    var webCLMemoryObject = context.createBuffer(self.webcl.MEM_READ_ONLY,Float32Array.BYTES_PER_ELEMENT * 1024);
+
+	if(webCLMemoryObject instanceof WebCLMemoryObject) {
 		try {
-			var webCLMemoryObject = new WebCLMemoryObject();
-			if(webCLMemoryObject instanceof WebCLMemoryObject) {
-				try {
-					var obj = webCLMemoryObject.getInfo(webcl.MEM_CONTEXT);
-					if((obj != null) && (obj != undefined)) {
-						testPassed("webCLMemoryObject getInfo with MEM_CONTEXT retunred : "+obj);notifyFinishedToHarness();
-					} else {
-						testFailed("webCLMemoryObject getInfo with MEM_CONTEXT retunred : "+obj);notifyFinishedToHarness();
-					}
-				} catch(e) {
-					testFailed("webCLMemoryObject getInfo with parameter MEM_CONTEXT throws an exception : "+e.message);notifyFinishedToHarness();
-				}
+			var obj = webCLMemoryObject.getInfo(webcl.MEM_CONTEXT);
+			if((obj != null) && (obj != undefined)) {
+				testPassed("webCLMemoryObject getInfo with MEM_CONTEXT retunred : "+obj);notifyFinishedToHarness();
 			} else {
-				testFailed("WebCLMemoryObject context does not exist");notifyFinishedToHarness();
+				testFailed("webCLMemoryObject getInfo with MEM_CONTEXT retunred : "+obj);notifyFinishedToHarness();
 			}
 		} catch(e) {
-			testFailed("WebCLMemoryObject throws an exception : "+e.message);notifyFinishedToHarness();
+			testFailed("webCLMemoryObject getInfo with parameter MEM_CONTEXT throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	} else {
+		testFailed("WebCLMemoryObject context does not exist");notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("WebCLMemoryObject throws an exception : "+e.message);notifyFinishedToHarness();
 }
 successfullyParsed = true;
 </script>

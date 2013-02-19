@@ -63,6 +63,9 @@ function description(msg)
         description.replaceChild(span, description.firstChild);
     else
         description.appendChild(span);
+	
+	if(IS_STORE_RESULTS)
+		writeToRemoteFile(msg);
 }
 
 function debug(msg)
@@ -70,6 +73,12 @@ function debug(msg)
     var span = document.createElement("span");
     document.getElementById("console").appendChild(span); // insert it first so XHTML knows the namespace
     span.innerHTML = msg + '<br />';
+	
+	if( (IS_STORE_RESULTS) ){ //&& (msg.indexOf("span") == -1) ) {
+		var fileURL = window.location.pathname; // var fileURL = window.location.href;
+		writeToRemoteFile(fileURL);
+		writeToRemoteFile(msg);
+    }
 }
 
 function escapeHTML(text)
@@ -81,12 +90,16 @@ function testPassed(msg)
 {
     reportTestResultsToHarness(true, msg);
     debug('<span><span class="pass">PASS</span> ' + escapeHTML(msg) + '</span>');
+	if(IS_STORE_RESULTS)
+		writeToRemoteFile("PASS: "+msg);
 }
 
 function testFailed(msg)
 {
     reportTestResultsToHarness(false, msg);
     debug('<span><span class="fail">FAIL</span> ' + escapeHTML(msg) + '</span>');
+	if(IS_STORE_RESULTS)
+		writeToRemoteFile("FAIL: "+msg);
 }
 // TODO -see why not working
 function typeOf(obj) {
@@ -391,6 +404,7 @@ var invalid_object = 1234;
 var invalid_string = {toString: undefined};
 var invalid_number = {toString: undefined};
 var invalid_boolean = null;
+var webcl = window.webcl;
 
 function isInstanceOf(obj, constr) {
 	if(obj instanceof constr) {
@@ -406,5 +420,45 @@ function shouldBeEqual(actual, expected) {
 	} else {
 		testFailed("actual: "+actual+", but expected: "+expected);
 	}
+}
+
+//To copy results to server.
+var IS_STORE_RESULTS = true;
+var xmlhttp = false;
+function initAjax() {
+	//var xmlhttp = false;
+	try {
+		xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+	} catch (e) {
+		try {
+			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+		} catch (e) {
+			xmlhttp = false;
+		}
+	}
+	if (!xmlhttp && typeof XMLHttpRequest!='undefined') {
+		try {
+			xmlhttp = new XMLHttpRequest();
+		} catch (e) {
+			xmlhttp = false;
+		}
+	}
+	if (!xmlhttp && window.createRequest) {
+		try {
+			xmlhttp = window.createRequest();
+		} catch (e) {
+			xmlhttp = false;
+		}
+	}
+}
+
+function writeToRemoteFile(data) {
+	if(!xmlhttp)
+		initAjax();
+	//var url = "http://107.109.106.127/output.php?data="+data;
+	console.log(data);
+
+	//xmlhttp.open("GET", url, false);
+	//xmlhttp.send(null);
 }
 //Vamshi

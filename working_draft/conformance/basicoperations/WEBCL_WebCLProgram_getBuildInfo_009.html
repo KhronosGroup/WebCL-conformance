@@ -57,41 +57,32 @@ function getKernel (id ) {
 try {
 	debug("WebCLProgram getBuildInfo with DEVICE_TYPE_CPU and PROGRAM_BUILD_LOG");
 	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
+	var platforms = webcl.getPlatforms();
+	if(( typeof(platforms) == 'object' )  && (platforms.length)) {
 		try {
-			var platforms = webcl.getPlatforms();
-			if(( typeof(platforms) == 'object' )  && (platforms.length)) {
+			var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_CPU);
+			if(( typeof(devices) == 'object' )  && (devices.length)) {
+				var kernelSource = getKernel("square");
+				var context = webcl.createContext();
+				var webCLProgram = context.createProgram(kernelSource);
+				webCLProgram.build(devices, "-cl-single-precision-constant");
 				try {
-					var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_CPU);
-					if(( typeof(devices) == 'object' )  && (devices.length)) {
-						var kernelSource = getKernel("square");
-						var context = webcl.createContext();
-						var webCLProgram = context.createProgram(kernelSource);
-						webCLProgram.build(devices, null);
-						try {
-							var buildInfo = webCLProgram.getBuildInfo(devices[0], webcl.PROGRAM_BUILD_LOG);
-							testPassed("getBuildInfo returned value : "+buildInfo);notifyFinishedToHarness();
-						} catch(e) {
-							testFailed("getBuildInfo() throws an exception : "+e.message);notifyFinishedToHarness();
-						}
-					} else {
-						testFailed("getDevices() is not returned an array.");notifyFinishedToHarness();
-					}
+					var buildInfo = webCLProgram.getBuildInfo(devices[0], webcl.PROGRAM_BUILD_LOG);
+					testPassed("getBuildInfo returned value : "+buildInfo);notifyFinishedToHarness();
 				} catch(e) {
-					testFailed("getDevices() with DEVICE_TYPE_CPU throws an exception : "+e.message);notifyFinishedToHarness();
+					testFailed("getBuildInfo() throws an exception : "+e.message);notifyFinishedToHarness();
 				}
 			} else {
-				testFailed("getPlatforms is not returned an array.");notifyFinishedToHarness();
+				testFailed("getDevices() is not returned an array.");notifyFinishedToHarness();
 			}
 		} catch(e) {
-			testFailed("getPlatforms throws an exception : "+e.message);notifyFinishedToHarness();
+			testFailed("getDevices() with DEVICE_TYPE_CPU throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	} else {
+		testFailed("getPlatforms is not returned an array.");notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("getPlatforms throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

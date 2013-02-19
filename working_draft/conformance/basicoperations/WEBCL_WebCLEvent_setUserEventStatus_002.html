@@ -35,39 +35,31 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-/***************************WebCLEvent setUserEventStatus with RUNNING Parameter******************************************/
+/***************************WebCLEvent setUserEventStatus using other Event based flags : RUNNING Parameter***********************************/
 try {
-	debug("WebCLEvent setUserEventStatus with RUNNING Parameter");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
+	debug("WebCLEvent setUserEventStatus using other Event based flags : RUNNING Parameter");
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
 		try {
-			var context = webcl.createContext();
-			if(context instanceof WebCLContext) {
+			var webCLEvent = context.createUserEvent();
+			if(webCLEvent instanceof WebCLEvent) {
 				try {
-					var webCLEvent = context.createUserEvent();
-					if(webCLEvent instanceof WebCLEvent) {
-						try {
-							webCLEvent.setUserEventStatus(webcl.RUNNING);
-							testFailed("setUserEventStatus should throw an exception");notifyFinishedToHarness();
-						} catch(e) {
-							testPassed("Passed :"+e.message);notifyFinishedToHarness();
-						}
-					}
-					else testFailed("createUserEvent() is returned : "+webCLEvent);notifyFinishedToHarness();
+					webCLEvent.setUserEventStatus(webcl.RUNNING);
+					testFailed("setUserEventStatus should throw an exception");notifyFinishedToHarness();
 				} catch(e) {
-					testFailed("context createUserEvent() throws an exception : "+e.message);notifyFinishedToHarness();
+					testPassed("Passed :"+e.message);notifyFinishedToHarness();
 				}
-			} else {
-				testFailed("createContext returned : "+context);notifyFinishedToHarness();
 			}
+			else testFailed("createUserEvent() is returned : "+webCLEvent);notifyFinishedToHarness();
 		} catch(e) {
-			testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
+			testFailed("context createUserEvent() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

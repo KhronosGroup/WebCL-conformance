@@ -23,7 +23,8 @@
  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
  NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- --><html>
+ -->
+ <html>
 <head>
 <meta charset="utf-8">
     <title>WebCL_getInfo</title>
@@ -37,33 +38,28 @@
 /***************************webCLCommandQueue getInfo without parameter******************************************/
 try {
 	debug("webCLCommandQueue getInfo without parameter");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		var context = webcl.createContext();
-		if(context instanceof WebCLContext) {
-			try {
-				var platforms = webcl.getPlatforms();
-				var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
-                var webCLCommandQueue = context.createCommandQueue(devices,null);
-				if(webCLCommandQueue instanceof WebCLCommandQueue) {
-					try {
-						var getInfoObj = webCLCommandQueue.getInfo();
-						testFailed("It should throw an exception");
-					} catch(e) {
-						testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-					}
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
+		try {
+			var platforms = webcl.getPlatforms();
+			var devices = platforms[0].getDevices(webcl.DEVICE_TYPE_GPU);
+			var webCLCommandQueue = context.createCommandQueue(devices,null);
+			if(webCLCommandQueue instanceof WebCLCommandQueue) {
+				try {
+					var getInfoObj = webCLCommandQueue.getInfo();
+					testFailed("It should throw an exception");
+				} catch(e) {
+					testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
 				}
-				else testFailed("createCommandQueue is returned : "+webCLCommandQueue);notifyFinishedToHarness();
-			} catch(e) {
-				testFailed("context createCommandQueue() throws an exception : "+e.message);notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);notifyFinishedToHarness();
+			else testFailed("createCommandQueue is returned : "+webCLCommandQueue);notifyFinishedToHarness();
+		} catch(e) {
+			testFailed("context createCommandQueue() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
 } catch (e) {
 	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
 }

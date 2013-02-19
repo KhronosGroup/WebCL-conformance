@@ -39,23 +39,14 @@
 try {
 	debug("WebCL getPlatforms");
 	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
-		try {
-			var platforms = webcl.getPlatforms();
-			debug("platforms length : "+platforms.length);
-			for(var i=0;i<platforms.length;i++) {
-				debug("Platform["+i+"] : "+platforms[i]);
-			}
-			testPassed("getPlatforms() called.");notifyFinishedToHarness();
-		} catch(e) {
-			testFailed("Throws an exception : "+e.message);notifyFinishedToHarness();
-		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	var platforms = webcl.getPlatforms();
+	debug("platforms length : "+platforms.length);
+	for(var i=0;i<platforms.length;i++) {
+		debug("Platform["+i+"] : "+platforms[i]);
+	}
+	testPassed("getPlatforms() called.");notifyFinishedToHarness();
+} catch(e) {
+	testFailed("getPlatforms an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

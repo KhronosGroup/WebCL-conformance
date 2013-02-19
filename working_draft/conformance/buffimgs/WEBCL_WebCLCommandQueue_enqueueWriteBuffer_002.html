@@ -1,17 +1,17 @@
 <!--
  Copyright (C) 2012 Samsung Electronics Corporation. All rights reserved.
- 
+
  Redistribution and use in source and binary forms, with or without
- modification, are permitted provided the following conditions
+ modification, are permitted provided the following condition
  are met:
- 
+
  1.  Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
- 
+
  2.  Redistributions in binary form must reproduce the above copyright
      notice, this list of conditions and the following disclaimer in the
      documentation and/or other materials provided with the distribution.
- 
+
  THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
  CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
  BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -38,43 +38,38 @@
 /******WebCLCommandQueue enqueueWriteBuffer with WebCLBuffer Obj, false, 0, sizeInBytes, ArrayBuffer Obj*************/
 try {
 	debug("WebCLCommandQueue enqueueWriteBuffer with WebCLBuffer Obj, false, 0, sizeInBytes, ArrayBuffer Obj");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");
-		notifyFinishedToHarness();
-	} else {
-		var context = webcl.createContext();
-		if( context instanceof WebCLContext ) {
-			try {
-				var webCLCommandQueue = context.createCommandQueue();
-				var dstArray = new Float32Array(1024);
-				var input = context.createBuffer(webcl.MEM_READ_ONLY,  Float32Array.BYTES_PER_ELEMENT * 1024, null);
-				if(webCLCommandQueue instanceof WebCLCommandQueue) {
-					try {
-						var data = new Float32Array(1024);
-						for(var i = 0; i < 1024; i++) {
-							data[i] = Math.random();
-						}
-						webCLCommandQueue.enqueueWriteBuffer( input, false, 0, Float32Array.BYTES_PER_ELEMENT * 1024, data,null, null);
-						testPassed("enqueueWriteBuffer Passed.");notifyFinishedToHarness();
-					} catch(e) {
-						testFailed("enqueueWriteBuffer throws an exception : "+e.message);notifyFinishedToHarness();
+
+	var context = webcl.createContext();
+	if( context instanceof WebCLContext ) {
+		try {
+			var webCLCommandQueue = context.createCommandQueue();
+			var dstArray = new Float32Array(1024);
+			var input = context.createBuffer(webcl.MEM_READ_ONLY,  Float32Array.BYTES_PER_ELEMENT * 1024);
+			if(webCLCommandQueue instanceof WebCLCommandQueue) {
+				try {
+					var data = new Float32Array(1024);
+					for(var i = 0; i < 1024; i++) {
+						data[i] = Math.random();
 					}
-				} else {
-					testFailed("createCommandQueue is returned : "+webCLCommandQueue);
-					notifyFinishedToHarness();
+					webCLCommandQueue.enqueueWriteBuffer( input, false, 0,Float32Array.BYTES_PER_ELEMENT * 1024, data);//,null, null);
+					testPassed("enqueueWriteBuffer Passed.");notifyFinishedToHarness();
+				} catch(e) {
+					testFailed("enqueueWriteBuffer throws an exception : "+e.message);notifyFinishedToHarness();
 				}
-			} catch(e) {
-				testFailed("context createCommandQueue() throws an exception : "+e.message);
+			} else {
+				testFailed("createCommandQueue is returned : "+webCLCommandQueue);
 				notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);
+		} catch(e) {
+			testFailed("context createCommandQueue() throws an exception : "+e.message);
 			notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);
+		notifyFinishedToHarness();
+	}
 } catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);
+	testFailed("createContext throws an exception : "+e.message);
 	notifyFinishedToHarness();
 }
 

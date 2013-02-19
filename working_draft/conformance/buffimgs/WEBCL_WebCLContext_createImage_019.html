@@ -1,17 +1,17 @@
 <!--
  Copyright (C) 2012 Samsung Electronics Corporation. All rights reserved.
- 
+
  Redistribution and use in source and binary forms, with or without
- modification, are permitted provided the following conditions
+ modification, are permitted provided the following condition
  are met:
- 
+
  1.  Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
- 
+
  2.  Redistributions in binary form must reproduce the above copyright
      notice, this list of conditions and the following disclaimer in the
      documentation and/or other materials provided with the distribution.
- 
+
  THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
  CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
  BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -34,7 +34,7 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
-<div style="position:absolute; left:0px; top:0px; visibility:hidden">
+<div style="position:absolute; left:0px; top:0px; visibility:hidden" >
 	<canvas id="inputCanvas" />
 </div>
 <script>
@@ -45,45 +45,33 @@ try {
 	jsInputImage = new Image();
 	jsInputImage.src = "pebbleHalf.jpg";
 	jsInputImage.onload = execute;
-//	execute();
 } catch(e) {
 	testFailed("Image throws an exception : "+e.message);
 	notifyFinishedToHarness();
 }
 
 function execute() {
-try {
-	debug("WebCLContext createImage MEM_READ_ONLY and srcImage parameters");
-	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		try {
-			var context = webcl.createContext();
-			if( context instanceof WebCLContext ) {
-				try {
-					var webCLImage = context.createImage(webcl.MEM_READ_ONLY | webcl.MEM_USE_HOST_PTR, jsInputImage);
-//Saurabh //WebCLBuffer					
-if(webCLImage instanceof WebCLImage) {
-						testPassed("createImage() returned : "+webCLImage);notifyFinishedToHarness();
-					} else {
-						testFailed("createImage() returned : "+webCLImage);notifyFinishedToHarness();
-					}
-				} catch(e) {
-					testFailed("createImage throws an exception : "+e.message);notifyFinishedToHarness();
+	try {
+		debug("WebCLContext createImage MEM_READ_ONLY and srcImage parameters");
+
+		var context = webcl.createContext();
+		if( context instanceof WebCLContext ) {
+			try {
+				var webCLImage = context.createImage(webcl.MEM_READ_ONLY, jsInputImage);
+	            if(webCLImage instanceof WebCLImage) {
+					testPassed("createImage() returned : "+webCLImage);notifyFinishedToHarness();
+				} else {
+					testFailed("createImage() returned : "+webCLImage);notifyFinishedToHarness();
 				}
-			} else {
-				testFailed("createContext is returned : "+context);notifyFinishedToHarness();
+			} catch(e) {
+				testFailed("createImage throws an exception : "+e.message);notifyFinishedToHarness();
 			}
-		} catch(e) {
-			testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
+		} else {
+			testFailed("createContext is returned : "+context);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
-}
+	} catch(e) {
+		testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
+	}
 }
 
 successfullyParsed = true;

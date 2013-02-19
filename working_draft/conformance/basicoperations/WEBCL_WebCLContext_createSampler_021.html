@@ -38,29 +38,20 @@
 /*****************WebCLContext createSampler without parameters***********************/
 try {
 	debug("WebCLContext createSampler without parameters");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
 		try {
-			var context = webcl.createContext();
-			if(context instanceof WebCLContext) {
-				try {
-					var sampler = context.createSampler();
-					testFailed("It should thorw an exception.");notifyFinishedToHarness();
-				} catch(e) {
-					testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
-				}
-			} else {
-				testFailed("createContext() returned : "+context);notifyFinishedToHarness();
-			}
+			var sampler = context.createSampler();
+			testFailed("It should thorw an exception.");notifyFinishedToHarness();
 		} catch(e) {
-			testFailed("createContext() throws an exception : "+e.message);notifyFinishedToHarness();
+			testPassed("Throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	} else {
+		testFailed("createContext() returned : "+context);notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("createContext() throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

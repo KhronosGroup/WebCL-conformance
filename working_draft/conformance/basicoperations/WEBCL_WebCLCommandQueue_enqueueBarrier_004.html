@@ -38,36 +38,31 @@
 /******WebCLCommandQueue enqueueBarrier with Invalid Parameter and WebCLEvent object*************/
 try {
 	debug("WebCLCommandQueue enqueueBarrier with Invalid Parameter and WebCLEvent object");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");
-		notifyFinishedToHarness();
-	} else {
-		var context = webcl.createContext();
-		if( context instanceof WebCLContext ) {
+	
+	var context = webcl.createContext();
+	if( context instanceof WebCLContext ) {
+		try {
+			var webCLCommandQueue = context.createCommandQueue();
+			var webCLEvent = context.createUserEvent();
 			try {
-				var webCLCommandQueue = context.createCommandQueue();
-				var webCLEvent = context.createUserEvent();
-				try {
-					webCLCommandQueue.enqueueBarrier(invalid_object, webCLEvent);
-					testFailed("It should throw an exception.");
-					notifyFinishedToHarness();
-				} catch(e) {
-					testPassed("Throws an exception : "+e.message);
-					notifyFinishedToHarness();
-				}
-				
+				webCLCommandQueue.enqueueBarrier(invalid_object, webCLEvent);
+				testFailed("It should throw an exception.");
+				notifyFinishedToHarness();
 			} catch(e) {
-				testFailed("createCommandQueue throws an exception : "+e.message);
+				testPassed("Throws an exception : "+e.message);
 				notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);
+			
+		} catch(e) {
+			testFailed("createCommandQueue throws an exception : "+e.message);
 			notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);
+		notifyFinishedToHarness();
+	}
 } catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);
+	testFailed("createContext throws an exception : "+e.message);
 	notifyFinishedToHarness();
 }
 

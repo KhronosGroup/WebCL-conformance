@@ -38,32 +38,23 @@
 /****************************************WebCLPlatform getInfo with Invalid Object**********************************************/
 try {
 	debug("WebCLPlatform getInfo with Invalid Object");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	} else {
-		try {
-			var platforms = webcl.getPlatforms();
-		
-			if(( typeof(platforms) == 'object' )  && (platforms.length)) {
-			//if(platforms instanceof Array) {
-				try {
-					var result = platforms[0].getInfo(1234);
-					testFailed("It should throw an exception."+result);notifyFinishedToHarness();
-				} catch(e) {
-					testPassed("Exception : "+e.message);notifyFinishedToHarness();
-				}
-			} else {
-				testFailed("getPlatforms is not returned an array.");notifyFinishedToHarness();
-			}
-		} catch(e) {
-			testFailed("getPlatforms API throws an exception : "+e.message);notifyFinishedToHarness();
-		}
-	}
-} catch (e) {
-	testFailed("WebCL context does not exist, exception : "+e.message);notifyFinishedToHarness();
-}
+	
+	var platforms = webcl.getPlatforms();
 
+	if(( typeof(platforms) == 'object' )  && (platforms.length)) {
+	//if(platforms instanceof Array) {
+		try {
+			var result = platforms[0].getInfo(1234);
+			testFailed("It should throw an exception."+result);notifyFinishedToHarness();
+		} catch(e) {
+			testPassed("Exception : "+e.message);notifyFinishedToHarness();
+		}
+	} else {
+		testFailed("getPlatforms is not returned an array.");notifyFinishedToHarness();
+	}
+} catch(e) {
+	testFailed("getPlatforms API throws an exception : "+e.message);notifyFinishedToHarness();
+}
 
 successfullyParsed = true;
 </script>

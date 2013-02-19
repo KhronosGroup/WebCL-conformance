@@ -38,37 +38,32 @@
 /***************************WebCLSampler getInfo with SAMPLER_CONTEXT******************************************/
 try {
 	debug("WebCLSampler getInfo with SAMPLER_CONTEXT");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		var context = webcl.createContext();
-		if(context instanceof WebCLContext) {
-			try {
-				var sampler = context.createSampler(webcl.CL_TRUE, webcl.ADDRESS_NONE, webcl.FILTER_NEAREST);
-				if(sampler instanceof WebCLSampler) {
-					try {
-						var obj = sampler.getInfo(webcl.SAMPLER_CONTEXT);
-						if((obj != null) && (obj != undefined)) {
-							testPassed("sampler getInfo with SAMPLER_CONTEXT retunred : "+obj);notifyFinishedToHarness();
-						} else {
-							testFailed("sampler getInfo with SAMPLER_CONTEXT retunred : "+obj);notifyFinishedToHarness();
-						}
-					} catch(e) {
-						testFailed("sampler getInfo with SAMPLER_CONTEXT throws an exception : "+e.message);notifyFinishedToHarness();
+	
+	var context = webcl.createContext();
+	if(context instanceof WebCLContext) {
+		try {
+			var sampler = context.createSampler(webcl.CL_TRUE, webcl.ADDRESS_NONE, webcl.FILTER_NEAREST);
+			if(sampler instanceof WebCLSampler) {
+				try {
+					var obj = sampler.getInfo(webcl.SAMPLER_CONTEXT);
+					if((obj != null) && (obj != undefined)) {
+						testPassed("sampler getInfo with SAMPLER_CONTEXT retunred : "+obj);notifyFinishedToHarness();
+					} else {
+						testFailed("sampler getInfo with SAMPLER_CONTEXT retunred : "+obj);notifyFinishedToHarness();
 					}
+				} catch(e) {
+					testFailed("sampler getInfo with SAMPLER_CONTEXT throws an exception : "+e.message);notifyFinishedToHarness();
 				}
-				else testFailed("sampler() is returned : "+sampler);notifyFinishedToHarness();
-			} catch(e) {
-				testFailed("context createSampler() throws an exception : "+e.message);notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);notifyFinishedToHarness();
+			else testFailed("sampler() is returned : "+sampler);notifyFinishedToHarness();
+		} catch(e) {
+			testFailed("context createSampler() throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
 } catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

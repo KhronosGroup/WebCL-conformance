@@ -1,17 +1,17 @@
 <!--
  Copyright (C) 2012 Samsung Electronics Corporation. All rights reserved.
- 
+
  Redistribution and use in source and binary forms, with or without
- modification, are permitted provided the following conditions
+ modification, are permitted provided the following condition
  are met:
- 
+
  1.  Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
- 
+
  2.  Redistributions in binary form must reproduce the above copyright
      notice, this list of conditions and the following disclaimer in the
      documentation and/or other materials provided with the distribution.
- 
+
  THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
  CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
  BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -38,46 +38,42 @@
 /******WebCLCommandQueue enqueueReadImage with WebCLImage obj, true, origin(2D image), invalid object, 0, 0, ArrayBuffer Obj, null*************/
 try {
 	debug("WebCLCommandQueue enqueueReadImage with WebCLImage obj, true, origin(2D image), invalid object, 0, 0, ArrayBuffer Obj, null");
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");
-		notifyFinishedToHarness();
-	} else {
-		var context = webcl.createContext();
-		if( context instanceof WebCLContext ) {
+
+	var context = webcl.createContext();
+	if( context instanceof WebCLContext ) {
+		try {
+			var webCLCommandQueue = context.createCommandQueue();
+			var webCLImageDescriptors = context.getSupportedImageFormats(webcl.MEM_READ_ONLY, webcl.MEM_OBJECT_IMAGE2D);
+			var t  = {width:"100",height:"100",channelOrder:webCLImageDescriptors[0].channelOrder,channelType:webCLImageDescriptors[0].channelType};
+			var webCLImage = context.createImageWithDescriptor(webcl.MEM_READ_ONLY, t);
+
+			var origin = new Int32Array(3);
+			origin[0] = 12;
+			origin[1] = 25;
+			origin[2] = 0;
+			var data = new ArrayBuffer(1024);
+			for(var i = 0; i < 1024; i++) {
+				data[i] = Math.random();
+			}
 			try {
-				var webCLCommandQueue = context.createCommandQueue();
-				var webCLImageDescriptors = context.getSupportedImageFormats(webcl.MEM_READ_ONLY, webcl.MEM_OBJECT_IMAGE2D);
-				var webCLImage = context.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptors[0]);
-				
-				var origin = new Int32Array(3);
-                                origin[0] = 12;
-                                origin[0] = 25;
-                                origin[0] = 0;
-				var data = new Float32Array(1024);
-				for(var i = 0; i < 1024; i++) {
-					data[i] = Math.random();
-				}
-				try {
-					webCLCommandQueue.enqueueReadImage(webCLImage, true, origin, invalid_object, 0, 0, data, null);
-					testFailed("It should throw an exception.");
-					notifyFinishedToHarness();
-				} catch(e) {
-					testPassed("Throws an exception : "+e.message);
-					notifyFinishedToHarness();
-				}
-				
+				webCLCommandQueue.enqueueReadImage(webCLImage, true, origin, invalid_object, 0, 0, data, null);
+				testFailed("It should throw an exception.");
+				notifyFinishedToHarness();
 			} catch(e) {
-				testFailed("context methods throws an exception : "+e.message);
+				testPassed("Throws an exception : "+e.message);
 				notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);
+
+		} catch(e) {
+			testFailed("context methods throws an exception : "+e.message);
 			notifyFinishedToHarness();
 		}
-	}		
+	} else {
+		testFailed("createContext returned : "+context);
+		notifyFinishedToHarness();
+	}
 } catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);
+	testFailed("createContext throws an exception : "+e.message);
 	notifyFinishedToHarness();
 }
 

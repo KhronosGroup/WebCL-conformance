@@ -38,31 +38,26 @@
 /****************************************WebContext getInfo with CONTEXT_DEVICES**********************************************/
 try {
 	debug("WebContext getInfo with CONTEXT_DEVICES");
-	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		var context = webcl.createContext();
-		//if(context != null && context != undefined) {
-		if(context instanceof WebCLContext) {
-			try {
-				var result = context.getInfo(webcl.CONTEXT_DEVICES);
-				if((result != null) && (result != undefined)) {
-					testPassed("context getInfo with parameter CONTEXT_DEVICES retunred : "+result);notifyFinishedToHarness();
-				} else {
-					testFailed("context getInfo with parameter CONTEXT_DEVICES retunred : "+result);notifyFinishedToHarness();
-				}
-			} catch(e) {
-				testFailed("context getInfo with parameter CONTEXT_DEVICES throws an exception : "+e.message);notifyFinishedToHarness();
+
+	var context = webcl.createContext();
+	if(context != null && context != undefined) {
+	if(context instanceof WebCLContext) {
+		try {
+			var result = context.getInfo(webcl.CONTEXT_DEVICES);
+			if((result != null) && (result != undefined)) {
+				testPassed("context getInfo with parameter CONTEXT_DEVICES retunred : "+result);notifyFinishedToHarness();
+			} else {
+				testFailed("context getInfo with parameter CONTEXT_DEVICES retunred : "+result);notifyFinishedToHarness();
 			}
-		} else {
-			testFailed("createContext returned : "+context);notifyFinishedToHarness();
+		} catch(e) {
+			testFailed("context getInfo with parameter CONTEXT_DEVICES throws an exception : "+e.message);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
+	} else {
+		testFailed("createContext returned : "+context);notifyFinishedToHarness();
+	}
+    } 
+}catch (e) {
+	testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
 }
 
 successfullyParsed = true;

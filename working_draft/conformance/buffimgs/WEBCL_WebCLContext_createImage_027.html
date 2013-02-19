@@ -1,17 +1,17 @@
 <!--
  Copyright (C) 2012 Samsung Electronics Corporation. All rights reserved.
- 
+
  Redistribution and use in source and binary forms, with or without
- modification, are permitted provided the following conditions
+ modification, are permitted provided the following condition
  are met:
- 
+
  1.  Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
- 
+
  2.  Redistributions in binary form must reproduce the above copyright
      notice, this list of conditions and the following disclaimer in the
      documentation and/or other materials provided with the distribution.
- 
+
  THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
  CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
  BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -58,7 +58,7 @@ function LoadComplete() {
 	try {
 		var width = jsInputImage.width;
 		var height = jsInputImage.height;
-	
+
 		inputCanvas = document.getElementById("inputCanvas");
 		inputCanvas.width = width;
 		inputCanvas.height = height;
@@ -73,37 +73,27 @@ function LoadComplete() {
 }
 
 function execute() {
-try {
-	debug("WebCLContext createImage MEM_READ_WRITE and imageData parameters");
-	
-	var webcl = new WebCL();
-	if("undefined" == typeof(WebCL) && (null != (new WebCL()))) {
-		testFailed("WebCL context does not exist");notifyFinishedToHarness();
-	}
-	else {
-		try {
-			var context = webcl.createContext();
-			if( context instanceof WebCLContext ) {
-				try {
-					var buffer = context.createImage(webcl.MEM_READ_WRITE | webcl.MEM_USE_HOST_PTR, imageData);
-					if(buffer instanceof WebCLMem) {
-						testPassed("createImage() returned : "+buffer);notifyFinishedToHarness();
-					} else {
-						testFailed("createImage() returned : "+buffer);notifyFinishedToHarness();
-					}
-				} catch(e) {
-					testFailed("Throws an exception : "+e.message);notifyFinishedToHarness();
+	try {
+		debug("WebCLContext createImage MEM_READ_WRITE and imageData parameters");
+
+		var context = webcl.createContext();
+		if( context instanceof WebCLContext ) {
+			try {
+				var image = context.createImage(webcl.MEM_READ_WRITE  , imageData);
+				if(image instanceof WebCLImage) {
+					testPassed("createImage() returned : "+image);notifyFinishedToHarness();
+				} else {
+					testFailed("createImage() returned : "+image);notifyFinishedToHarness();
 				}
-			} else {
-				testFailed("createContext is returned : "+context);notifyFinishedToHarness();
+			} catch(e) {
+				testFailed("Throws an exception : "+e.message);notifyFinishedToHarness();
 			}
-		} catch(e) {
-			testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
+		} else {
+			testFailed("createContext is returned : "+context);notifyFinishedToHarness();
 		}
-	}		
-} catch (e) {
-	testFailed("WebCL throws an exception : "+e.message);notifyFinishedToHarness();
-}
+	} catch(e) {
+		testFailed("createContext throws an exception : "+e.message);notifyFinishedToHarness();
+	}
 }
 
 successfullyParsed = true;
