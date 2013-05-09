@@ -1,0 +1,105 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following conditions
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>WebCLKernel setArg conformance test.</title>
+    <link rel="stylesheet" href="../../resources/js-test-style.css"/>
+    <script src="../../resources/js-test-pre.js"></script>
+    <script src="../../resources/cl_utils.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+<script id="square" type="x-kernel">
+__kernel void square(
+    __global float* input,
+    __global float* output,
+    const unsigned int count)
+{
+    unsigned int i = get_global_id(0);
+    if (i < count)
+        output[i] = input[i] * input[i];
+}
+</script>
+<script>
+try {
+    debug("WebCLKernel :: setArg() test case.");
+    debug("(CLuint index, any value, optional CLtype type)");
+    var DATA_SIZE = Float32Array.BYTES_PER_ELEMENT * 1024;
+    var wtu = WebCLTestUtils;
+    var webCLContext = wtu.createContext();
+    var kernelSource = wtu.getKernel("square");
+    var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    var webPlatforms = wtu.getPlatforms();
+    var webCLDevices = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_GPU);
+    webCLProgram.build(webCLDevices, "-cl-single-precision-constant");
+    var webCLKernel = wtu.createKernel(webCLProgram, "square");
+
+    var webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_MIRRORED_REPEAT, webcl.FILTER_NEAREST);
+    shouldBeTrue("wtu.setArg(webCLKernel, 0, webCLSampler);");
+
+    var webCLBuffer = webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);
+    shouldBeTrue("wtu.setArg(webCLKernel, 1, webCLBuffer);");
+
+    var webCLImageDescriptorObject  = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, "100", "100");
+    var webCLImage = webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptorObject);
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, webCLImage);");
+
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27.5);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, [27.8, 12.1]);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27, WebCLKernelArgumentTypes.CHAR);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27, WebCLKernelArgumentTypes.UCHAR);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27, WebCLKernelArgumentTypes.INT);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27, WebCLKernelArgumentTypes.UINT);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27, WebCLKernelArgumentTypes.SHORT);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27, WebCLKernelArgumentTypes.USHORT);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27, WebCLKernelArgumentTypes.LONG);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27, WebCLKernelArgumentTypes.ULONG);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27, WebCLKernelArgumentTypes.FLOAT);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27, WebCLKernelArgumentTypes.HALF);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 2, 27, WebCLKernelArgumentTypes.DOUBLE);");
+    shouldBeTrue("wtu.setArg(webCLKernel, 0, 27, WebCLKernelArgumentTypes.LOCAL_MEMORY_SIZE);");
+
+    // Testing for Exception.
+    shouldThrowExceptionName("wtu.setArg(invalid_object, 1, 12);", "INVALID_KERNEL");
+    shouldThrowExceptionName("wtu.setArg(webCLKernel, invalid_object, 12);", "INVALID_ARG_INDEX");
+    shouldThrowExceptionName("wtu.setArg(webCLKernel, 1, invalid_object);", "INVALID_ARG_VALUE");
+    shouldThrowExceptionName("wtu.setArg(webCLKernel, 1, 12, invalid_object);", "INVALID_ARG_VALUE");
+
+    var kernelNumArgs = webCLKernel.getInfo(webcl.KERNEL_NUM_ARGS);
+    shouldThrowExceptionName("wtu.setArg(webCLKernel, (kernelNumArgs + 1), 27, WebCLKernelArgumentTypes.INT);", "INVALID_ARG_INDEX");
+
+} catch (e) {
+    testFailed("WebCLKernel :: setArg() throws an exception : " + e.message);
+}
+notifyFinishedToHarness();
+successfullyParsed = true;
+</script>
+<script src="../../resources/js-test-post.js"></script>
+</body>
+</html>

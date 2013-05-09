@@ -1,0 +1,133 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following condition
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>WebCLCommandQueue enqueueCopyImageToBuffer conformance test.</title>
+    <link rel="stylesheet" href="../../resources/js-test-style.css"/>
+    <script src="../../resources/js-test-pre.js"></script>
+    <script src="../../resources/cl_utils.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+<div style="position:absolute; left:0px; top:0px; visibility:hidden">
+    <canvas id="dstBufferCanvas">
+</div>
+<script>
+try {
+    var jsInputImage;
+    jsInputImage = new Image();
+    jsInputImage.src = "pebbleHalf.jpg";
+    jsInputImage.onload = execute;
+} catch(e) {
+    testFailed("Unable to load HTML Image element : " + e.message);
+    notifyFinishedToHarness();
+}
+
+var wtu = WebCLTestUtils;
+var webCLContext;
+var webCLCommandQueue;
+var origin, region, width, height;
+var webCLImageRead, webCLImageWrite, webCLImageReadWrite, webCLBufferRead, webCLBufferReadWrite, webCLBufferWrite, originInvalid, regionInvalid;
+
+function execute()
+{
+    try {
+        debug("WebCLCommandQueue :: enqueueCopyImageToBuffer() test case.");
+        debug("( WebCLImage srcImage, WebCLBuffer dstBuffer, CLuint[2] srcOrigin, CLuint[2] srcRegion, CLuint dstOffset, optional WebCLEvent[]? eventWaitList, optional WebCLEvent? event)");
+
+        webCLContext = wtu.createContext();
+        webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+
+        origin = new Int32Array([12, 25]);
+        region = new Int32Array([10, 20]);
+        width = jsInputImage.width;
+        height = jsInputImage.height;
+
+        webCLImageRead = webCLContext.createImage(webcl.MEM_READ_ONLY, jsInputImage);
+        webCLImageReadWrite = webCLContext.createImage(webcl.MEM_READ_WRITE, jsInputImage);
+        webCLImageWrite = webCLContext.createImage(webcl.MEM_WRITE_ONLY, jsInputImage);
+
+        // Testing for MEM_WRITE_ONLY Buffer.
+        webCLBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, Float32Array.BYTES_PER_ELEMENT * width * height * 4);
+        shouldBeTrue("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageRead, webCLBufferWrite, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);");
+        shouldBeTrue("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferWrite, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);");
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageWrite, webCLBufferWrite, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);", "INVALID_VALUE");
+
+        // Testing for MEM_READ_WRITE Buffer.
+        webCLBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, Float32Array.BYTES_PER_ELEMENT * width * height * 4);
+        shouldBeTrue("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageRead, webCLBufferReadWrite, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);");
+        shouldBeTrue("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferReadWrite, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);");
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageWrite, webCLBufferReadWrite, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);", "INVALID_VALUE");
+
+        // Testing for MEM_READ_ONLY Buffer.
+        webCLBufferRead = webCLContext.createBuffer(webcl.MEM_READ_ONLY, Float32Array.BYTES_PER_ELEMENT * width * height * 4);
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageRead, webCLBufferRead, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);", "INVALID_VALUE");
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferRead, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);", "INVALID_VALUE");
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageWrite, webCLBufferRead, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);", "INVALID_VALUE");
+
+        // FIXME :: Need to add test cases passing event parameters.
+
+        // Testing for Exceptions.
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, invalid_object, webCLBufferReadWrite, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);", "INVALID_MEM_OBJECT");
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, invalid_object, origin, region, Float32Array.BYTES_PER_ELEMENT * width * 4);", "INVALID_MEM_OBJECT");
+
+        // FIXME :: Crashing, only at this line.
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferReadWrite, invalid_object, region, Float32Array.BYTES_PER_ELEMENT * width * 4);", "INVALID_VALUE");
+
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferReadWrite, origin, invalid_object, Float32Array.BYTES_PER_ELEMENT * width * 4);", "INVALID_VALUE");
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferReadWrite, origin, region, invalid_object);", "INVALID_VALUE");
+
+        // Testing for values of origin.
+        originInvalid = new Int32Array([-12, -20]);
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferReadWrite, originInvalid, region, Float32Array.BYTES_PER_ELEMENT * width * 4);", "INVALID_VALUE");
+
+        // Testing for values of region.
+        regionInvalid = new Int32Array([-10, -50]);
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferReadWrite, origin, regionInvalid, Float32Array.BYTES_PER_ELEMENT * width * 4);", "INVALID_VALUE");
+
+        // Testing for values of destination Offset.
+        dstOffsetInvalid = (Float32Array.BYTES_PER_ELEMENT * width * height * 4) + 1;
+        shouldThrowExceptionName("wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffsetInvalid);", "INVALID_VALUE");
+
+        } catch (e) {
+            testFailed("WebCLCommandQueue :: enqueueCopyImageToBuffer() throws an exception : " + e.message);
+        }
+    
+        var script = document.createElement('script');
+        script.src = '../../resources/js-test-post.js';
+        script.type = 'text/javascript';
+
+        script.onload = function () {};
+
+        document.getElementsByTagName('head')[0].appendChild(script);
+}
+successfullyParsed = true;
+</script>
+</body>
+</html>

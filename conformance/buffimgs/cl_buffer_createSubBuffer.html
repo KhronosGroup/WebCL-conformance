@@ -1,0 +1,79 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following condition
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>WebCLBuffer createSubBuffer conformance test.</title>
+    <link rel="stylesheet" href="../../resources/js-test-style.css"/>
+    <script src="../../resources/js-test-pre.js"></script>
+    <script src="../../resources/cl_utils.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+<script>
+try {
+    debug("WebCLBuffer :: createSubBuffer test case.");
+    debug("(CLenum memFlags, CLuint origin, CLuint sizeInBytes)");
+    var origin = 0;
+    var wtu = WebCLTestUtils;
+    var webCLContext = wtu.createContext();
+    webCLBuffer = webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);
+
+    // Testing for creating sub buffer.
+    shouldBeType("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, 10);", WebCLBuffer);
+    shouldBeType("webCLBuffer.createSubBuffer(webcl.MEM_WRITE_ONLY, origin, 10);", WebCLBuffer);
+    shouldBeType("webCLBuffer.createSubBuffer(webcl.MEM_READ_WRITE, origin, 10);", WebCLBuffer);
+
+    // Testing for invalid values of origin.
+    var originInvalid = -10;
+    shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, originInvalid, 10);", "INVALID_VALUE");
+
+    // Testing for invalid values of sizeInBytes.
+    var sizeInBytesInvalid = -100;
+    shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, sizeInBytesInvalid);", "INVALID_VALUE");
+
+    // Testing invalid objects as params.
+    shouldThrowExceptionName("webCLBuffer.createSubBuffer(invalid_object, 0, 10);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, invalid_object, 10);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, invalid_object);", "INVALID_VALUE");
+
+
+    // FIXME :: To add test case verifying exception: MISALIGNED_SUB_BUFFER_OFFSET
+
+    var webCLSubBuffer1 = webCLBuffer.createSubBuffer(webcl.MEM_READ_WRITE, origin, 100);
+    shouldThrowExceptionName("webCLSubBuffer1.createSubBuffer(webcl.MEM_READ_WRITE, origin, 10);", "INVALID_MEM_OBJECT");
+
+} catch(e) {
+    testFailed("WebCLBuffer :: createSubBuffer() throws an exception : " + e.message);
+}
+notifyFinishedToHarness();
+successfullyParsed = true;
+</script>
+<script src="../../resources/js-test-post.js"></script>
+</body>
+</html>
