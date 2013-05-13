@@ -35,17 +35,6 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
-<script id="square" type="x-kernel">
-__kernel void square(
-    __global float* input,
-    __global float* output,
-    const unsigned int count)
-{
-    unsigned int i = get_global_id(0);
-    if (i < count)
-        output[i] = input[i] * input[i];
-}
-</script>
 <script>
 try {
     debug("WebCLKernel :: setArg() test case.");
@@ -53,10 +42,10 @@ try {
     var DATA_SIZE = Float32Array.BYTES_PER_ELEMENT * 1024;
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var kernelSource = wtu.getKernel("square");
+    var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_GPU);
+    var webCLPlatforms = wtu.getPlatforms();
+    var webCLDevices = wtu.getDevices(webCLPlatforms);
     webCLProgram.build(webCLDevices, "-cl-single-precision-constant");
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
 
@@ -86,18 +75,17 @@ try {
     shouldBeTrue("wtu.setArg(webCLKernel, 0, 27, WebCLKernelArgumentTypes.LOCAL_MEMORY_SIZE);");
 
     // Testing for Exception.
-    shouldThrowExceptionName("wtu.setArg(invalid_object, 1, 12);", "INVALID_KERNEL");
-    shouldThrowExceptionName("wtu.setArg(webCLKernel, invalid_object, 12);", "INVALID_ARG_INDEX");
-    shouldThrowExceptionName("wtu.setArg(webCLKernel, 1, invalid_object);", "INVALID_ARG_VALUE");
-    shouldThrowExceptionName("wtu.setArg(webCLKernel, 1, 12, invalid_object);", "INVALID_ARG_VALUE");
+    shouldThrowWebCLException("wtu.setArg(invalid_object, 1, 12);");
+    shouldThrowWebCLException("wtu.setArg(webCLKernel, invalid_object, 12);");
+    shouldThrowWebCLException("wtu.setArg(webCLKernel, 1, invalid_object);");
+    shouldThrowWebCLException("wtu.setArg(webCLKernel, 1, 12, invalid_object);");
 
     var kernelNumArgs = webCLKernel.getInfo(webcl.KERNEL_NUM_ARGS);
-    shouldThrowExceptionName("wtu.setArg(webCLKernel, (kernelNumArgs + 1), 27, WebCLKernelArgumentTypes.INT);", "INVALID_ARG_INDEX");
+    shouldThrowWebCLException("wtu.setArg(webCLKernel, (kernelNumArgs + 1), 27, WebCLKernelArgumentTypes.INT);");
 
 } catch (e) {
     testFailed("WebCLKernel :: setArg() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

@@ -35,30 +35,18 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
-<script id="square" type="x-kernel">
-__kernel void square(
-    __global float* input,
-    __global float* output,
-    const unsigned int count)
-{
-        int i = get_global_id(0);
-        if (i < count)
-            output[i] = input[i] * input[i];
-}
-</script>
 <script>
 try {
     debug("WebCLProgram :: getBuildInfo test case.");
     debug("(WebCLDevice device, CLenum name)");
 
     var wtu = WebCLTestUtils;
-    var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_GPU);
-    var webCLDevice = webCLDevices[0];
-    var kernelSource = wtu.getKernel("square");
     var webCLContext = wtu.createContext();
+    var webCLPlatforms = wtu.getPlatforms();
+    var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var webCLDevice = webCLDevices[0];
+    var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-
     wtu.build(webCLProgram, webCLDevices, "-cl-single-precision-constant");
 
     shouldBeNonNull("webCLProgram.getBuildInfo(webCLDevice, webcl.PROGRAM_BUILD_STATUS);");
@@ -66,16 +54,15 @@ try {
     shouldBe("typeof " + "webCLProgram.getBuildInfo(webCLDevice, webcl.PROGRAM_BUILD_LOG);", "'string'");
 
     // Testing for Exceptions.
-    shouldThrowExceptionName("webCLProgram.getBuildInfo(webCLDevice, null);", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLProgram.getBuildInfo(webCLDevice, null);");
 
     var webCLPlatformsNew = wtu.getPlatforms();
-    var webCLDevicesNew = wtu.getDevices(webCLPlatformsNew[0], webcl.DEVICE_TYPE_GPU);
-    shouldThrowExceptionName("webCLProgram.getBuildInfo(webCLDevicesNew[0], webcl.PROGRAM_BUILD_STATUS);", "INVALID_DEVICE");
+    var webCLDevicesNew = webCLPlatformsNew.getDevices(webcl.DEVICE_TYPE_CPU);
+    shouldThrowWebCLException("webCLProgram.getBuildInfo(webCLDevicesNew[0], webcl.PROGRAM_BUILD_STATUS);");
 
 } catch(e) {
-    testFailed("WebCLPlatforms :: getBuildInfo throws an exception : "+e.message);
+    testFailed("WebCLPlatforms :: getBuildInfo throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

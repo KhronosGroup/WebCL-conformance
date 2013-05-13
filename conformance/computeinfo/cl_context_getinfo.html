@@ -41,18 +41,16 @@ try {
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
 
-    shouldBeType("webCLContext.getInfo(webcl.CONTEXT_DEVICES)", WebCLDevice);
-    shouldBeType("webCLContext.getInfo(webcl.CONTEXT_PROPERTIES)", WebCLContext);
-    shouldBeNonNull("webCLContext.getInfo(webcl.CONTEXT_PROPERTIES)");
+    shouldBeArrayOfType("webCLContext.getInfo(webcl.CONTEXT_DEVICES)", WebCLDevice);
+    shouldBeType("webCLContext.getInfo(webcl.CONTEXT_PROPERTIES)", WebCLContextProperties);
     shouldBe("typeof " + "webCLContext.getInfo(webcl.CONTEXT_NUM_DEVICES)", "'number'");
 
-    // Testing for Exception.    
-    shouldThrowExceptionName("webCLContext.getInfo(invalid_object)", "INVALD_VALUE");
+    // Testing for Exception.
+    shouldThrowWebCLException("webCLContext.getInfo(invalid_object)");
 
 } catch (e) {
     testFailed("WebCLContext :: getInfo throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

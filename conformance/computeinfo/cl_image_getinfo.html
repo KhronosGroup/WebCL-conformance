@@ -44,34 +44,38 @@ try {
     jsInputImage.src = "../buffimgs/pebbleHalf.jpg";
     jsInputImage.onload = execute;
 } catch(e) {
-    testFailed("HTMLImage creation throws an exception : " + e.message);
-    notifyFinishedToHarness();
+    testFailed("Unable to load HTML Image element: " + e.message);
 }
+
+var wtu = WebCLTestUtils;
+var webCLContext = wtu.createContext();
+var webCLImage;
+
 function execute()
 {
     try {
         debug("WebCLImage::getInfo() test case.");
-        var wtu = WebCLTestUtils;
-        var webCLContext = wtu.createContext();
-        var webCLImage = webCLContext.createImage(webcl.MEM_READ_ONLY, jsInputImage);
+
+        webCLImage = webCLContext.createImage(webcl.MEM_READ_ONLY, jsInputImage);
         if (webCLImage instanceof WebCLImage) {
-            var webCLImageDescriptor = webCLImage.getInfo();
-            if (webCLImageDescriptor != null
-                    && webCLImageDescriptor != undefined
-                    && webCLImageDescriptor.width == jsInputImage.width
-                    && webCLImageDescriptor.height == jsInputImage.height) {
-                testPassed("getInfo :: webCLImage validated : " + webCLImageDescriptor);
-            } else
-                testFailed("getInfo :: webCLImage not validated : " + webCLImageDescriptor);
+            shouldBe("webCLImage.getInfo().width", "jsInputImage.width", true);
+            shouldBe("webCLImage.getInfo().height", "jsInputImage.height", true);
+            shouldBeType("webCLImage.getInfo()", WebCLImageDescriptor);
         } else
                 testFailed("webCLImage() is returned : " + webCLImage);
     } catch (e) {
         testFailed("WebCLImage :: getInfo throws an exception : " + e.message);
     }
-    notifyFinishedToHarness();
+
+    var script = document.createElement('script');
+    script.src = '../../resources/js-test-post.js';
+    script.type = 'text/javascript';
+
+    script.onload = function () {};
+
+    document.getElementsByTagName('head')[0].appendChild(script);
 }
 successfullyParsed = true;
 </script>
-<script src="../../resources/js-test-post.js"></script>
 </body>
 </html>

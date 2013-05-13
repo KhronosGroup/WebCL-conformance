@@ -49,12 +49,11 @@ try {
     shouldBeArrayOfType("webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE)", WebCLImageDescriptor);
 
     // Testing for Exception.
-    shouldThrowExceptionName("webCLContext.getSupportedImageFormats(invalid_object);", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLContext.getSupportedImageFormats(invalid_object);");
 
 } catch(e) {
     testFailed("WebCLContext :: getSupportedImageFormats() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

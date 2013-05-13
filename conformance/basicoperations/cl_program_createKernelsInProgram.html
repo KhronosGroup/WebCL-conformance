@@ -35,39 +35,19 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
-<script id="kernels" type="x-kernel">
-__kernel void square(
-    __global float* input,
-    __global float* output,
-    const unsigned int count)
-{
-    int i = get_global_id(0);
-    if (i < count)
-        output[i] = input[i] * input[i];
-}
-__kernel void cube(
-        __global float* input,
-        __global float* output,
-        const unsigned int count)
-{
-    int i = get_global_id(0);
-    if (i < count)
-        output[i] = input[i] * input[i] * input[i];
-}
-</script>
 <script>
 try {
     debug("WebCLProgram :: createKernelsInProgram test case.");
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var kernelSource = wtu.getKernel("kernels");
+    var kernelSource = wtu.readKernel("../../resources/kernels/kernelsForcreateKernelsInProgramAPI.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevies = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_GPU);
+    var webCLDevies = wtu.getDevices(webCLPlatforms);
 
     // Testing for Exception.
-    shouldThrowExceptionName("webCLProgram.createKernelsInProgram();", "INVALID_PROGRAM_EXECUTABLE");
+    shouldThrowWebCLException("webCLProgram.createKernelsInProgram();");
 
     wtu.build(webCLProgram, webCLDevies, "-cl-single-precision-constant");
     // Testing for createKernelsInProgram.
@@ -76,7 +56,6 @@ try {
 } catch(e) {
     testFailed("WebCLProgram :: createKernelsInProgram() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

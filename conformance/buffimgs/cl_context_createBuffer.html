@@ -56,22 +56,21 @@ try {
     shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE, hostPtr);", "WebCLBuffer");
 
     // Testing for Exceptions.
-    shouldThrowExceptionName("webCLContext.createBuffer(invalid_object, DATA_SIZE);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, invalid_object);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE, invalid_object);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, 0, hostPtr);", "INVALID_BUFFER_SIZE");
-    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, 100, new ArrayBuffer(10));", "INVALID_HOST_PTR");
+    shouldThrowWebCLException("webCLContext.createBuffer(invalid_object, DATA_SIZE);");
+    shouldThrowWebCLException("webCLContext.createBuffer(webcl.MEM_READ_WRITE, invalid_object);");
+    shouldThrowWebCLException("webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE, invalid_object);");
+    shouldThrowWebCLException("webCLContext.createBuffer(webcl.MEM_READ_WRITE, 0, hostPtr);");
+    shouldThrowWebCLException("webCLContext.createBuffer(webcl.MEM_READ_WRITE, 100, new ArrayBuffer(10));");
 
     var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_CPU);
+    var webCLDevices = wtu.getDevices(webCLPlatforms);
     var deviceMaxMem = webCLDevices[0].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE);
     var deviceMaxMemSize = deviceMaxMem + 1;
-    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_ONLY, deviceMaxMemSize, new ArrayBuffer(1024));", "INVALID_BUFFER_SIZE");
+    shouldThrowWebCLException("webCLContext.createBuffer(webcl.MEM_READ_ONLY, deviceMaxMemSize, new ArrayBuffer(1024));");
 
 } catch(e) {
     testFailed("WebCLContext :: createBuffer() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

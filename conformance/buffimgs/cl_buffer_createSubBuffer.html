@@ -51,27 +51,26 @@ try {
 
     // Testing for invalid values of origin.
     var originInvalid = -10;
-    shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, originInvalid, 10);", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, originInvalid, 10);");
 
     // Testing for invalid values of sizeInBytes.
     var sizeInBytesInvalid = -100;
-    shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, sizeInBytesInvalid);", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, sizeInBytesInvalid);");
 
     // Testing invalid objects as params.
-    shouldThrowExceptionName("webCLBuffer.createSubBuffer(invalid_object, 0, 10);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, invalid_object, 10);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, invalid_object);", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLBuffer.createSubBuffer(invalid_object, 0, 10);");
+    shouldThrowWebCLException("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, invalid_object, 10);");
+    shouldThrowWebCLException("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, invalid_object);");
 
 
     // FIXME :: To add test case verifying exception: MISALIGNED_SUB_BUFFER_OFFSET
 
     var webCLSubBuffer1 = webCLBuffer.createSubBuffer(webcl.MEM_READ_WRITE, origin, 100);
-    shouldThrowExceptionName("webCLSubBuffer1.createSubBuffer(webcl.MEM_READ_WRITE, origin, 10);", "INVALID_MEM_OBJECT");
+    shouldThrowWebCLException("webCLSubBuffer1.createSubBuffer(webcl.MEM_READ_WRITE, origin, 10);");
 
 } catch(e) {
     testFailed("WebCLBuffer :: createSubBuffer() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

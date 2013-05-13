@@ -35,17 +35,6 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
-<script id="square" type="x-kernel">
-__kernel void square(
-    __global float* input,
-    __global float* output,
-    const unsigned int count)
-{
-    unsigned  int i = get_global_id(0);
-    if (i < count)
-        output[i] = input[i] * input[i];
-}
-</script>
 <script>
 try {
     debug("WebCLEvent :: getProfilingInfo test case.");
@@ -53,17 +42,17 @@ try {
 
     var wtu = WebCLTestUtils;
     var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_GPU);
+    var webCLDevices = wtu.getDevices(webCLPlatforms);
     var webCLContext = wtu.createContext();
     var data = new Float32Array(SIZE);
     var count = SIZE;
     for (var i = 0; i < count; i++) {
         data[i] = Math.random();
     }
+    var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
+    var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     var webCLCommandQueue = webCLContext.createCommandQueue(webCLDevices[0], webcl.QUEUE_PROFILING_ENABLE);
     var webCLEvent = wtu.createEvent(webCLContext);
-    var kernelSource = wtu.getKernel("square");
-    var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     wtu.build(webCLProgram, webCLDevices, "-cl-single-precision-constant");
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
     var workGroupSize = webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
@@ -88,19 +77,18 @@ try {
     shouldBe("typeof " + "webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_END);", "'number'");
 
     // Testing for Exceptions.
-    shouldThrowExceptionName("webCLEvent.getProfilingInfo(invalid_object);", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLEvent.getProfilingInfo(invalid_object);");
 
     var webCLCommandQueue2 = webCLContext.createCommandQueue(webCLDevices[0], webcl.QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE);
     wtu.enqueueNDRangeKernel(webCLCommandQueue2, webCLKernel, globalWorkOffset, globalWorkSize, localWorkSize);
-    shouldThrowExceptionName("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);", "PROFILING_INFO_NOT_AVAILABLE");
+    shouldThrowWebCLException("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);");
 
     webCLEvent.setUserEventStatus(invalid_object);
-    shouldThrowExceptionName("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);", "PROFILING_INFO_NOT_AVAILABLE");
+    shouldThrowWebCLException("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);");
 
 } catch(e) {
     testFailed("WebCLEvent :: getProfilingInfo() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

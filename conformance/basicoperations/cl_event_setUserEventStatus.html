@@ -47,12 +47,11 @@ try {
     shouldBeUndefined("webCLEvent.setUserEventStatus(webcl.COMPLETE);");
 
     // Testing for Exception.
-    shouldThrowExceptionName("webCLEvent.setUserEventStatus(invalid_object);", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLEvent.setUserEventStatus(invalid_object);");
 
 } catch(e) {
     testFailed("WebCLEvent :: setUserEventStatus throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

@@ -101,7 +101,9 @@
     padding-left: 1em;
   }
 </style>
+
 <script type="text/javascript" src="resources/webcl-test-harness.js"></script>
+<script type="text/javascript" src="resources/cl_global.js"></script>
 <script>
 "use strict";
 var CONFORMANCE_TEST_VERSION = "Working Draft";
@@ -122,15 +124,12 @@ function start() {
 
   function createWebCLContext()
   {
-	var context = null;
-	if(typeof(webcl) === "undefined") {
-		console.error("WebCL compute context is yet to be defined");
-	}
-	try {        
-		context = self.webcl;
-	} catch(e) {
-	}
-	return context;
+    var context = self.webcl;
+    if(typeof(webcl) === "undefined" || !context) {
+        console.error("WebCL compute context is yet to be defined");
+        throw { name : "WebCLException", message : "WebCL compute context is yet to be defined."};
+    }
+    return context;
   }
 
   var reportType = WebCLTestHarnessModule.TestHarness.reportType;
@@ -412,12 +411,7 @@ function start() {
     this.resultElem.appendChild(this.root.elem);
     this.callbacks = { };
 
-    if (ctx) {
-	    // TODO Check the Vendor/Ver Info
-		//this.contextInfo["VENDOR"] = ctx.getParameter(ctx.VENDOR);
-		//this.contextInfo["VERSION"] = ctx.getParameter(ctx.VERSION);
-    }
-  };
+};
 
   Reporter.prototype.enableTest = function(name) {
     this.root.enableTest(name);
@@ -505,8 +499,6 @@ function start() {
       tx += "\n";
       tx += "-------------------\n\n";
       tx += "User Agent: " + (navigator.userAgent ? navigator.userAgent : "(navigator.userAgent is null)") + "\n";
-      //tx += "WebCL VENDOR: " + this.contextInfo["VENDOR"] + "\n";
-      //tx += "WebCL VERSION: " + this.contextInfo["VERSION"] + "\n";    
       tx += "\n";
       tx += "-------------------\n\n";
       tx += "Test Summary (" + totalTests + " total tests):\n";
@@ -773,9 +765,97 @@ function start() {
     reporter.postResultsToServer("Browser does not appear to support WebCL");
   }
 }
+
+var webCLPlatforms;
+var webCLDevices;
+function initCL() {
+    // Fetch available platform and populate. By default, 0th platform is selected.
+    var option = document.createElement("option");
+    var platforms = document.getElementById("platforms");
+    webCLPlatforms = webcl.getPlatforms();
+    for (var i = 0; i < webCLPlatforms.length ; i++) {
+        platforms.options[platforms.options.length] = new Option("Platform" + (i + 1), i);
+    }
+    platforms[0].selected;
+}
+
+var getDeviceType = function(webCLDevices) {
+    switch (webCLDevices.getInfo(webcl.DEVICE_TYPE)) {
+        case webcl.DEVICE_TYPE_CPU:
+            return 'CPU';
+        case webcl.DEVICE_TYPE_GPU:
+            return 'GPU';
+        case webcl.DEVICE_TYPE_ACCELERATOR:
+            return 'ACCELERATOR';
+        default:
+            return 'undefined';
+    }
+}
+
+function displayDevices() {
+    // Fetch the selected platform.
+    document.getElementById("devicesSpan").style.display = 'block';
+    document.getElementById("platforms").disabled = true;
+    var webCLPlatformIndex = document.getElementById('platforms').options[document.getElementById('platforms').selectedIndex].value;
+    var platform = webCLPlatforms[webCLPlatformIndex];
+    var webCLGLObject = CLGlobalVariables.getInstance();
+    webCLGLObject.setwebCLPlatform(platform);
+    
+    // Fetch available devices for selected platform and populate.
+    // FIXME :: This should be DEVICE_TYPE_ALL as mac is not supporting this.
+    var devices = document.getElementById("devices");
+    webCLDevices = platform.getDevices(webcl.DEVICE_TYPE_CPU);
+    var webCLDevicesGPU = platform.getDevices(webcl.DEVICE_TYPE_GPU);
+    webCLDevices.push(webCLDevicesGPU[0]);
+
+    if (webCLDevices != null) {
+        for (var j = 0; j < webCLDevices.length ; j++) {
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = j;
+            devices.appendChild(checkbox);
+            var label = document.createElement('label');
+            label.appendChild(document.createTextNode((j+1) + ". Device " + getDeviceType(webCLDevices[j])));
+            devices.appendChild(label);
+            devices.appendChild(document.createElement("br"));
+        }
+        devices[0].checked="checked";
+    } else {
+        console.error("Failed in fetching devices.");
+        return 0;
+    }
+}
+
+function getTestCases() {
+    // Fetch selected device(s) and verify.
+    var webCLGLObject = CLGlobalVariables.getInstance();
+    var selectedPlatform = webCLGLObject.getwebCLPlatform();
+
+    var selectedDevice = [];
+    var devices = document.getElementById("devices");
+    for (var j = 0; j < webCLDevices.length; j++) {
+        if (devices[j].checked)
+            selectedDevice.push(webCLDevices[j]);
+    }
+
+    // Set selected devices.
+    if (typeof(selectedDevice) == 'object' && selectedDevice.length) {
+        webCLGLObject.setwebCLDevices(selectedDevice);
+    } else {
+        console.error("Failed in selecting device(s).");
+        return 0;
+    }
+
+    // Display test cases.
+    document.getElementById("runTestsButton").disable = false;
+    document.getElementById("testResultsHTML").disbale = false;
+    document.getElementById("platformDevices").style.display = 'none';
+    start();
+}
+
 </script>
 </head>
-<body onload="start()">
+<body onload="initCL()">
 
 <div id="testlist">
 
@@ -791,6 +871,24 @@ function start() {
 
 <div id="header">
 
+    <div id="platformDevices">
+        <div id="platformDiv">
+            <span id="platformSpan">Select platform: <select autofocus="true" required="true" onChange="displayDevices(); return 0;" name="platforms" id="platforms"></span>
+                <option value="selectPlatform"> Select Platform</option>
+            </select>
+        </div>
+
+        <div id="devicesDiv">
+            <span style="display: none;" id="devicesSpan">Select device(s):<form name="devices" id="devices" disabled=true></span>
+            </form>
+        </div>
+
+        <div id="submitDiv">
+            <span><input type="button" name="submit" value="submit" onClick="getTestCases(); return 0;"></span>
+            </input>
+        </div>
+    </div>
+
 <table border="2">
   <tr style="height: 300px;">
     <td>
@@ -804,7 +902,7 @@ function start() {
               <span id="testVersion">
               </span>
               <br/>
-              <input type="button" value="run tests" id="runTestsButton"/>
+              <input type="button" value="run tests" id="runTestsButton" disabled=true/>
               <br/>
               <input type="button" style="visibility: hidden;" value="display text summary" id="showTextSummary"/>
               <div id="nowebcl" class="nowebcl" style="display: none;">
@@ -814,7 +912,9 @@ function start() {
           </td>
         </tr>
         <tr>
-          <td>
+        <tr>
+
+         <td>
             <div id="loading">
               Loading Tests...
             </div>

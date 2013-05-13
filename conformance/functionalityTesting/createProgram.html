@@ -1,0 +1,125 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following conditions
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>createProgram conformance test.</title>
+    <link rel="stylesheet" href="../../resources/js-test-style.css"/>
+    <script src="../../resources/js-test-pre.js"></script>
+    <script src="../../resources/cl_utils.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+
+<script>
+
+var getProgram = function (webCLContext, kernelSource) {
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+
+    if (!(webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) === webCLContext)) {
+        console.log("webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) === webCLContext is false.");
+        return null;
+    }
+
+    var associatedDevices = webCLProgram.getInfo(webcl.PROGRAM_DEVICES);
+    if (!associatedDevices && !associatedDevices.length)
+        return null;
+    else {
+        for (i = 0; i < associatedDevices.length; i++) {
+            if (typeof(associatedDevices[i]) != WebCLDevice)
+                return null;
+        }
+    }
+
+    if (!(typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) === 'number')) {
+        console.log("typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) === 'number' is false.");
+        return null;
+    }
+    if (!(webCLProgram.getInfo(webcl.PROGRAM_SOURCE) === kernelSource)) {
+        console.log("webCLProgram.getInfo(webcl.PROGRAM_SOURCE) === \"kernelSource\" is false");
+        return null;
+    }
+
+    wtu.build(webCLProgram, webCLDevices);
+    return webCLProgram;
+}
+
+try {
+
+    debug("createProgram functionality test case.");
+
+    var wtu = WebCLTestUtils;
+    var webCLContext = wtu.createContext();
+    var webCLPlatforms = wtu.getPlatforms();
+    var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+    var webCLProgram, kernelSource, webCLKernel;
+    var correct, input, output, msg, resultObject;
+    var count = SIZE;
+
+    /*
+    *   Building for "kernel : sample_test_single_line"
+    *   Rounds off float to an int.
+    */
+    kernelSource = wtu.readKernel("../../resources/kernels/sample_test_single_line.cl");
+    webCLProgram = getProgram(webCLContext, kernelSource);
+    if (webCLProgram)
+        testPassed("Test Passed for building for kernel: \"sample_test_single_line\".");
+    else
+        testFailed("Test Failed for building for kernel: \"sample_test_single_line\".");
+
+    /*
+    *   Building for "kernel : multiple_kernels"
+    *   Consists of 2 kernels: converting float to int and int to float.
+    */
+    kernelSource = wtu.readKernel("../../resources/kernels/multiple_kernels.cl");
+    webCLProgram = getProgram(webCLContext, kernelSource);
+    if (webCLProgram)
+        testPassed("Test Passed for building for kernel: \"multiple_kernels\".");
+    else
+        testFailed("Test Failed for building for kernel: \"multiple_kernels\".");
+
+    /*
+    *   Building for "kernel : sample_kernel_code_bad"
+    *   Kernel code with comment within it. It is expected to fail.
+    */
+    kernelSource = wtu.readKernel("../../resources/kernels/sample_kernel_code_bad.cl");
+    webCLProgram = getProgram(webCLContext, kernelSource);
+    if (webCLProgram)
+        testFailed("Test Failed for building for kernel: \"sample_kernel_code_bad\".");
+    else
+        testPassed("Test passed for building for kernel: \"sample_kernel_code_bad\".");
+
+} catch(e) {
+    testFailed("createProgram throws an exception : " + e.message);
+}
+successfullyParsed = true;
+</script>
+<script src="../../resources/js-test-post.js"></script>
+</body>
+</html>

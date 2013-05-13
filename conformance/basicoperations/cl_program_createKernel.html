@@ -35,17 +35,6 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
-<script id="square" type="x-kernel">
-__kernel void square(
-    __global float* input,
-    __global float* output,
-    const unsigned int count)
-{
-    int i = get_global_id(0);
-    if (i < count)
-        output[i] = input[i] * input[i];
-}
-</script>
 <script>
 try {
     debug("WebCLProgram :: createKernel test case.");
@@ -54,26 +43,24 @@ try {
     var wtu = WebCLTestUtils;
     var webCLPlatforms = wtu.getPlatforms();
     var webCLContext = wtu.createContext();
-    var kernelSource = wtu.getKernel("square");
+    var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webCLDevices = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_GPU);
+    var webCLDevices = wtu.getDevices(webCLPlatforms);
 
     // Testing for Exception : INVALID_PROGRAM_EXECUTABLE .
-    shouldThrowExceptionName("webCLProgram.createKernel(\"square\");", "INVALID_PROGRAM_EXECUTABLE ");
+    shouldThrowWebCLException("webCLProgram.createKernel(\"square\");");
 
     webCLProgram.build(webCLDevices);
     // Testing for create Kernel.
     shouldBeType("webCLProgram.createKernel(\"square\");", "WebCLKernel");
 
     // Testing for Exception.
-    shouldThrowExceptionName("webCLProgram.createKernel(\"cube\");", "INVALID_KERNEL_NAME");
-    shouldThrowExceptionName("webCLProgram.createKernel(invalid_object);", "INVALID_KERNEL_NAME");
-    shouldThrowExceptionName("webCLProgram.createKernel();", "INVALID_KERNEL_NAME");
+    shouldThrowWebCLException("webCLProgram.createKernel(\"cube\");");
+    shouldThrowWebCLException("webCLProgram.createKernel(invalid_object);");
 
 } catch(e) {
     testFailed("WebCLProgram :: createKernel() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

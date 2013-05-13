@@ -47,12 +47,11 @@ try {
     shouldBeNonNull("webCLCommandQueue.getInfo(webcl.QUEUE_PROPERTIES)");
 
     // Testing for exceptions.
-    shouldThrowExceptionName("webCLCommandQueue.getInfo(invalid_object)", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLCommandQueue.getInfo(invalid_object)");
 
 } catch (e) {
     testFailed("WebCLCommandQueue :: getInfo throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

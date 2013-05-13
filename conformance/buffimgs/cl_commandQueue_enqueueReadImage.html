@@ -72,33 +72,33 @@ try {
 
     // Testing for values of Image Offsets.
     var originInvalid = new Int32Array([imageWidth + 1, imageHeight + 1]);
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, originInvalid, region, 0, data);", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, originInvalid, region, 0, data);");
 
     // Testing for values of rectangular region.
     var regionInvalid = new Int32Array([imageWidth + 1, imageHeight + 1]);
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, regionInvalid, 0, data);", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, regionInvalid, 0, data);");
 
-    // Testing for values of hostPointer.
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandQueue, webCLImageRead, true, origin, region, -1, data);", "INVALID_VALUE");
+    // Testing for valid values of hostRowPitch.
+    var pitchValid = imageWidth * Float32Array.BYTES_PER_ELEMENT;
+    shouldBeTrue("wtu.enqueueReadImage(webCLCommandQueue, webCLImageRead, true, origin, region, 100, data);");
 
     // Testing invalid objects as params.
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandQueue, invalid_object, true, origin, region, 0, data);", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, invalid_object, origin, region, 0, data);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, invalid_object, region, 0, data);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, invalid_object, 0, data);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, invalid_object, data);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, 0, invalid_object);", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.enqueueReadImage(webCLCommandQueue, invalid_object, true, origin, region, 0, data);");
+    shouldThrowWebCLException("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, invalid_object, origin, region, 0, data);");
+    shouldThrowWebCLException("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, invalid_object, region, 0, data);");
+    shouldThrowWebCLException("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, invalid_object, 0, data);");
+    shouldThrowWebCLException("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, 0, invalid_object);");
 
     // Testing for EXCEPTIONS
     var webCLContext2 = wtu.createContext();
     var webCLImage2 = webCLContext2.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorObject);
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandQueue, webCLImage2, true, origin, region, 0, data);", "INVALID_CONTEXT");
+    shouldThrowWebCLException("wtu.enqueueReadImage(webCLCommandQueue, webCLImage2, true, origin, region, 0, data);");
 
     var webCLCommandqueue2 = wtu.createCommandQueue(webCLContext2);
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandqueue2, webCLImageReadWrite, true, origin, region, 0, data);", "INVALID_CONTEXT");
+    shouldThrowWebCLException("wtu.enqueueReadImage(webCLCommandqueue2, webCLImageReadWrite, true, origin, region, 0, data);");
 
     var hostRowPitchInvalid = -1;
-    shouldThrowExceptionName("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, hostRowPitchInvalid, data);", "INVALID_CONTEXT");
+    shouldThrowWebCLException("wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, hostRowPitchInvalid, data);");
 
     // FIXME :: Need to add test cases passing event parameters for INVALID_EVENT_WAIT_LIST and EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST
     // FIXME Need to add test case for INVALID_IMAGE_SIZE.
@@ -106,7 +106,6 @@ try {
 } catch (e) {
     testFailed("WebCLCommandQueue :: enqueueReadImage() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

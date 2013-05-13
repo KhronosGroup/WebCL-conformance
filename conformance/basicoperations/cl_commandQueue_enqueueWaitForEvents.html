@@ -46,15 +46,14 @@ try {
 
     // Testing for EXCEPTIONS
     var webCLCommandqueue2 = wtu.createCommandQueue(webCLContext);
-    shouldThrowExceptionName("webCLCommandQueue2.enqueueWaitForEvents(webCLEvent);", "INVALID_CONTEXT");
+    shouldThrowWebCLException("webCLCommandQueue2.enqueueWaitForEvents(webCLEvent);");
 
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents();", "INVALID_EVENT_WAIT_LIST");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents(invalid_object);", "INVALID_EVENT_WAIT_LIST");
+    shouldThrowWebCLException("webCLCommandQueue.enqueueWaitForEvents();");
+    shouldThrowWebCLException("webCLCommandQueue.enqueueWaitForEvents(invalid_object);");
 
 } catch (e) {
     testFailed("WebCLCommandQueue :: enqueueWaitForEvents() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

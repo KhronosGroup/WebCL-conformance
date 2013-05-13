@@ -35,79 +35,74 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
-<script id="square" type="x-kernel">
-__kernel void square(
-    __global float* input,
-    __global float* output,
-    const unsigned int count)
-{
-    int i = get_global_id(0);
-    if(i < count)
-        output[i] = input[i] * input[i];
-}
-</script>
 <script>
-function callback(event, userData) {
+function callback(event, userData)
+{
     testPassed("event status : " + event.status + "UserData = " + userData);
-    notifyFinishedToHarness();
 }
 
 try {
     debug("WebCLProgram :: build() test case.\n");
     debug("(WebCLDevice[] devices, optional DOMString? options, optional WebCLCallback whenFinished, optional any userdata)\n");
     var wtu = WebCLTestUtils;
-    var webCLContext = wtu.createContext();
-    var kernelSource = wtu.getKernel("square");
-    var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webCLPlatforms = wtu.getPlatforms();
+    var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
+    var webCLPlatform = wtu.getPlatforms();
+    var webCLDevice, webCLContext, webCLProgram;
 
+    var buildProgram = function (webCLPlatform, type) {
+        try {
+        webCLDevice = webCLPlatform.getDevices(type);
+        webCLContext = webcl.createContext({platform:webCLPlatform, devices:webCLDevice, deviceType:type, shareGroup:null, hint:null});
+        webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+        shouldBeUndefined("webCLProgram.build(webCLDevice);");
+        } catch (e) {
+            testFailed("webCLProgram.build failed with device type " + type +" :" + e.message);
+        }
+    }
 
-    var webCLDeviceGPU = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_GPU);
-    shouldBeTrue("wtu.build(webCLProgram, webCLDeviceGPU);");
-    var webCLDeviceALL = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_ALL);
-    shouldBeTrue("wtu.build(webCLProgram, webCLDeviceALL);");
-    var webCLDeviceACCELERATOR = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_ACCELERATOR);
-    shouldBeTrue("wtu.build(webCLProgram, webCLDeviceACCELERATOR);");
-    var webCLDeviceDEFAULT = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_DEFAULT);
-    shouldBeTrue("wtu.build(webCLProgram, webCLDeviceDEFAULT);");
-    var webCLDeviceCPU = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_CPU);
-    shouldBeTrue("wtu.build(webCLProgram, webCLDeviceCPU);");
-    debug("");
+    buildProgram(webCLPlatform, webcl.DEVICE_TYPE_CPU);
+    buildProgram(webCLPlatform, webcl.DEVICE_TYPE_GPU);
+    buildProgram(webCLPlatform, webcl.DEVICE_TYPE_ALL);
+    buildProgram(webCLPlatform, webcl.DEVICE_TYPE_ACCELERATOR);
+    buildProgram(webCLPlatform, webcl.DEVICE_TYPE_DEFAULT);
 
     // Testing for build-options.
-    var webCLDevice = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_CPU);
+    var webCLDevice = wtu.getDevices(webCLPlatform);
+    webCLContext = wtu.createContext();
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
 
-    shouldBeTrue("wtu.build(webCLProgram, webCLDevice, \"-cl-single-precision-constant\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\");");
 
-    shouldBeTrue("wtu.build(webCLProgram, webCLDevice, \"-cl-denorms-are-zero\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-denorms-are-zero\");");
 
-    shouldBeTrue("wtu.build(webCLProgram, webCLDevice, \"-cl-opt-disable\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-opt-disable\");");
 
-    shouldBeTrue("wtu.build(webCLProgram, webCLDevice, \"-cl-mad-enable\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-mad-enable\");");
 
-    shouldBeTrue("wtu.build(webCLProgram, webCLDevice, \"-cl-no-signed-zeroes\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-no-signed-zeros\");");
 
-    shouldBeTrue("wtu.build(webCLProgram, webCLDevice, \"-cl-unsafe-math-optimizations\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-unsafe-math-optimizations\");");
 
-    shouldBeTrue("wtu.build(webCLProgram, webCLDevice, \"-cl-finite-math-only\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-finite-math-only\");");
 
-    shouldBeTrue("wtu.build(webCLProgram, webCLDevice, \"-cl-fast-relaxed-math\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-fast-relaxed-math\");");
 
-    shouldBeTrue("wtu.build(webCLProgram, webCLDevice, \"-cl-strict-aliasing\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-strict-aliasing\");");
 
     // Testing with callback and userData.
-    shouldBeTrue("wtu.build(webCLProgram, webCLDevice, \"-cl-single-precision-constant\", callback);");
-    shouldBeTrue("wtu.build(webCLProgram, webCLDevice, \"-cl-single-precision-constant\", callback, \"test\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\", callback);");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\", callback, \"test\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\", null, \"test\");");
 
     // Testing for Exception.
-    shouldThrowExceptionName("wtu.build(webCLProgram, invalid_object);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.build(webCLProgram, webCLDevice, invalid_object);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.build(webCLProgram, webCLDevice, \"-cl-no-signed-zeroes\", invalid_object);", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLProgram.build(invalid_object);");
+    shouldThrowWebCLException("webCLProgram.build(webCLDevice, invalid_object);");
+    shouldThrowWebCLException("webCLProgram.build(webCLDevice, \"-cl-no-signed-zeroes\", invalid_object);");
+    shouldThrowWebCLException("webCLProgram.build(webCLDevice, \"-cl-no-signed-zeroes\", callback, invalid_object);");
 
 } catch (e) {
     testFailed("WebCLProgram :: build () throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

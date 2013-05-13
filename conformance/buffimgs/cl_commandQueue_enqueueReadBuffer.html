@@ -55,8 +55,8 @@ try {
 
     // MEM_WRITE_ONLY Buffers.
     var webCLBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
-    shouldThrowExceptionName("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWrite, true, bufferOffset, numberBytes, arrBuffer)", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWrite, false, bufferOffset, numberBytes, arrBuffer)", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWrite, true, bufferOffset, numberBytes, arrBuffer)");
+    shouldThrowWebCLException("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWrite, false, bufferOffset, numberBytes, arrBuffer)");
 
     // MEM_READ_WRITE Buffers.
     var webCLBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);
@@ -66,28 +66,27 @@ try {
     // FIXME :: Need to add test cases passing event parameters.
 
     // Testing invalid objects as params.
-    shouldThrowExceptionName("wtu.enqueueReadBuffer(webCLCommandQueue, invalid_object, true, bufferOffset, numberBytes, arrBuffer);", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, invalid_object, bufferOffset, numberBytes, arrBuffer);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, invalid_object, numberBytes, arrBuffer);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffset, invalid_object, arrBuffer);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffset, numberBytes, invalid_object);", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.enqueueReadBuffer(webCLCommandQueue, invalid_object, true, bufferOffset, numberBytes, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, invalid_object, bufferOffset, numberBytes, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, invalid_object, numberBytes, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffset, invalid_object, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffset, numberBytes, invalid_object);");
 
     // Testing for invalid value of bufferOffset.
-    var bufferOffsetInvalid = -1;
-    shouldThrowExceptionName("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffsetInvalid, numberBytes, arrBuffer);", "INVALID_VALUE");
+    var bufferOffsetInvalid = DATA_SIZE + 1 ;
+    shouldThrowWebCLException("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffsetInvalid, numberBytes, arrBuffer);");
 
     // Testing for invalid value of numBytes.
     var numberBytesInvalid = DATA_SIZE + 1;
-    shouldThrowExceptionName("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffset, numberBytesInvalid, arrBuffer);", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffset, numberBytesInvalid, arrBuffer);");
 
     // Testing for invalid value of host Pointer.
     var arrBufferInvalid = 10;
-    shouldThrowExceptionName("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffset, numberBytes, arrBufferInvalid);", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffset, numberBytes, arrBufferInvalid);");
 
 } catch(e) {
     testFailed("WebCLCommandQueue :: enqueueReadBuffer() throws an exception:" + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

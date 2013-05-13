@@ -21,6 +21,6 @@
 ** MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
 */
 
-shouldBeTrue("successfullyParsed");
+shouldBe("successfullyParsed", "true", true);
 debug('<br /><span class="pass">TEST COMPLETE</span>');
 notifyFinishedToHarness()

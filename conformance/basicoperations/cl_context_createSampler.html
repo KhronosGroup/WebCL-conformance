@@ -74,18 +74,17 @@ try {
     shouldBeType("webCLContext.createSampler(false, webcl.ADDRESS_NONE, webcl.FILTER_LINEAR);", "WebCLSampler");
 
     // Testing for Exceptions.
-    shouldThrowExceptionName("webCLContext.createSampler(invalid_object, webcl.ADDRESS_NONE, webcl.FILTER_LINEAR);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createSampler(true, invalid_object, webcl.FILTER_LINEAR);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createSampler(true, webcl.ADDRESS_NONE, invalid_object);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createSampler(invalid_object, invalid_object, webcl.FILTER_LINEAR);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createSampler(invalid_object, webcl.ADDRESS_NONE, invalid_object);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createSampler(true, invalid_object, invalid_object);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createSampler(invalid_object, invalid_object, invalid_object);", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLContext.createSampler(invalid_object, webcl.ADDRESS_NONE, webcl.FILTER_LINEAR);");
+    shouldThrowWebCLException("webCLContext.createSampler(true, invalid_object, webcl.FILTER_LINEAR);");
+    shouldThrowWebCLException("webCLContext.createSampler(true, webcl.ADDRESS_NONE, invalid_object);");
+    shouldThrowWebCLException("webCLContext.createSampler(invalid_object, invalid_object, webcl.FILTER_LINEAR);");
+    shouldThrowWebCLException("webCLContext.createSampler(invalid_object, webcl.ADDRESS_NONE, invalid_object);");
+    shouldThrowWebCLException("webCLContext.createSampler(true, invalid_object, invalid_object);");
+    shouldThrowWebCLException("webCLContext.createSampler(invalid_object, invalid_object, invalid_object);");
 
 } catch(e) {
     testFailed("WebCLContext :: createSampler() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

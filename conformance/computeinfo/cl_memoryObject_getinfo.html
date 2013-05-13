@@ -46,6 +46,7 @@ try {
         var subBuffer = webCLMemoryObject.createSubBuffer(webcl.MEM_READ_ONLY, 0, Float32Array.BYTES_PER_ELEMENT * 528);
 
         shouldBeType("subBuffer.getInfo(webcl.MEM_ASSOCIATED_MEMOBJECT)", WebCLMemoryObject);
+        shouldBeNull("webCLMemoryObject.getInfo(webcl.MEM_ASSOCIATED_MEMOBJECT)");
         shouldBeType("webCLMemoryObject.getInfo(webcl.MEM_CONTEXT)", WebCLContext);
         shouldBeNonNull("webCLMemoryObject.getInfo(webcl.MEM_TYPE)");
         shouldBeNonNull("webCLMemoryObject.getInfo(webcl.MEM_FLAGS)");
@@ -53,14 +54,13 @@ try {
         shouldBe("typeof " + "webCLMemoryObject.getInfo(webcl.MEM_OFFSET)", "'number'");
 
         // Testing for Exception.
-        shouldThrowExceptionName("webCLMemoryObject.getInfo(invalid_object)", "INVALID_VALUE");
+        shouldThrowWebCLException("webCLMemoryObject.getInfo(invalid_object)");
 
     } else
         testFailed("createBuffer() did not return WebCLMemoryObject.");
 } catch(e) {
     testFailed("WebCLMemoryObject :: getInfo throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

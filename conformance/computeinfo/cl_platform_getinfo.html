@@ -40,18 +40,16 @@ try {
     debug("WebCLPlatform getInfo Test case.");
     var wtu = WebCLTestUtils;
     var webCLPlatforms = wtu.getPlatforms();
-    for (var i = 0; i < webCLPlatforms.length; i++) {
-        shouldBeEqualToString("webCLPlatforms[i].getInfo(webcl.PLATFORM_PROFILE)", "WEBCL_PROFILE");
-        shouldBeEqualToString("webCLPlatforms[i].getInfo(webcl.PLATFORM_VERSION)", "WebCL 1.0");
 
-        // Testing for exception.
-        shouldThrowExceptionName("webCLPlatforms[i].getInfo(invalid_object)", "INVALID_VALUE");
-    }
+    shouldBeEqualToString("webCLPlatforms.getInfo(webcl.PLATFORM_PROFILE)", "WEBCL_PROFILE");
+    shouldBeEqualToString("webCLPlatforms.getInfo(webcl.PLATFORM_VERSION)", "WebCL 1.0");
+
+    // Testing for exception.
+    shouldThrowWebCLException("webCLPlatforms.getInfo(invalid_object)");
 
 } catch(e) {
     testFailed("WebCLPlatform :: getInfo throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

@@ -45,7 +45,6 @@ try {
     jsInputImage.onload = execute;
 } catch(e) {
     testFailed("Unable to load HTML Image element : " + e.message);
-    notifyFinishedToHarness();
 }
 
 var wtu = WebCLTestUtils;
@@ -58,8 +57,6 @@ var dstOrigin = new Int32Array([12, 25]);
 var region = new Int32Array([10, 20]);
 var imageWidth = jsInputImage.width;
 var imageHeight = jsInputImage.height;
-
-
 
 function execute()
 {
@@ -93,30 +90,30 @@ function execute()
 
         // Testing for values of Image Offsets.
         srcOriginInvalid = new Int32Array([imageWidth + 1, imageHeight + 1]);
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue, srcImageRead, dstImageWrite, srcOriginInvalid, dstOrigin, region);", "INVALID_VALUE");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue, srcImageRead, dstImageWrite, srcOriginInvalid, dstOrigin, region);");
         dstOriginInvalid = new Int32Array([imageWidth + 1, imageHeight + 1]);
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue, srcImageRead, dstImageWrite, srcOrigin, dstOriginInvalid, region);", "INVALID_VALUE");
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue, srcImageRead, dstImageWrite, srcOriginInvalid, dstOriginInvalid, region);", "INVALID_VALUE");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue, srcImageRead, dstImageWrite, srcOrigin, dstOriginInvalid, region);");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue, srcImageRead, dstImageWrite, srcOriginInvalid, dstOriginInvalid, region);");
 
         // Testing for values of rectangular region being written.
         regionInvalid = new Int32Array([imageWidth + 1, imageHeight + 1]);
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, regionInvalid);", "INVALID_VALUE");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, regionInvalid);");
 
         // Testing invalid objects as params.
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue, invalid_object, dstImageReadWrite, srcOrigin, dstOrigin, region);", "INVALID_MEM_OBJECT");
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, invalid_object, srcOrigin, dstOrigin, region);", "INVALID_MEM_OBJECT");
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, invalid_object, dstOrigin, region);", "INVALID_VALUE");
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, srcOrigin, invalid_object, region);", "INVALID_VALUE");
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, invalid_object);", "INVALID_VALUE");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue, invalid_object, dstImageReadWrite, srcOrigin, dstOrigin, region);");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, invalid_object, srcOrigin, dstOrigin, region);");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, invalid_object, dstOrigin, region);");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, srcOrigin, invalid_object, region);");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, invalid_object);");
 
         // Testing for EXCEPTIONS
         webCLContext2 = wtu.createContext();
         webCLImage2 = webCLContext2.createImage(webcl.MEM_READ_WRITE, jsInputImage);
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue, webCLImage2, dstImageReadWrite, srcOrigin, dstOrigin, region);", "INVALID_CONTEXT");
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, webCLImage2, srcOrigin, dstOrigin, region);", "INVALID_CONTEXT");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue, webCLImage2, dstImageReadWrite, srcOrigin, dstOrigin, region);");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, webCLImage2, srcOrigin, dstOrigin, region);");
 
         webCLCommandqueue2 = wtu.createCommandQueue(webCLContext2);
-        shouldThrowExceptionName("wtu.enqueueCopyImage(webCLCommandQueue2, srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region);", "INVALID_CONTEXT");
+        shouldThrowWebCLException("wtu.enqueueCopyImage(webCLCommandQueue2, srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region);");
 
     } catch (e) {
         testFailed("WebCLCommandQueue :: enqueueCopyImage() throws an exception : " + e.message);

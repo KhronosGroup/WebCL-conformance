@@ -61,8 +61,8 @@ try {
 
     // Testing with buffer as MEM_READ_ONLY memory object.
     var webCLBufferRead = webCLContext.createBuffer(webcl.MEM_READ_ONLY, BUFFER_SIZE);
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBufferRead, true, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);", "iNVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBufferRead, true, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBufferRead, true, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBufferRead, true, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);");
 
     // Testing with buffer as MEM_WRITE_ONLY memory object.
     var webCLBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
@@ -73,35 +73,34 @@ try {
 
     // Testing for values of Buffer Origin.
     var OriginInvalid = new Int32Array([-12, -25, 0]);
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, OriginInvalid, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, OriginInvalid, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);");
 
     // Testing for values of rectangular region being written.
     var regionInvalid = new Int32Array([-10, -20, 1]);
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, regionInvalid, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, regionInvalid, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);");
 
     // FIXME :: Add test cases for invalid values of Buffer row pitch, Buffer slice pitch, Host row pitch and Host source pitch.
 
     // Testing invalid objects as params.
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, invalid_object, true, webCLBufferOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, invalid_object, webCLOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, invalid_object, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, invalid_object, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, region, invalid_object, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, region, bufferRowPitch, invalid_object, hostRowPitch, hostSlicePitch, arrBuffer);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, region, bufferRowPitch, bufferSlicePitch, invalid_object, hostSlicePitch, arrBuffer);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, region, invalid_object, bufferRowPitch, bufferSlicePitch, hostRowPitch, invalid_object, arrBuffer);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, region, invalid_object, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, invalid_object);", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, invalid_object, true, webCLBufferOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, invalid_object, webCLOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, invalid_object, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, invalid_object, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, region, invalid_object, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, region, bufferRowPitch, invalid_object, hostRowPitch, hostSlicePitch, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, region, bufferRowPitch, bufferSlicePitch, invalid_object, hostSlicePitch, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, region, invalid_object, bufferRowPitch, bufferSlicePitch, hostRowPitch, invalid_object, arrBuffer);");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandQueue, webCLBuffer, true, webCLBufferOrigin, region, invalid_object, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, invalid_object);");
 
     // FIXME :: Need to add test cases passing event parameters.
 
     var webCLContext2 = wtu.createContext();
     var webCLCommandqueue2 = wtu.createCommandQueue(webCLContext2);
-    shouldThrowExceptionName("wtu.enqueueWriteBufferRect(webCLCommandqueue2, webCLBuffer, true, webCLBufferOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);", "INVALID_CONTEXT");
+    shouldThrowWebCLException("wtu.enqueueWriteBufferRect(webCLCommandqueue2, webCLBuffer, true, webCLBufferOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, arrBuffer);");
 
 } catch (e) {
     testFailed("WebCLCommandQueue :: enqueueWriteBufferRect throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

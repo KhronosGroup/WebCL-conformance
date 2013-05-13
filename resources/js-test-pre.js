@@ -411,7 +411,7 @@ function shouldThrow(_a, _e)
     testFailed(_a + " should throw " + (typeof _e == "undefined" ? "an exception" : _ev) + ". Was " + _av + ".");
 }
 
-function shouldBeType(_a, _type) {
+function shouldBeType(_a, _type, quite) {
     var exception;
     var _av;
     try {
@@ -423,7 +423,8 @@ function shouldBeType(_a, _type) {
     var _typev = eval(_type);
 
     if (_av instanceof _typev) {
-        testPassed(_a + " is an instance of " + _type);
+        if (!quite)
+            testPassed(_a + " is an instance of " + _type);
     } else {
         testFailed(_a + " is not an instance of " + _type);
     }
@@ -518,10 +519,8 @@ function shouldThrowExceptionName(_a, _e)
         testFailed(_a + " should throw " + _e + ". Was " + _av + ".");
 }
 
-function shouldThrowExceptionName(_a, _e)
+function shouldThrowWebCLException(_a)
 {
-  if (typeof _e != "string")
-     debug("WARN: shouldThrowNamed expects string arguments");
   var exception;
   var _av;
   try {
@@ -530,15 +529,13 @@ function shouldThrowExceptionName(_a, _e)
      exception = e;
   }
   if (exception) {
-    if (typeof _e == "string" && exception.name == _e)
-      testPassed(_a + " threw exception " + exception.name + ".");
-    else
-      testFailed(_a + " should throw " + _e + ". Threw exception " + exception.name + ".");
+    if (typeof(exception) == "object" && (exception instanceof WebCLException))
+        testPassed(_a + " threw exception " + exception.name + ".");
   } else
-    testFailed(_a + " should throw " + _e + ". Was " + _av + ".");
+    testFailed(_a + " should throw WebCL Exception but was " + _av + ".");
 }
 
-function shouldBeArrayOfType(_a, _type)
+function shouldBeArrayOfType(_a, _type, quite)
 {
     var exception;
     var _av;
@@ -550,14 +547,16 @@ function shouldBeArrayOfType(_a, _type)
 
     var _typev = eval(_type);
 
-    if (_av instanceof Array) {
+    if (Object.prototype.toString.call(_av) === '[object Array]') { //To check if _av is an instance of Array.
         for (var i = 0; i < _av.length; i++) {
-            if (!(_av[i] instanceof _typev)) {
-                testFailed(_a + " is not an array of " + _type);
-                return;
+            if (_av[i] instanceof _typev || typeof(_av) == _typev) {
+                continue;
             }
         }
-        testPassed(_a + " is an array of " + _type);
+        if (i == _av.length)
+            testPassed(_a + " is an array of " + _type);
+        else
+            testFailed(_a + " is not an array of " + _type);
     } else {
         if (exception)
             testFailed(_a + " should be an array of " + _type + ". but threw exception " + exception.name);

@@ -36,30 +36,13 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-function createContext(properties, paramName)
-{
-    try {
-        if (properties == null) {
-            webCLContext = webcl.createContext();
-            paramName = "No parameters.";
-        } else {
-            webCLContext = webcl.createContext(properties);
-        }
-        if (webCLContext instanceof WebCLContext)
-            testPassed("WebCL createContext (" + paramName + ") passed.");
-        else
-            testFailed("WebCL createContext (" + paramName + ") failed.");
-    } catch (e) {
-        testFailed("WebCL :: createContext throws an exception : " + e.message);
-    }
-}
 try {
     debug("WebCL :: CreateContext test case.");
     debug("(optional WebCLContextProperties {WebCLPlatform platform, WebCLDevice[]? devices, CLenum deviceType, any shareGroup, DOMString[]? hint})");
 
     var wtu = WebCLTestUtils;
     var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_GPU);
+    var webCLDevices = wtu.getDevices(webCLPlatforms);
 
     shouldBeType("webcl.createContext();", "WebCLContext");
 
@@ -83,16 +66,15 @@ try {
     shouldBeType("webcl.createContext({platform:null, webCLDevices:null, deviceType:null, shareGroup:null, hint:10});", "WebCLContext");
 
     // Testing for Exception.
-    shouldThrowExceptionName("webcl.createContext({platform:invalid_object, webCLDevices:null, deviceType:null, shareGroup:null, hint:null});", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webcl.createContext({platform:null, webCLDevices:invalid_object, deviceType:null, shareGroup:null, hint:null});", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webcl.createContext({platform:invalid_object, webCLDevices:null, deviceType:invalid_object, shareGroup:null, hint:null});", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webcl.createContext({platform:invalid_object, webCLDevices:null, deviceType:null, shareGroup:invalid_object, hint:null});", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webcl.createContext({platform:invalid_object, webCLDevices:null, deviceType:null, shareGroup:null, hint:invalid_object});", "INVALID_CONTEXT");
+    shouldThrowWebCLException("webcl.createContext({platform:invalid_object, webCLDevices:null, deviceType:null, shareGroup:null, hint:null});");
+    shouldThrowWebCLException("webcl.createContext({platform:null, webCLDevices:invalid_object, deviceType:null, shareGroup:null, hint:null});");
+    shouldThrowWebCLException("webcl.createContext({platform:invalid_object, webCLDevices:null, deviceType:invalid_object, shareGroup:null, hint:null});");
+    shouldThrowWebCLException("webcl.createContext({platform:invalid_object, webCLDevices:null, deviceType:null, shareGroup:invalid_object, hint:null});");
+    shouldThrowWebCLException("webcl.createContext({platform:invalid_object, webCLDevices:null, deviceType:null, shareGroup:null, hint:invalid_object});");
 
 } catch(e) {
     testFailed("WebCL :: createContext throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

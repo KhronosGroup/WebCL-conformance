@@ -39,7 +39,6 @@
 function callback(webCLEvent, userData)
 {
     testPassed("event status : " + webCLEvent.status + "userdata : " + userData);
-    notifyFinishedToHarness();
 }
 try {
     debug("WebCLEvent :: setCallback test case.\n");
@@ -55,16 +54,15 @@ try {
     shouldBeTrue("wtu.setCallback(webCLEvent, webcl.COMPLETE, callback, 100);");
 
     // Testing for exception.
-    shouldThrowExceptionName("wtu.setCallback(webCLEvent, invalid_object, callback, 100);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.setCallback(webCLEvent, webcl.RUNNING, invalid_object, 100);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.setCallback(webCLEvent, webcl.RUNNING, callback, invalid_object);", "INVALID_VALUE");
+    shouldThrowWebCLException("wtu.setCallback(webCLEvent, invalid_object, callback, 100);");
+    shouldThrowWebCLException("wtu.setCallback(webCLEvent, webcl.RUNNING, invalid_object, 100);");
+    shouldThrowWebCLException("wtu.setCallback(webCLEvent, webcl.RUNNING, callback, invalid_object);");
 
     // FIXME :: Need to add test cases for exceptions. Will add once its updated in the specification.
 
 } catch (e) {
     testFailed("WebCLEvent :: setCallback() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

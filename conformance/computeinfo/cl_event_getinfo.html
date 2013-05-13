@@ -43,17 +43,16 @@ try {
     var webCLEvent = wtu.createEvent(webCLContext);
 
     shouldBeType("webCLEvent.getInfo(webcl.EVENT_CONTEXT)", WebCLContext);
-    shouldBeType("webCLEvent.getInfo(webcl.EVENT_COMMANDQUEUE)", WebCLCommandQueue);
+    shouldBeType("webCLEvent.getInfo(webcl.EVENT_COMMAND_QUEUE)", WebCLCommandQueue);
     shouldBeNonNull("webCLEvent.getInfo(webcl.EVENT_COMMAND_EXECUTION_STATUS)");
     shouldBeNonNull("webCLEvent.getInfo(webcl.EVENT_COMMAND_TYPE)");
 
     // Testing for exception.
-    shouldThrowExceptionName("webCLEvent.getInfo(invalid_object)", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLEvent.getInfo(invalid_object)");
 
 } catch (e) {
     testFailed("WebCLEvent :: getInfo throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

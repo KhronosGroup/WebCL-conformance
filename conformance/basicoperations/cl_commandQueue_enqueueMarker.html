@@ -48,12 +48,11 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueMarker(webCLEvent);");
 
     // Testing for Exception.
-    shouldThrowExceptionName("webCLCommandQueue.enqueueMarker(invalid_object);", "INVALID_VALUE");
+    shouldThrowWebCLException("webCLCommandQueue.enqueueMarker(invalid_object);");
 
 } catch (e) {
     testFailed("WebCLCommandQueue :: enqueueMarker() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

@@ -35,18 +35,6 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
-<script id="square" type="x-kernel">
-__kernel void square(
-    __global float* input,
-    __global float* output,
-    const unsigned int count)
-{
-    int i = get_global_id(0);
-    if (i < count)
-        output[i] = input[i] * input[i];
-}
-</script>
-</script>
 <script>
 try {
     debug("WebCLCommandQueue enqueueNDRangeKernel test case.");
@@ -62,10 +50,10 @@ try {
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var kernelSource = wtu.getKernel("square");
+    var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms[0], webcl.DEVICE_TYPE_GPU);
+    var webCLPlatforms = wtu.getPlatforms();
+    var webCLDevices = wtu.getDevices(webCLPlatforms);
     wtu.build(webCLProgram, webCLDevices, "-cl-single-precision-constant");
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
@@ -96,15 +84,14 @@ try {
     shouldBeTrue("wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, null, globalWorkSize, null);");
 
     // Tesitng for Exceptions.
-    shouldThrowExceptionName("wtu.enqueueNDRangeKernel(webCLCommandQueue, invalid_object, globalWorkOffset, globalWorkSize, localWorkSize);", "INVALID_KERNEL");
-    shouldThrowExceptionName("wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, invalid_object, globalWorkSize, localWorkSize);", "INVALID_VALUE");
-    shouldThrowExceptionName("wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkOffset, invalid_object, localWorkSize);", "INVALID_WORK_GROUP_SIZE");
-    shouldThrowExceptionName("wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkOffset, globalWorkSize, invalid_object);", "INVALID_WORK_GROUP_SIZE");
+    shouldThrowWebCLException("wtu.enqueueNDRangeKernel(webCLCommandQueue, invalid_object, globalWorkOffset, globalWorkSize, localWorkSize);");
+    shouldThrowWebCLException("wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, invalid_object, globalWorkSize, localWorkSize);");
+    shouldThrowWebCLException("wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkOffset, invalid_object, localWorkSize);");
+    shouldThrowWebCLException("wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkOffset, globalWorkSize, invalid_object);");
 
 } catch(e) {
     testFailed("WebCLCommandQueue :: enqueueNDRangeKernel() throws an exception : " + e.message);
 }
-notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

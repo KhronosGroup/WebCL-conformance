@@ -32,10 +32,18 @@ var DATA_SIZE = Float32Array.BYTES_PER_ELEMENT * 1024;
 var WIDTH_STEP = Float32Array.BYTES_PER_ELEMENT * 320 * 4;
 var BUFFER_SIZE = Float32Array.BYTES_PER_ELEMENT * 320 * 240 * 4;
 
+
 var WebCLTestUtils = (function() {
 
 var createContext = function() {
-    webCLContext = eval("webcl.createContext()");
+    var gv = window.top.CLGlobalVariables;
+    if (gv) {
+        var selectedPlatform = gv.getInstance().getwebCLPlatform();
+        var selectedDevices = gv.getInstance().getwebCLDevices();
+        webCLContext = webcl.createContext({platform:selectedPlatform, devices:selectedDevices, deviceType:null, shareGroup:null, hint:null});
+    } else {
+        webCLContext = eval("webcl.createContext()");
+    }
     if (webCLContext instanceof WebCLContext)
         return webCLContext;
     throw { name : "WebCLException", message : "WebCL::createContext failed."};
@@ -49,7 +57,14 @@ var createProgram = function(webCLContext, kernelSource) {
 }
 
 var createCommandQueue = function(webCLContext) {
-    webCLCommandQueue = eval("webCLContext.createCommandQueue()");
+    var gv = window.top.CLGlobalVariables;
+    if (gv) {
+        var selectedDevices = gv.getInstance().getwebCLDevices();
+        var dev = selectedDevices[0];
+        webCLCommandQueue = eval("webCLContext.createCommandQueue(dev)");
+    } else {
+        webCLCommandQueue = eval("webCLContext.createCommandQueue()");
+    }
     if (webCLCommandQueue instanceof WebCLCommandQueue)
         return webCLCommandQueue;
     throw { name : "WebCLException", message : "WebCLContext::createCommandQueue() failed."};
@@ -76,26 +91,29 @@ var createSampler = function(webCLContext, normalizedCoords, addressingMode, fil
 }
 
 var getPlatforms = function() {
-    webCLPlatforms = eval("webcl.getPlatforms()");
-    if (typeof(webCLPlatforms) == 'object' && webCLPlatforms.length)
-        return webCLPlatforms;
+    var gv = window.top.CLGlobalVariables;
+    if (gv)
+        return gv.getInstance().getwebCLPlatform();
+    else {
+        webCLPlatforms = eval("webcl.getPlatforms()");
+        if (typeof(webCLPlatforms) == 'object' && webCLPlatforms.length)
+            return webCLPlatforms[0];
+    }
     throw { name : "WebCLException", message : "WebCL::getPlatforms() failed."};
 }
 
-var getDevices = function(webCLPlatform, type)
-{
-    webCLDevices = eval("webCLPlatform.getDevices(type)");
-    if (typeof(webCLDevices) == 'object' && webCLDevices.length)
-        return webCLDevices;
+var getDevices = function(webCLPlatform, type) {
+    var gv = window.top.CLGlobalVariables;
+    if (gv)
+        return gv.getInstance().getwebCLDevices();
+    else {
+        if (!type)
+            type = webcl.DEVICE_TYPE_DEFAULT;
+        webCLDevices = eval("webCLPlatform.getDevices(type)");
+        if (typeof(webCLDevices) == 'object' && webCLDevices.length)
+            return webCLDevices;
+    }
     throw { name : "WebCLException", message : "WebCLPlatform::getDevices(" + type.toString(16) + ") failed."};
-}
-
-var getKernel = function(id)
-{
-    var kernelScript = document.getElementById(id);
-    if (kernelScript == null || kernelScript.type != "x-kernel")
-        return null;
-    return kernelScript.firstChild.textContent;
 }
 
 var release = function(classObject)
@@ -147,10 +165,17 @@ var setCallback = function(webCLEvent, executionStatus, notify, userdata)
     return true;
 }
 
-var build = function(webCLProgram, webCLDevice, options, callback, UserData)
+var build = function(webCLProgram, webCLDevices, options, callback, UserData)
 {
-    webCLProgram.build(webCLDevice, options, callback, UserData);
-    return true;
+    try {
+        webCLProgram.build(webCLDevices, options, callback, UserData);
+        if (webCLProgram.getBuildInfo(webCLDevices[0], webcl.PROGRAM_BUILD_STATUS) == 0)
+            return true;
+    } catch(e) {
+        console.error(webCLProgram.getBuildInfo(webCLDevices[0], webcl.PROGRAM_BUILD_LOG));
+        throw e;
+    }
+    throw { name : "WebCLException", message : "WebCLProgram::build failed."};
 }
 
 var setArg = function(webCLkernel, index, value, type)
@@ -215,6 +240,18 @@ var enqueueTask = function(webCLCommandQueue, webCLKernel)
     return true;
 }
 
+var readKernel = function(file) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", file, false);
+    xhr.send();
+    var source = xhr.responseText.replace(/\r/g, "");
+    if (xhr.status === 200 && xhr.readyState === 4) {
+        if (source.length && source.match(/^__kernel/))
+            return source; 
+    }
+    throw { name : "WebCLException", message : "Failed to read Kernel."};
+};
+
 return {
 createContext:createContext,
 createProgram:createProgram,
@@ -224,7 +261,6 @@ createKernel:createKernel,
 createSampler:createSampler,
 getPlatforms:getPlatforms,
 getDevices:getDevices,
-getKernel:getKernel,
 release:release,
 getSupportedImageFormats:getSupportedImageFormats,
 enqueueWriteImage:enqueueWriteImage,
@@ -243,6 +279,7 @@ enqueueCopyImageToBuffer:enqueueCopyImageToBuffer,
 enqueueWriteBuffer:enqueueWriteBuffer,
 enqueueReadBuffer:enqueueReadBuffer,
 enqueueTask:enqueueTask,
+readKernel:readKernel,
 none:false
 };
 }());
