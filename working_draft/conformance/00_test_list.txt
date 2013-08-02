@@ -1,3 +1,0 @@
-computeinfo/00_test_list.txt
-buffimgs/00_test_list.txt
-basicoperations/00_test_list.txt
