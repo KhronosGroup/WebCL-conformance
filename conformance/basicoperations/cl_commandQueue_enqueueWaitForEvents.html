@@ -46,10 +46,10 @@ try {
 
     // Testing for EXCEPTIONS
     var webCLCommandqueue2 = wtu.createCommandQueue(webCLContext);
-    shouldThrowWebCLException("webCLCommandQueue2.enqueueWaitForEvents(webCLEvent);");
+    shouldThrowExceptionName("webCLCommandQueue2.enqueueWaitForEvents(webCLEvent);", "INVALID_CONTEXT");
 
-    shouldThrowWebCLException("webCLCommandQueue.enqueueWaitForEvents();");
-    shouldThrowWebCLException("webCLCommandQueue.enqueueWaitForEvents(invalid_object);");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents();", "INVALID_EVENT_WAIT_LIST");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents(invalid_object);", "INVALID_EVENT_WAIT_LIST");
 
 } catch (e) {
     testFailed("WebCLCommandQueue :: enqueueWaitForEvents() throws an exception : " + e.message);

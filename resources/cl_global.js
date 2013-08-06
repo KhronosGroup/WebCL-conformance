@@ -45,6 +45,7 @@ var CLGlobalVariables = (function() {
         // FIXME default must not be null
         webCLPlatform : null,
         webCLDevices : null,
+        m_isStrict : false,
 
         setwebCLPlatform : function (platform) {
             if (platform instanceof WebCLPlatform)
@@ -71,11 +72,15 @@ var CLGlobalVariables = (function() {
         },
 
         getwebCLPlatform : function() {
-        return this.webCLPlatform;
+            return this.webCLPlatform;
         },
 
         getwebCLDevices : function() {
-        return this.webCLDevices;
+            return this.webCLDevices;
+        },
+
+        isStrict : function() {
+            return this.m_isStrict;
         }
         }
     }

@@ -41,13 +41,15 @@ try {
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+    var webCLPlatform = wtu.getPlatforms();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
 
-    shouldBeType("webCLCommandQueue.getInfo(webcl.QUEUE_CONTEXT)", WebCLContext);
-    shouldBeType("webCLCommandQueue.getInfo(webcl.QUEUE_DEVICE)", WebCLDevice);
-    shouldBeNonNull("webCLCommandQueue.getInfo(webcl.QUEUE_PROPERTIES)");
+    shouldBe("webCLCommandQueue.getInfo(webcl.QUEUE_CONTEXT)", "webCLContext");
+    shouldBe("webCLCommandQueue.getInfo(webcl.QUEUE_DEVICE)", "webCLDevices[0]");
+    shouldBe("webCLCommandQueue.getInfo(webcl.QUEUE_PROPERTIES)", "0");
 
     // Testing for exceptions.
-    shouldThrowWebCLException("webCLCommandQueue.getInfo(invalid_object)");
+    shouldThrowExceptionName("webCLCommandQueue.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
 } catch (e) {
     testFailed("WebCLCommandQueue :: getInfo throws an exception : " + e.message);

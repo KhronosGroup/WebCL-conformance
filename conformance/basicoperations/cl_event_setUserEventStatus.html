@@ -47,7 +47,10 @@ try {
     shouldBeUndefined("webCLEvent.setUserEventStatus(webcl.COMPLETE);");
 
     // Testing for Exception.
-    shouldThrowWebCLException("webCLEvent.setUserEventStatus(invalid_object);");
+    shouldThrowExceptionName("webCLEvent.setUserEventStatus(invalid_CLenum);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLEvent.setUserEventStatus(-10);", "INVALID_VALUE");
+
+    // FIXME to add test case to verify exception : INVALID_OPERATION. 
 
 } catch(e) {
     testFailed("WebCLEvent :: setUserEventStatus throws an exception : " + e.message);

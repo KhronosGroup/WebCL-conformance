@@ -42,23 +42,16 @@ function callback(webCLEvent, userData)
 }
 try {
     debug("WebCLEvent :: setCallback test case.\n");
-    debug("(CLenum executionStatus, WebCLCallback notify, optional any userdata)");
+    debug("(CLenum commandExecCallbackType, WebCLCallback notify)");
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     var webCLEvent = wtu.createEvent(webCLContext);
 
-    shouldBeTrue("wtu.setCallback(webCLEvent, webcl.RUNNING, callback, 100);");
-    shouldBeTrue("wtu.setCallback(webCLEvent, webcl.SUBMITTED, callback, 100);");
-    shouldBeTrue("wtu.setCallback(webCLEvent, webcl.QUEUED, callback, 100);");
-    shouldBeTrue("wtu.setCallback(webCLEvent, webcl.COMPLETE, callback, 100);");
+    shouldBeTrue("webCLEvent.setCallback(webcl.COMPLETE, callback());");
 
     // Testing for exception.
-    shouldThrowWebCLException("wtu.setCallback(webCLEvent, invalid_object, callback, 100);");
-    shouldThrowWebCLException("wtu.setCallback(webCLEvent, webcl.RUNNING, invalid_object, 100);");
-    shouldThrowWebCLException("wtu.setCallback(webCLEvent, webcl.RUNNING, callback, invalid_object);");
-
-    // FIXME :: Need to add test cases for exceptions. Will add once its updated in the specification.
+    shouldThrowExceptionName("webCLEvent.setCallback(invalid_CLenum, callback());", "INVALID_VALUE");
 
 } catch (e) {
     testFailed("WebCLEvent :: setCallback() throws an exception : " + e.message);

@@ -36,69 +36,116 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-function callback(event, userData)
+function callback(event)
 {
-    testPassed("event status : " + event.status + "UserData = " + userData);
+    console.log("event status : " + event.status);
 }
 
 try {
     debug("WebCLProgram :: build() test case.\n");
-    debug("(WebCLDevice[] devices, optional DOMString? options, optional WebCLCallback whenFinished, optional any userdata)\n");
+    debug("(optional WebCLDevice>? devices, optional DOMString? options, optional WebCLCallback whenFinished)\n");
     var wtu = WebCLTestUtils;
     var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     var webCLPlatform = wtu.getPlatforms();
     var webCLDevice, webCLContext, webCLProgram;
 
-    var buildProgram = function (webCLPlatform, type) {
+    /*
+    *   This function gets the device of the 'type' on the 'webCLPlatform', sent as parameters to the function by caller.
+    *   And creates context upon that platform and deviceType and creates a program and returns device.
+    */
+
+    var createContextAndProgram = function (webCLPlatform, type) {
         try {
-        webCLDevice = webCLPlatform.getDevices(type);
-        webCLContext = webcl.createContext({platform:webCLPlatform, devices:webCLDevice, deviceType:type, shareGroup:null, hint:null});
-        webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-        shouldBeUndefined("webCLProgram.build(webCLDevice);");
-        } catch (e) {
-            testFailed("webCLProgram.build failed with device type " + type +" :" + e.message);
+            webCLDevice = webCLPlatform.getDevices(type);
+            webCLContext = webcl.createContext({platform:webCLPlatform, devices:webCLDevice});
+            webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+            return webCLDevice;
+        } catch(e) {
+            testFailed("For the device type : " + type + ", Exception was thrown while creating device specific context & program : " + e.name);
+            return null;
         }
     }
 
-    buildProgram(webCLPlatform, webcl.DEVICE_TYPE_CPU);
-    buildProgram(webCLPlatform, webcl.DEVICE_TYPE_GPU);
-    buildProgram(webCLPlatform, webcl.DEVICE_TYPE_ALL);
-    buildProgram(webCLPlatform, webcl.DEVICE_TYPE_ACCELERATOR);
-    buildProgram(webCLPlatform, webcl.DEVICE_TYPE_DEFAULT);
+    var webCLDeviceCPU = createContextAndProgram(webCLPlatform, webcl.DEVICE_TYPE_CPU);
+    if (webCLDeviceCPU)
+        shouldBeUndefined("webCLProgram.build(webCLDeviceCPU);");
+
+    var webCLDeviceGPU = createContextAndProgram(webCLPlatform, webcl.DEVICE_TYPE_GPU);
+    if (webCLDeviceGPU)
+        shouldBeUndefined("webCLProgram.build(webCLDeviceGPU);");
+
+    var webCLDeviceALL = createContextAndProgram(webCLPlatform, webcl.DEVICE_TYPE_ALL);
+    if (webCLDeviceALL)
+        shouldBeUndefined("webCLProgram.build(webCLDeviceALL);");
+
+    var webCLDeviceDEFAULT = createContextAndProgram(webCLPlatform, webcl.DEVICE_TYPE_DEFAULT);
+    if (webCLDeviceDEFAULT)
+        shouldBeUndefined("webCLProgram.build(webCLDeviceDEFAULT);");
+
+    var webCLDeviceACCELERATOR = createContextAndProgram(webCLPlatform, webcl.DEVICE_TYPE_ACCELERATOR);
+    if (webCLDeviceACCELERATOR)
+        shouldBeUndefined("webCLProgram.build(webCLDeviceACCELERATOR);");
 
     // Testing for build-options.
     var webCLDevice = wtu.getDevices(webCLPlatform);
     webCLContext = wtu.createContext();
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
 
-    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\");");
-
-    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-denorms-are-zero\");");
-
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-D SIZE\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-D SIZE=1024\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-opt-disable\");");
-
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-denorms-are-zero\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-mad-enable\");");
-
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-no-signed-zeros\");");
-
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-unsafe-math-optimizations\");");
-
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-finite-math-only\");");
-
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-fast-relaxed-math\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-W\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-Werror\");");
 
-    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-strict-aliasing\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-Werror -cl-fast-relaxed-math\");");
 
-    // Testing with callback and userData.
-    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\", callback);");
-    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\", callback, \"test\");");
-    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\", null, \"test\");");
+    // Test for exception "INVALID_BUILD_OPTIONS".
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice, \"-cl-strict-aliasing\");", "INVALID_BUILD_OPTIONS");
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice, \"-invalid-build-option\");", "INVALID_BUILD_OPTIONS");
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice, \"-cl-std=1.0\");", "INVALID_BUILD_OPTIONS");
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice, \"-D\");", "INVALID_BUILD_OPTIONS");
 
-    // Testing for Exception.
-    shouldThrowWebCLException("webCLProgram.build(invalid_object);");
-    shouldThrowWebCLException("webCLProgram.build(webCLDevice, invalid_object);");
-    shouldThrowWebCLException("webCLProgram.build(webCLDevice, \"-cl-no-signed-zeroes\", invalid_object);");
-    shouldThrowWebCLException("webCLProgram.build(webCLDevice, \"-cl-no-signed-zeroes\", callback, invalid_object);");
+    // Testing with callback.
+    shouldBeUndefined("webCLProgram.build(webCLDevice, null, callback);");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, null, null);");
+
+    // Testing for Exceptions.
+
+    // Testing for exception "INVALID_DEVICE".
+    shouldThrowExceptionName("webCLProgram.build(invalid_object);", "INVALID_DEVICE");
+
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice, null, invalid_object);", "INVALID_VALUE");
+
+    // Testing for exception "BUILD_PROGRAM_FAILURE".
+    kernelSource = wtu.readKernel("../../resources/kernels/nbody_simulation_bad.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "BUILD_PROGRAM_FAILURE");
+
+    // Testing for exception "INVALID_OPERATION".
+    kernelSource = wtu.readKernel("../../resources/kernels/nbody_simulation.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    webCLProgram.build(webCLDevice, null, callback);
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "INVALID_OPERATION");
+
+    // Testing for exception "INVALID_DEVICE".
+    var webCLDevicesCPU = webCLPlatform.getDevices(webcl.DEVICE_TYPE_CPU);
+    webCLContext = webcl.createContext({platform:webCLPlatform, devices:webCLDevicesCPU, deviceType:null});
+    kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    var webCLDevicesNew = webCLPlatform.getDevices(webcl.DEVICE_TYPE_GPU);
+    shouldThrowExceptionName("webCLProgram.build(webCLDevicesNew[0]);", "INVALID_DEVICE");
+
+    // Testing for exception "INVALID_OPERATION".
+    webCLProgram.build(webCLDevicesCPU);
+    webCLProgram.createKernel("square");
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "INVALID_OPERATION");
 
 } catch (e) {
     testFailed("WebCLProgram :: build () throws an exception : " + e.message);

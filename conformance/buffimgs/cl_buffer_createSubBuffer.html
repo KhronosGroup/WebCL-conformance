@@ -39,10 +39,10 @@
 try {
     debug("WebCLBuffer :: createSubBuffer test case.");
     debug("(CLenum memFlags, CLuint origin, CLuint sizeInBytes)");
-    var origin = 0;
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     webCLBuffer = webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);
+    var origin = 0;
 
     // Testing for creating sub buffer.
     shouldBeType("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, 10);", WebCLBuffer);
@@ -50,23 +50,20 @@ try {
     shouldBeType("webCLBuffer.createSubBuffer(webcl.MEM_READ_WRITE, origin, 10);", WebCLBuffer);
 
     // Testing for invalid values of origin.
-    var originInvalid = -10;
-    shouldThrowWebCLException("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, originInvalid, 10);");
+    var originInvalid = DATA_SIZE + 10;
+    shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, originInvalid, 10);", "INVALID_VALUE");
 
     // Testing for invalid values of sizeInBytes.
-    var sizeInBytesInvalid = -100;
-    shouldThrowWebCLException("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, sizeInBytesInvalid);");
+    var sizeInBytesInvalid = DATA_SIZE + 10;
+    shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, sizeInBytesInvalid);", "INVALID_VALUE");
 
-    // Testing invalid objects as params.
-    shouldThrowWebCLException("webCLBuffer.createSubBuffer(invalid_object, 0, 10);");
-    shouldThrowWebCLException("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, invalid_object, 10);");
-    shouldThrowWebCLException("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, invalid_object);");
-
+    // Testing for exceptions.
+    shouldThrowExceptionName("webCLBuffer.createSubBuffer(invalid_CLenum, 0, 10);", "INVALID_VALUE");
 
     // FIXME :: To add test case verifying exception: MISALIGNED_SUB_BUFFER_OFFSET
 
-    var webCLSubBuffer1 = webCLBuffer.createSubBuffer(webcl.MEM_READ_WRITE, origin, 100);
-    shouldThrowWebCLException("webCLSubBuffer1.createSubBuffer(webcl.MEM_READ_WRITE, origin, 10);");
+    var webCLSubBuffer = webCLBuffer.createSubBuffer(webcl.MEM_READ_WRITE, origin, 100);
+    shouldThrowExceptionName("webCLSubBuffer.createSubBuffer(webcl.MEM_READ_WRITE, origin, 10);", "INVALID_MEM_OBJECT");
 
 } catch(e) {
     testFailed("WebCLBuffer :: createSubBuffer() throws an exception : " + e.message);

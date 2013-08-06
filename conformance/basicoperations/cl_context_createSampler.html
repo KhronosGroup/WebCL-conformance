@@ -45,15 +45,13 @@ try {
 
     // Testing for addressing mode : ADDRESS_MIRRORED_REPEAT .
     shouldBeType("webCLContext.createSampler(true, webcl.ADDRESS_MIRRORED_REPEAT, webcl.FILTER_NEAREST);", "WebCLSampler");
-    shouldBeType("webCLContext.createSampler(false, webcl.ADDRESS_MIRRORED_REPEAT, webcl.FILTER_NEAREST);", "WebCLSampler");
     shouldBeType("webCLContext.createSampler(true, webcl.ADDRESS_MIRRORED_REPEAT, webcl.FILTER_LINEAR);", "WebCLSampler");
-    shouldBeType("webCLContext.createSampler(false, webcl.ADDRESS_MIRRORED_REPEAT, webcl.FILTER_LINEAR);", "WebCLSampler");
+    shouldThrowExceptionName("webCLContext.createSampler(false, webcl.ADDRESS_MIRRORED_REPEAT, webcl.FILTER_NEAREST);", "INVALID_VALUE");
 
     // Testing for addressing mode : ADDRESS_REPEAT .
     shouldBeType("webCLContext.createSampler(true, webcl.ADDRESS_REPEAT, webcl.FILTER_NEAREST);", "WebCLSampler");
-    shouldBeType("webCLContext.createSampler(false, webcl.ADDRESS_REPEAT, webcl.FILTER_NEAREST);", "WebCLSampler");
     shouldBeType("webCLContext.createSampler(true, webcl.ADDRESS_REPEAT, webcl.FILTER_LINEAR);", "WebCLSampler");
-    shouldBeType("webCLContext.createSampler(false, webcl.ADDRESS_REPEAT, webcl.FILTER_LINEAR);", "WebCLSampler");
+    shouldThrowExceptionName("webCLContext.createSampler(false, webcl.ADDRESS_REPEAT, webcl.FILTER_NEAREST);", "INVALID_VALUE");
 
     // Testing for addressing mode : ADDRESS_CLAMP_TO_EDGE .
     shouldBeType("webCLContext.createSampler(true, webcl.ADDRESS_CLAMP_TO_EDGE, webcl.FILTER_NEAREST);", "WebCLSampler");
@@ -67,20 +65,9 @@ try {
     shouldBeType("webCLContext.createSampler(true, webcl.ADDRESS_CLAMP, webcl.FILTER_LINEAR);", "WebCLSampler");
     shouldBeType("webCLContext.createSampler(false, webcl.ADDRESS_CLAMP, webcl.FILTER_LINEAR);", "WebCLSampler");
 
-    // Testing for addressing mode : ADDRESS_NONE .
-    shouldBeType("webCLContext.createSampler(true, webcl.ADDRESS_NONE, webcl.FILTER_NEAREST);", "WebCLSampler");
-    shouldBeType("webCLContext.createSampler(false, webcl.ADDRESS_NONE, webcl.FILTER_NEAREST);", "WebCLSampler");
-    shouldBeType("webCLContext.createSampler(true, webcl.ADDRESS_NONE, webcl.FILTER_LINEAR);", "WebCLSampler");
-    shouldBeType("webCLContext.createSampler(false, webcl.ADDRESS_NONE, webcl.FILTER_LINEAR);", "WebCLSampler");
-
     // Testing for Exceptions.
-    shouldThrowWebCLException("webCLContext.createSampler(invalid_object, webcl.ADDRESS_NONE, webcl.FILTER_LINEAR);");
-    shouldThrowWebCLException("webCLContext.createSampler(true, invalid_object, webcl.FILTER_LINEAR);");
-    shouldThrowWebCLException("webCLContext.createSampler(true, webcl.ADDRESS_NONE, invalid_object);");
-    shouldThrowWebCLException("webCLContext.createSampler(invalid_object, invalid_object, webcl.FILTER_LINEAR);");
-    shouldThrowWebCLException("webCLContext.createSampler(invalid_object, webcl.ADDRESS_NONE, invalid_object);");
-    shouldThrowWebCLException("webCLContext.createSampler(true, invalid_object, invalid_object);");
-    shouldThrowWebCLException("webCLContext.createSampler(invalid_object, invalid_object, invalid_object);");
+    shouldThrowExceptionName("webCLContext.createSampler(true, invalid_CLenum, webcl.FILTER_LINEAR);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLContext.createSampler(true, webcl.ADDRESS_NONE, invalid_CLenum);", "INVALID_VALUE");
 
 } catch(e) {
     testFailed("WebCLContext :: createSampler() throws an exception : " + e.message);

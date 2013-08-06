@@ -8,3 +8,5 @@ bufferRectOperations.html
 webCLImageOperations.html
 enqueueCopyBufferToImage.html
 enqueueCopyImageToBuffer.html
+createContext.html
+buildCallback.html

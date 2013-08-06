@@ -39,13 +39,13 @@
 try {
     debug("WebCLPlatform getInfo Test case.");
     var wtu = WebCLTestUtils;
-    var webCLPlatforms = wtu.getPlatforms();
+    var webCLPlatform = wtu.getPlatforms();
 
-    shouldBeEqualToString("webCLPlatforms.getInfo(webcl.PLATFORM_PROFILE)", "WEBCL_PROFILE");
-    shouldBeEqualToString("webCLPlatforms.getInfo(webcl.PLATFORM_VERSION)", "WebCL 1.0");
+    shouldBeEqualToString("webCLPlatform.getInfo(webcl.PLATFORM_PROFILE)", "WEBCL_PROFILE");
+    shouldBeEqualToString("webCLPlatform.getInfo(webcl.PLATFORM_VERSION)", "WebCL 1.0");
 
     // Testing for exception.
-    shouldThrowWebCLException("webCLPlatforms.getInfo(invalid_object)");
+    shouldThrowExceptionName("webCLPlatform.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
 } catch(e) {
     testFailed("WebCLPlatform :: getInfo throws an exception : " + e.message);

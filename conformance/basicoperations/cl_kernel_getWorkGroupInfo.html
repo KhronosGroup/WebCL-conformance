@@ -47,7 +47,7 @@ try {
     var webCLPlatforms = wtu.getPlatforms();
     var webCLDevices = wtu.getDevices(webCLPlatforms);
     var webCLDevice = webCLDevices[0];
-    wtu.build(webCLProgram, webCLDevices, "-cl-single-precision-constant");
+    wtu.build(webCLProgram, webCLDevices);
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
 
     shouldBe("typeof " + "webCLKernel.getWorkGroupInfo(webCLDevice, webcl.KERNEL_WORK_GROUP_SIZE);", "'number'");
@@ -56,13 +56,24 @@ try {
     shouldBe("typeof " + "webCLKernel.getWorkGroupInfo(webCLDevice, webcl.KERNEL_PRIVATE_MEM_SIZE);", "'number'");
     shouldBeType("webCLKernel.getWorkGroupInfo(webCLDevice, webcl.KERNEL_COMPILE_WORK_GROUP_SIZE);", Int32Array);
 
-    // Testing for Exceptions.
-    shouldThrowWebCLException("webCLKernel.getWorkGroupInfo(null, webcl.KERNEL_WORK_GROUP_SIZE);");
-    shouldThrowWebCLException("webCLKernel.getWorkGroupInfo(invalid_object, webcl.KERNEL_WORK_GROUP_SIZE);");
-    shouldThrowWebCLException("webCLKernel.getWorkGroupInfo(webCLDevice, invalid_object);");
+    kernelSource = wtu.readKernel("../../resources/kernels/square_with_attribute.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    wtu.build(webCLProgram, webCLDevices);
+    var webCLKernelSquareWithAttribute = wtu.createKernel(webCLProgram, "square_with_attribute");
+    shouldBe("webCLKernelSquareWithAttribute.getWorkGroupInfo(webCLDevice, webcl.KERNEL_COMPILE_WORK_GROUP_SIZE);", [1,1,1]);
 
-    var webCLDevicesNew = webCLPlatforms.getDevices(webcl.DEVICE_TYPE_CPU);
-    shouldThrowWebCLException("webCLKernel.getWorkGroupInfo(webCLDevicesNew[0], webcl.KERNEL_WORK_GROUP_SIZE);");
+    // Testing for Exceptions.
+    shouldThrowExceptionName("webCLKernel.getWorkGroupInfo(null, webcl.KERNEL_WORK_GROUP_SIZE);", "INVALID_DEVICE");
+    shouldThrowExceptionName("webCLKernel.getWorkGroupInfo(webCLDevice, invalid_CLenum);", "INVALID_VALUE");
+
+    var webCLDevicesCPU = webCLPlatforms.getDevices(webcl.DEVICE_TYPE_CPU);
+    webCLContext = webcl.createContext({platform:webCLPlatforms, devices:webCLDevicesCPU, deviceType:null});
+    kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    wtu.build(webCLProgram, webCLDevicesCPU);
+    var webCLKernel = wtu.createKernel(webCLProgram, "square");
+    var webCLDevicesNew = webCLPlatforms.getDevices(webcl.DEVICE_TYPE_GPU);
+    shouldThrowExceptionName("webCLKernel.getWorkGroupInfo(webCLDevicesNew[0], webcl.KERNEL_WORK_GROUP_SIZE);", "INVALID_DEVICE");
 
 } catch(e) {
     testFailed("WebCLKernel :: getWorkGroupInfo()throws an exception : " + e.message);

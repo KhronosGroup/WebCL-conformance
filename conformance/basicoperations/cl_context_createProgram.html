@@ -43,11 +43,12 @@ try {
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
+    var kernelSourceEmpty = "";
 
     shouldBeType("webCLContext.createProgram(kernelSource);", "WebCLProgram");
 
     // Testing for Exception.
-    shouldThrowWebCLException("webCLContext.createProgram(kernelSourceEmpty);");
+    shouldThrowExceptionName("webCLContext.createProgram(kernelSourceEmpty);", "INVALID_VALUE");
 
 } catch (e) {
     testFailed("WebCLContext :: createProgram() throws an exception : " + e.message);

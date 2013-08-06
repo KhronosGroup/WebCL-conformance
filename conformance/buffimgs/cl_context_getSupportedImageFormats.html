@@ -49,7 +49,7 @@ try {
     shouldBeArrayOfType("webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE)", WebCLImageDescriptor);
 
     // Testing for Exception.
-    shouldThrowWebCLException("webCLContext.getSupportedImageFormats(invalid_object);");
+    shouldThrowExceptionName("webCLContext.getSupportedImageFormats(invalid_CLenum);", "INVALID_VALUE");
 
 } catch(e) {
     testFailed("WebCLContext :: getSupportedImageFormats() throws an exception : " + e.message);

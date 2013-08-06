@@ -42,13 +42,13 @@ try {
     var webCLContext = wtu.createContext();
     var webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_NONE, webcl.FILTER_NEAREST);
 
-    shouldBeType("webCLSampler.getInfo(webcl.SAMPLER_CONTEXT)", WebCLContext);
-    shouldBe("typeof " + "webCLSampler.getInfo(webcl.SAMPLER_NORMALIZED_COORDS)", "'boolean'");
-    shouldBe("typeof " + "webCLSampler.getInfo(webcl.SAMPLER_ADDRESSING_MODE)", "'number'");
-    shouldBe("typeof " + "webCLSampler.getInfo(webcl.SAMPLER_FILTER_MODE)", "'number'");
+    shouldBe("webCLSampler.getInfo(webcl.SAMPLER_CONTEXT)", "webCLContext");
+    shouldBeTrue("webCLSampler.getInfo(webcl.SAMPLER_NORMALIZED_COORDS)");
+    shouldBe("webCLSampler.getInfo(webcl.SAMPLER_ADDRESSING_MODE)", "webcl.ADDRESS_NONE");
+    shouldBe("webCLSampler.getInfo(webcl.SAMPLER_FILTER_MODE)", "webcl.FILTER_NEAREST");
 
     // Testing for exceptions.
-    shouldThrowWebCLException("webCLSampler.getInfo(invalid_object)");
+    shouldThrowExceptionName("webCLSampler.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
 } catch (e) {
     testFailed("WebCLSampler :: getInfo throws an exception : " + e.message);

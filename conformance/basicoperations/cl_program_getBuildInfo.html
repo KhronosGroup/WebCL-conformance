@@ -53,15 +53,29 @@ try {
     shouldBe("typeof " + "webCLProgram.getBuildInfo(webCLDevice, webcl.PROGRAM_BUILD_OPTIONS);", "'string'");
     shouldBe("typeof " + "webCLProgram.getBuildInfo(webCLDevice, webcl.PROGRAM_BUILD_LOG);", "'string'");
 
-    // Testing for Exceptions.
-    shouldThrowWebCLException("webCLProgram.getBuildInfo(webCLDevice, null);");
+    // Testing for huge build log.
+    kernelSource = wtu.readKernel("../../resources/kernels/nbody_simulation_bad.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    try {
+        wtu.build(webCLProgram, webCLDevices);
+    } catch(e) {
+        shouldBe("typeof " + "webCLProgram.getBuildInfo(webCLDevice, webcl.PROGRAM_BUILD_LOG);", "'string'");
+    }
 
-    var webCLPlatformsNew = wtu.getPlatforms();
-    var webCLDevicesNew = webCLPlatformsNew.getDevices(webcl.DEVICE_TYPE_CPU);
-    shouldThrowWebCLException("webCLProgram.getBuildInfo(webCLDevicesNew[0], webcl.PROGRAM_BUILD_STATUS);");
+    // Testing for Exceptions.
+    shouldThrowExceptionName("webCLProgram.getBuildInfo(webCLDevice, null);", "INVALID_VALUE");
+
+    // Testing for exception : INVALID_DEVICE. 
+    var webCLDevicesCPU = webCLPlatforms.getDevices(webcl.DEVICE_TYPE_CPU);
+    webCLContext = webcl.createContext({platform:webCLPlatforms, devices:webCLDevicesCPU, deviceType:null});
+    kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    wtu.build(webCLProgram, webCLDevicesCPU);
+    var webCLDevicesNew = webCLPlatforms.getDevices(webcl.DEVICE_TYPE_GPU);
+    shouldThrowExceptionName("webCLProgram.getBuildInfo(webCLDevicesNew[0], webcl.PROGRAM_BUILD_STATUS);", "INVALID_DEVICE");
 
 } catch(e) {
-    testFailed("WebCLPlatforms :: getBuildInfo throws an exception : " + e.message);
+    testFailed("WebCLProgram :: getBuildInfo throws an exception : " + e.message);
 }
 successfullyParsed = true;
 </script>

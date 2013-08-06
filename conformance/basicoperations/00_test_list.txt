@@ -10,7 +10,6 @@ cl_kernel_getWorkGroupInfo.html
 cl_program_createKernelsInProgram.html
 cl_program_createKernel.html
 cl_webcl_createContext.html
-cl_commandQueue_enqueueTask.html
 cl_commandQueue_enqueueMarker.html
 cl_event_setUserEventStatus.html
 cl_platform_getDevices.html

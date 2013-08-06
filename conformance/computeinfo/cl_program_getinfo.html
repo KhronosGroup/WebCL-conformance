@@ -42,14 +42,16 @@ try {
     var webCLContext = wtu.createContext();
     var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    var webCLPlatform = wtu.getPlatforms();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
 
-    shouldBeType("webCLProgram.getInfo(webcl.PROGRAM_CONTEXT)", WebCLContext);
-    shouldBeArrayOfType("webCLProgram.getInfo(webcl.PROGRAM_DEVICES)", WebCLDevice);
-    shouldBe("typeof " + "webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)" , "'number'");
+    shouldBe("webCLProgram.getInfo(webcl.PROGRAM_CONTEXT)", "webCLContext");
+    shouldBe("webCLProgram.getInfo(webcl.PROGRAM_DEVICES)", "webCLDevices");
+    shouldBe("webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)" , "webCLDevices.length");
     shouldBe("webCLProgram.getInfo(webcl.PROGRAM_SOURCE)", "kernelSource")
 
     // Testing for Exception.
-    shouldThrowWebCLException("webCLProgram.getInfo(invalid_object)");
+    shouldThrowExceptionName("webCLProgram.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
 } catch (e) {
     testFailed("WebCLProgram :: getInfo throws an exception : " + e.message);

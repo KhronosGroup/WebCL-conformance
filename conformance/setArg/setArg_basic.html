@@ -1,0 +1,119 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following conditions
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>WebCLKernel setArg() basic type testing.</title>
+    <link rel="stylesheet" href="../../resources/js-test-style.css"/>
+    <script src="../../resources/js-test-pre.js"></script>
+    <script src="../../resources/cl_utils.js"></script>
+</head>
+<div id="description"></div>
+<div id="console"></div>
+<body>
+<script>
+var kernel_arg_types = [Int8Array, Uint8Array, Int16Array, Uint16Array, Int32Array, Uint32Array, Int32Array, Uint32Array, Float32Array];
+var kernel_arg_values = [
+    [65, 72, 128, 128, 256, 256, 5000, 1898989, 676767.69], //Normal Values
+    ['D', 'D', 128, 128, 256, 256, 5000, 1898989, 676767.69], //Normal Values with Char as Letter.
+    [127, 255, 32767, 65535, 2147483647, 4294967295, 2147483647, 4294967296, 340282346638528859811704183484516925440], //Valid Max values
+    [128, 256, 32768, 65536, 2147483648, 4294967296, 2147483648, 4294967297, 340282346638528859811704183484516925441], // Max + 1.
+    [-128, 0, -32768, 0, -2147483648, 0, 0, 0, 0], // Min Value
+    [-129, -1, -32769, -1, -2147483649, -1, -1, -1, 0], // Min Value -1
+];
+
+var kernel_arg_expected_values = [
+    [65, 72, 128, 128, 256, 256, 5000, 1898989, 676767.69],
+    [68, 68, 128, 128, 256, 256, 5000, 1898989, 676767.69],
+    [127, 255, 32767, 65535, 2147483647, 4294967295, 2147483647, 4294967296, 340282346638528859811704183484516925440],
+    [-128, 0, -32768, 0, -2147483648, 0, -2147483648, 0, 340282346638528859811704183484516925441],
+    [-128, 0, -32768, 0, -2147483648, 0, 0, 0, 0],
+    [127, 255, 32767, 65535, 2147483648, 4294967296, -1, -1, 0], // Min Value -1
+];
+
+var count = 9;
+var webCLPlatform, webCLDevices, webCLContext, webCLCommandQueue, webCLProgram, webCLKernel;
+try {
+    debug("WebCLKernel setArg() basic type testing.");
+    var wtu = WebCLTestUtils;
+    webCLPlatform = wtu.getPlatforms();
+    webCLDevices = wtu.getDevices(webCLPlatform);
+
+    webCLContext = wtu.createContext();
+    webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+
+    var kernelSource = wtu.readKernel("../../resources/kernels/setArg_basic.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    wtu.build(webCLProgram, webCLDevices);
+
+    webCLKernel = webCLProgram.createKernel("kernelAllDatatypes");
+
+    var output = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, Float32Array.BYTES_PER_ELEMENT * count);
+    var globalWorkSize = new Int32Array([1]);
+    for (i = 0; i < kernel_arg_values.length; i++) {
+        var j, kernel_arg_value = kernel_arg_values[i];
+        try {
+            // Populate data into Typed arrays and set it as kernel arguments.
+            for (j = 0; j < kernel_arg_types.length; j++) {
+                var input = eval("new kernel_arg_types[j]([kernel_arg_value[j]]);");
+                webCLKernel.setArg(j, input);
+            }
+            webCLKernel.setArg(j, output);
+
+            webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, globalWorkSize.length(), [], globalWorkSize, []);
+
+            var results = new Float32Array(count);
+            webCLCommandQueue.enqueueReadBuffer(output, true, 0, Float32Array.BYTES_PER_ELEMENT * count, results);
+
+            var z, flag = true, resultString = "";
+            for (y = 0; y < kernel_arg_types.length; y++) {
+                // FIXME :: Once long and Ulong is clear on spec remove the below 2 lines.
+                if (y == 6 || y == 7)
+                    continue;
+                resultString = resultString + results[y] + ", ";
+                if (results[y].toFixed(2) != kernel_arg_expected_values[i][y].toFixed(2)) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag && y == kernel_arg_value.length)
+                testPassed("Test passed. Got expected value : " + kernel_arg_expected_values[i]);
+            else
+                testFailed("Test failed. Expected value : " + kernel_arg_expected_values[i] + " Obtained value: " + resultString);
+        } catch (e) {
+            testFailed("WebCLKernel setArg() basic type throws exception: " + e.message);
+            continue;
+        }
+    }
+} catch (e) {
+    testFailed("WebCLKernel setArg() basic type throws exception: " + e.message);
+}
+successfullyParsed = true;
+</script>
+<script src="../../resources/js-test-post.js"></script>
+</body>
+</html>

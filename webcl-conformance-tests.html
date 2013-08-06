@@ -116,6 +116,7 @@ var OPTIONS = {
 
 function start() {
 
+  loading.style.display = "block";
   function log(msg) {
     if (window.console && window.console.log) {
       window.console.log(msg);
@@ -161,6 +162,7 @@ function start() {
     button.onclick = function() {
       autoScroll = false;
       reporter.runTest(url);
+      Results.style.display = "block";
     };
     if (reporter.noWebCL) {
       button.disabled = true;
@@ -290,6 +292,7 @@ function start() {
     button.onclick = function() {
       autoScroll = true;
       that.run();
+      Results.style.display = "block";
     };
     if (reporter.noWebCL) {
       button.disabled = true;
@@ -800,7 +803,7 @@ function displayDevices() {
     var platform = webCLPlatforms[webCLPlatformIndex];
     var webCLGLObject = CLGlobalVariables.getInstance();
     webCLGLObject.setwebCLPlatform(platform);
-    
+
     // Fetch available devices for selected platform and populate.
     // FIXME :: This should be DEVICE_TYPE_ALL as mac is not supporting this.
     var devices = document.getElementById("devices");
@@ -819,11 +822,22 @@ function displayDevices() {
             devices.appendChild(label);
             devices.appendChild(document.createElement("br"));
         }
-        devices[0].checked="checked";
     } else {
         console.error("Failed in fetching devices.");
         return 0;
     }
+}
+function displaySubmit() {
+    var inputElements = document.getElementsByTagName("input");
+    for (var i = 0; i < inputElements.length; i++)
+        // Enabling "submit" button if atleast one of the devices is selected.
+        if (inputElements[i].type == "checkbox" && inputElements[i].checked) {
+                document.getElementById("submit").disabled = false;
+                return;
+        } else {
+            document.getElementById("submit").disabled = true;
+            console.error("No device is selected.");
+        }
 }
 
 function getTestCases() {
@@ -879,13 +893,12 @@ function getTestCases() {
         </div>
 
         <div id="devicesDiv">
-            <span style="display: none;" id="devicesSpan">Select device(s):<form name="devices" id="devices" disabled=true></span>
+            <span style="display: none;" id="devicesSpan">Select device(s):<form name="devices" id="devices" disabled=true onClick="displaySubmit(); return 0;" ></span>
             </form>
         </div>
 
         <div id="submitDiv">
-            <span><input type="button" name="submit" value="submit" onClick="getTestCases(); return 0;"></span>
-            </input>
+            <span><input id="submit" type="button" name="submit" value="submit" onClick="getTestCases(); return 0;" disabled=true></input></span>
         </div>
     </div>
 
@@ -915,10 +928,10 @@ function getTestCases() {
         <tr>
 
          <td>
-            <div id="loading">
+            <div id="loading" style="display: none;">
               Loading Tests...
             </div>
-            <div style="border: 1px">
+            <div id="Results" style="border: 1px; display: none;">
               Results:
               <span id="fullresults">
               </span>

@@ -48,7 +48,7 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueMarker(webCLEvent);");
 
     // Testing for Exception.
-    shouldThrowWebCLException("webCLCommandQueue.enqueueMarker(invalid_object);");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueMarker(invalid_object);", "INVALID_VALUE");
 
 } catch (e) {
     testFailed("WebCLCommandQueue :: enqueueMarker() throws an exception : " + e.message);

@@ -39,14 +39,19 @@
 try {
     debug("WebCLContext :: getInfo() test case.");
     var wtu = WebCLTestUtils;
-    var webCLContext = wtu.createContext();
+    var webCLPlatform = wtu.getPlatforms();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
+    var webCLContext = webcl.createContext({platform: webCLPlatform, devices:webCLDevices, deviceType:null});
 
-    shouldBeArrayOfType("webCLContext.getInfo(webcl.CONTEXT_DEVICES)", WebCLDevice);
+    shouldBe("webCLContext.getInfo(webcl.CONTEXT_DEVICES)", "webCLDevices");
     shouldBeType("webCLContext.getInfo(webcl.CONTEXT_PROPERTIES)", WebCLContextProperties);
+    shouldBe("webCLContext.getInfo(webcl.CONTEXT_PROPERTIES).platform", "webCLPlatform", true);
+    shouldBe("webCLContext.getInfo(webcl.CONTEXT_PROPERTIES).devices", "webCLDevices", true);
+    shouldBe("webCLContext.getInfo(webcl.CONTEXT_PROPERTIES).deviceType", "0", true);
     shouldBe("typeof " + "webCLContext.getInfo(webcl.CONTEXT_NUM_DEVICES)", "'number'");
 
     // Testing for Exception.
-    shouldThrowWebCLException("webCLContext.getInfo(invalid_object)");
+    shouldThrowExceptionName("webCLContext.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
 } catch (e) {
     testFailed("WebCLContext :: getInfo throws an exception : " + e.message);

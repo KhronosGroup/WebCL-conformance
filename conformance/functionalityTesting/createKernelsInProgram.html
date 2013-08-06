@@ -47,28 +47,25 @@ var getKernels = function (webCLContext, kernelSource, webCLDevices, kernelName,
         webCLKernel = webCLProgram.createKernelsInProgram();
     } catch (e) {
         console.log("createKernelsInProgram threw exception: " + e.message);
-        return null;
+        return "Exception thrown while creating kernels : " + e.name + ".";
     }
 
-    // FIXME This is adding a count to the nuber of test cases.
-    shouldBeArrayOfType("webCLKernel", "WebCLKernel");
-
     for (i = 0; i < webCLKernel.length; i++) {
-        if (!(webCLKernel[i].getInfo(webcl.KERNEL_CONTEXT) === webCLContext)) {
-            console.log("webCLKernel[i].getInfo(webcl.KERNEL_CONTEXT) === webCLContext is false.");
-            return null;
+        if (webCLKernel[i].getInfo(webcl.KERNEL_CONTEXT) !== webCLContext) {
+            console.log("webCLKernel[i].getInfo(webcl.KERNEL_CONTEXT) !== webCLContext.");
+            return "webCLKernel[i].getInfo(webcl.KERNEL_CONTEXT) !== webCLContext, for " + i + "th kernel.";
         }
-        if (!(webCLKernel[i].getInfo(webcl.KERNEL_PROGRAM) === webCLProgram)) {
-            console.log("webCLKernel[i].getInfo(webcl.KERNEL_PROGRAM) === webCLProgram is false.");
-            return null;
+        if (webCLKernel[i].getInfo(webcl.KERNEL_PROGRAM) !== webCLProgram) {
+            console.log("webCLKernel[i].getInfo(webcl.KERNEL_PROGRAM) !== webCLProgram.");
+            return "webCLKernel[i].getInfo(webcl.KERNEL_PROGRAM) !== webCLProgram, for " + i + "th kernel.";
         }
-        if (!(webCLKernel[i].getInfo(webcl.KERNEL_NUM_ARGS) === stringify(kernelArgCount[i]))) {
-            console.log("webCLKernel[i].getInfo(webcl.KERNEL_NUM_ARGS) === stringify(kernelArgCount[i]) is false");
-            return null;
+        if (webCLKernel[i].getInfo(webcl.KERNEL_NUM_ARGS) !== kernelArgCount[i]) {
+            console.log("webCLKernel[i].getInfo(webcl.KERNEL_NUM_ARGS) !== kernelArgCount[i].");
+            return "webCLKernel[i].getInfo(webcl.KERNEL_NUM_ARGS) !== kernelArgCount[i], for " + i + "th kernel.";
         }
-        if (!(webCLKernel[i].getInfo(webcl.KERNEL_FUNCTION_NAME) === stringify(kernelName[i]))) {
-            console.log("webCLKernel[i].getInfo(webcl.KERNEL_FUNCTION_NAME) === stringify(kernelName[i]) is false");
-            return null;
+        if (webCLKernel[i].getInfo(webcl.KERNEL_FUNCTION_NAME) !== kernelName[i]) {
+            console.log("webCLKernel[i].getInfo(webcl.KERNEL_FUNCTION_NAME) !== kernelName[i].");
+            return "webCLKernel[i].getInfo(webcl.KERNEL_FUNCTION_NAME) !== kernelName[i], for " + i + "th kernel.";
         }
     }
     return {
@@ -119,7 +116,7 @@ try {
 
         globalWorkSize[0] = SIZE;
         localWorkSize[0] = kernelCopy.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
-        shouldBe("wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelCopy, null , globalWorkSize, localWorkSize);", "true", true);
+        webCLCommandQueue.enqueueNDRangeKernel(kernelCopy, globalWorkSize.length(), [], globalWorkSize, localWorkSize);
         webCLCommandQueue.enqueueReadBuffer(output, true, 0, DATA_SIZE, result);
 
         correct = 0;
@@ -133,7 +130,7 @@ try {
         else
             testFailed("Test failed. Computed " + correct + " / " + count + " correct values for kernel: \"sample_copy_kernel\".");
     } else
-        testFailed("Failure in creating valid kernel objects for kernel: \"sample_copy_kernel\".");
+        testFailed("Failure in creating / validating kernel objects for kernel: \"sample_copy_kernel\". Reason : " + resultObject);
 
     /*
     *   Testing for "kernel : square"
@@ -158,7 +155,7 @@ try {
 
         globalWorkSize[0] = SIZE;
         localWorkSize[0] = kernelSquare.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
-        shouldBe("wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelSquare, null , globalWorkSize, localWorkSize);", "true", true);
+        webCLCommandQueue.enqueueNDRangeKernel(kernelSquare, globalWorkSize.length(), [] , globalWorkSize, localWorkSize);
         webCLCommandQueue.enqueueReadBuffer(output, true, 0, DATA_SIZE, result);
 
         correct = 0;
@@ -172,7 +169,7 @@ try {
         else
             testFailed("Test failed. Computed " + correct + " / " + count + " correct values for kernel: \"square\".");
     } else
-        testFailed("Failure in creating valid kernel objects for kernel: \"square\".");
+        testFailed("Failure in creating / validating kernel objects for kernel: \"square\". Reason : " + resultObject);
 
     /*
     *   Testing for "kernel : sample_single_kernel"
@@ -196,7 +193,7 @@ try {
 
         globalWorkSize[0] = SIZE;
         localWorkSize[0] = kernelFloatToInt.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
-        shouldBe("wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelFloatToInt, null , globalWorkSize, localWorkSize);", "true", true);
+        webCLCommandQueue.enqueueNDRangeKernel(kernelFloatToInt, globalWorkSize.length(), [] , globalWorkSize, localWorkSize);
         webCLCommandQueue.enqueueReadBuffer(output, true, 0, DATA_SIZE, result);
 
         correct = 0;
@@ -210,7 +207,7 @@ try {
         else
             testFailed("Test failed. Computed " + correct + " / " + count + " correct values for kernel: \"sample_single_kernel\".");
     } else
-        testFailed("Failure in creating valid kernel objects for kernel: \"sample_single_kernel\".");
+        testFailed("Failure in creating / validating kernel objects for kernel: \"sample_single_kernel\". Reason : " + resultObject);
 
     /*
     *   Testing for "two kernels in one"
@@ -249,9 +246,10 @@ try {
         kernelFloatToInt.setArg(1, output_int);
 
         globalWorkSize[0] = SIZE;
+        localWorkSize[0] = kernelSquare.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
+        webCLCommandQueue.enqueueNDRangeKernel(kernelSquare, globalWorkSize.length(), [], globalWorkSize, localWorkSize);
         localWorkSize[0] = kernelFloatToInt.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
-        shouldBe("wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelSquare, null , globalWorkSize, localWorkSize);", "true", true);
-        shouldBe("wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelFloatToInt, null , globalWorkSize, localWorkSize);", "true", true);
+        webCLCommandQueue.enqueueNDRangeKernel(kernelFloatToInt, globalWorkSize.length(), [], globalWorkSize, localWorkSize);
         webCLCommandQueue.enqueueReadBuffer(output_square, true, 0, DATA_SIZE, result);
         webCLCommandQueue.enqueueReadBuffer(output_int, true, 0, DATA_SIZE, result_2);
 
@@ -277,7 +275,7 @@ try {
             testFailed("Test failed for \"two kernels in one\". Computed " + correct_1 + " / " + count + " correct values for kernel: \"square\" and " + correct_2 + " / " + count + " correct values for kernel: \"sample_single_kernel\".");
 
     } else
-        testFailed("Test failed for \"two kernels in one\" for kernels (\"square\" and \"sample_single_kernel\") due to failure in validating created kernels.");
+        testFailed("Test failed for \"two kernels in one\" for kernels (\"square\" and \"sample_single_kernel\") due to failure in creating / validating created kernels. Reason : " + resultObject);
 
     /*
     *   Testing for "two kernels : sample_test, sample_test2"
@@ -298,28 +296,29 @@ try {
     if (resultObject && resultObject.kernelArray) {
 
         var kernelPassed = 0;
-        kernel_1= resultObject.kernelArray[0];
-        kernel_2= resultObject.kernelArray[1];
+        kernelSample_test = resultObject.kernelArray[0];
+        kernelSample_test2 = resultObject.kernelArray[1];
 
-        var input_1 = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
-        var input_2 = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
-        var output_1 = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
-        var output_2 = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
-        webCLCommandQueue.enqueueWriteBuffer(input_1, true, 0, DATA_SIZE, data_float);
-        webCLCommandQueue.enqueueWriteBuffer(input_2, true, 0, DATA_SIZE, data_int);
+        var inputSample_test = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
+        var inputSample_test2 = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
+        var outputSample_test = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
+        var outputSample_test2 = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
+        webCLCommandQueue.enqueueWriteBuffer(inputSample_test, true, 0, DATA_SIZE, data_float);
+        webCLCommandQueue.enqueueWriteBuffer(inputSample_test2, true, 0, DATA_SIZE, data_int);
 
-        kernel_1.setArg(0, input_1);
-        kernel_1.setArg(1, output_1);
+        kernelSample_test.setArg(0, inputSample_test);
+        kernelSample_test.setArg(1, outputSample_test);
 
-        kernel_2.setArg(0, input_2);
-        kernel_2.setArg(1, output_2);
+        kernelSample_test2.setArg(0, inputSample_test2);
+        kernelSample_test2.setArg(1, outputSample_test2);
 
         globalWorkSize[0] = SIZE;
-        localWorkSize[0] = kernelFloatToInt.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
-        shouldBe("wtu.enqueueNDRangeKernel(webCLCommandQueue, kernel_1, null , globalWorkSize, localWorkSize);", "true", true);
-        shouldBe("wtu.enqueueNDRangeKernel(webCLCommandQueue, kernel_2, null , globalWorkSize, localWorkSize);", "true", true);
-        webCLCommandQueue.enqueueReadBuffer(output_1, true, 0, DATA_SIZE, result);
-        webCLCommandQueue.enqueueReadBuffer(output_2, true, 0, DATA_SIZE, result_2);
+        localWorkSize[0] = kernelSample_test.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
+        webCLCommandQueue.enqueueNDRangeKernel(kernelSample_test, globalWorkSize.length(), [], globalWorkSize, localWorkSize);
+        localWorkSize[0] = kernelSample_test2.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
+        webCLCommandQueue.enqueueNDRangeKernel(kernelSample_test2, globalWorkSize.length(), [] , globalWorkSize, localWorkSize);
+        webCLCommandQueue.enqueueReadBuffer(outputSample_test, true, 0, DATA_SIZE, result);
+        webCLCommandQueue.enqueueReadBuffer(outputSample_test2, true, 0, DATA_SIZE, result_2);
 
         correct_1 = 0;
         for (i = 0; i < count; i++) {
@@ -343,7 +342,7 @@ try {
             testFailed("Test failed for \"sample two kernels in one\". Computed " + correct_1 + " / " + count + " correct values for kernel: \"sample_test\" and " + correct_2 + " / " + count + " correct values for kernel: \"sample_test2\".");
 
     } else
-        testFailed("Test failed for \"sample two kernels in one\" for kernels (\"sample_test\" and \"sample_test2\") due to failure in validating created kernels.");
+        testFailed("Test failed for \"sample two kernels in one\" for kernels (\"sample_test\" and \"sample_test2\") due to failure in creating / validating created kernels. Reason : " + resultObject);
 
 } catch(e) {
     testFailed("createKernelsInProgram throws an exception : " + e.message);

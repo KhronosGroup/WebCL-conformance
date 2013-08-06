@@ -41,8 +41,8 @@
 var getProgram = function (webCLContext, kernelSource) {
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
 
-    if (!(webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) === webCLContext)) {
-        console.log("webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) === webCLContext is false.");
+    if (webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) !== webCLContext) {
+        console.log("webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) !== webCLContext.");
         return null;
     }
 
@@ -56,12 +56,12 @@ var getProgram = function (webCLContext, kernelSource) {
         }
     }
 
-    if (!(typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) === 'number')) {
-        console.log("typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) === 'number' is false.");
+    if (typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) != 'number') {
+        console.log("typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) != 'number'.");
         return null;
     }
-    if (!(webCLProgram.getInfo(webcl.PROGRAM_SOURCE) === kernelSource)) {
-        console.log("webCLProgram.getInfo(webcl.PROGRAM_SOURCE) === \"kernelSource\" is false");
+    if (webCLProgram.getInfo(webcl.PROGRAM_SOURCE) !== kernelSource) {
+        console.log("webCLProgram.getInfo(webcl.PROGRAM_SOURCE) !== \"kernelSource\"");
         return null;
     }
 

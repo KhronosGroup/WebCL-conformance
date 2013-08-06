@@ -53,11 +53,10 @@ try {
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     var webCLCommandQueue = webCLContext.createCommandQueue(webCLDevices[0], webcl.QUEUE_PROFILING_ENABLE);
     var webCLEvent = wtu.createEvent(webCLContext);
-    wtu.build(webCLProgram, webCLDevices, "-cl-single-precision-constant");
+    wtu.build(webCLProgram, webCLDevices);
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
-    var workGroupSize = webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
-    var localWorkSize = new Int32Array([workGroupSize]);
-    var globalWorkSize = new Int32Array([count]);
+    var globalWorkSize = new Int32Array(1);
+    var localWorkSize = new Int32Array(1);
 
     input = webCLContext.createBuffer(webcl.MEM_READ_ONLY, BUFFER_SIZE);
     output = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
@@ -66,10 +65,9 @@ try {
     wtu.setArg(webCLKernel, 1, output);
     wtu.setArg(webCLKernel, 2, count, WebCLKernelArgumentTypes.LONG);
 
-    var globalWorkSize = new Int32Array([300, 400]);
-    var localWorkSize = new Int32Array([2, 2]);
-    var globalWorkOffset = new Int32Array([2, 2]);
-    wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkOffset, globalWorkSize, localWorkSize);
+    globalWorkSize[0] = SIZE;
+    localWorkSize[0] = webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
+    wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkSize.length(), [], globalWorkSize, localWorkSize);
 
     shouldBe("typeof " + "webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_QUEUED);", "'number'");
     shouldBe("typeof " + "webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);", "'number'");
@@ -77,14 +75,14 @@ try {
     shouldBe("typeof " + "webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_END);", "'number'");
 
     // Testing for Exceptions.
-    shouldThrowWebCLException("webCLEvent.getProfilingInfo(invalid_object);");
+    shouldThrowExceptionName("webCLEvent.getProfilingInfo(invalid_CLenum);", "INVALID_VALUE");
 
-    var webCLCommandQueue2 = webCLContext.createCommandQueue(webCLDevices[0], webcl.QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE);
-    wtu.enqueueNDRangeKernel(webCLCommandQueue2, webCLKernel, globalWorkOffset, globalWorkSize, localWorkSize);
-    shouldThrowWebCLException("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);");
+    var webCLCommandQueue2 = webCLContext.createCommandQueue(webCLDevices[0]);
+    wtu.enqueueNDRangeKernel(webCLCommandQueue2, webCLKernel, globalWorkSize.length(), globalWorkOffset, globalWorkSize, localWorkSize);
+    shouldThrowExceptionName("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);", "PROFILING_INFO_NOT_AVAILABLE");
 
-    webCLEvent.setUserEventStatus(invalid_object);
-    shouldThrowWebCLException("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);");
+    webCLEvent.setUserEventStatus(invalid_CLenum);
+    shouldThrowExceptionName("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);", "PROFILING_INFO_NOT_AVAILABLE");
 
 } catch(e) {
     testFailed("WebCLEvent :: getProfilingInfo() throws an exception : " + e.message);

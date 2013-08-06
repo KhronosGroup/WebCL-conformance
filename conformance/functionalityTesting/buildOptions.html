@@ -37,66 +37,57 @@
 <div id="console"></div>
 <script>
 
-try {
+debug("buildOptions functionality test case.");
 
-    debug("buildOptions functionality test case.");
+var wtu = WebCLTestUtils;
+var webCLContext = wtu.createContext();
+var webCLPlatforms = wtu.getPlatforms();
+var webCLDevices = wtu.getDevices(webCLPlatforms);
+var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+var kernelSource, webCLKernel;
+var correct, input, output, optionIndex;
+var count = SIZE;
+var data = new Float32Array(SIZE);
+var result = new Int32Array(SIZE);
+var globalWorkSize = new Int32Array(1);
+var localWorkSize = new Int32Array(1);
 
-    var wtu = WebCLTestUtils;
-    var webCLContext = wtu.createContext();
-    var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms);
-    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var kernelSource, webCLKernel;
-    var correct, input, output, optionIndex;
-    var count = SIZE;
-    var data = new Float32Array(SIZE);
-    var result = new Int32Array(SIZE);
-    var globalWorkSize = new Int32Array(1);
-    var localWorkSize = new Int32Array(1);
+var optimization_options = [
+       "-D SIZE",
+       "-D SIZE=1024",
+       "-cl-opt-disable",
+       "-cl-single-precision-constant",
+       "-cl-denorms-are-zero",
+       "-cl-mad-enable",
+       "-cl-no-signed-zeros",
+       "-cl-unsafe-math-optimizations",
+       "-cl-finite-math-only",
+       "-cl-fast-relaxed-math",
+       "-W",
+       "-Werror"];
+/*
+*   Testing for kernel options_test_kernel
+*   Rounds off float value to an int.
+*/
+for (i = 0; i < count; i++)
+    data[i] = Math.random() * 10;
 
-    var optimization_options = [
-        "-cl-single-precision-constant",
-        "-cl-denorms-are-zero",
-        "-cl-opt-disable",
-        "-cl-strict-aliasing",
-        "-cl-mad-enable",
-        "-cl-no-signed-zeros",
-        "-cl-unsafe-math-optimizations",
-        "-cl-finite-math-only",
-        "-cl-fast-relaxed-math",
-        "-w",
-        "-Werror"];
+kernelSource = wtu.readKernel("../../resources/kernels/options_test_kernel.cl");
 
-    /*
-    *   Testing for kernel options_test_kernel
-    *   Rounds off float value to an int.
-    */
-
-
-    for (i = 0; i < count; i++)
-        data[i] = Math.random() * 10;
-
-    for (optionIndex = 0; optionIndex < optimization_options.length; optionIndex++) {
-        kernelSource = wtu.readKernel("../../resources/kernels/options_test_kernel.cl");
-        webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-        shouldBe("webCLProgram.getInfo(webcl.PROGRAM_SOURCE)", "kernelSource", true);
-
-        try {
-            webCLProgram.build(webCLDevices, optimization_options[optionIndex]);
-        } catch(e) {
-            testFailed("Failed to build for option : " + optimization_options[optionIndex] + ".");
-            continue;
-        }
+for (optionIndex = 0; optionIndex < optimization_options.length; optionIndex++) {
+    try {
+        webCLProgram = webCLContext.createProgram(kernelSource);
+        webCLProgram.build(webCLDevices, optimization_options[optionIndex]);
+        webCLKernel = webCLProgram.createKernel("options_test_kernel");
 
         if (webCLProgram.getBuildInfo(webCLDevices[0], webcl.PROGRAM_BUILD_STATUS) != 0) {
             testFailed("Failed to build for option : " + optimization_options[optionIndex] + ".");
             continue;
         }
-        shouldBe("webCLProgram.getBuildInfo(webCLDevices[0], webcl.PROGRAM_BUILD_OPTIONS);", "optimization_options[optionIndex]", true);
-        shouldBe("typeof " + "webCLProgram.getBuildInfo(webCLDevices[0], webcl.PROGRAM_BUILD_LOG);", "'string'", true);
-
-        webCLKernel = webCLProgram.createKernel("options_test_kernel");
-        shouldBeType("webCLKernel", "WebCLKernel", true);
+        if (webCLProgram.getBuildInfo(webCLDevices[0], webcl.PROGRAM_BUILD_OPTIONS).indexOf(optimization_options[optionIndex])) {
+            testFailed("Failed to fetch build option from WebCLProgram object : " + optimization_options[optionIndex] + ".");
+            continue;
+        }
 
         input = webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);
         output = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
@@ -107,24 +98,22 @@ try {
         globalWorkSize[0] = SIZE;
         localWorkSize[0] = webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
 
-        shouldBe("wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, null, globalWorkSize, localWorkSize);", "true", true);
+        webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, globalWorkSize.length(), [], globalWorkSize, localWorkSize);
 
         webCLCommandQueue.enqueueReadBuffer(output, true, 0, DATA_SIZE, result);
 
-        correct = 0;
-        for (i = 0; i < count; i++) {
+        for (correct = 0, i = 0; i < count; i++) {
             if (result[i] == Math.floor(data[i]))
                 correct++;
         }
-        console.log("Computed " + correct + "/" + count + " correct values for kernel \"options_test_kernel\". option" + optimization_options[optionIndex]);
         if (correct == count)
             testPassed("Test passed for all " + count + " values for kernel: \"options_test_kernel\" with option : " + optimization_options[optionIndex] + ".");
         else
-            testFailed("Test failed for kernel: \"options_test_kernel\" with option : " + optimization_options[optionIndex] + ". Computed " + correct + " / " + count + "correct values.");
+            testFailed("Test failed with build-option : " + optimization_options[optionIndex] + ". Computed " + correct + " / " + count + "correct values.");
+    } catch(e) {
+        testFailed("Failed to build program for option [" + optimization_options[optionIndex] + "] with exception :" + e.name + ".");
+        continue;
     }
-
-} catch(e) {
-    testFailed("buildOptions throws an exception : " + e.message);
 }
 successfullyParsed = true;
 </script>

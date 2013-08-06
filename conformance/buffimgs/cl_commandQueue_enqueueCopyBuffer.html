@@ -38,72 +38,74 @@
 <script>
 try {
     debug("WebCLCommandQueue wtu.enqueueCopyBuffer test case. \n");
-    debug("(WebCLBuffer srcBuffer, WebCLBuffer destBuffer, CLuint srcOffset, CLuint destOffset, CLuint numBytes, optional WebCLEvent[]? eventWaitList, optional WebCLEvent? event)\n");
+    debug("(WebCLBuffer srcBuffer, WebCLBuffer dstBuffer, CLuint srcOffset, CLuint dstOffset, CLuint numBytes, optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event)\n");
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
 
-    var origin = new Int32Array([12, 25]);
-    var region = new Int32Array([10, 20]);
-    var data = new Float32Array(DATA_SIZE);
-    var imageWidth = 100;
-    var imageHeight = 100;
     var BUFFER_SIZE = Float32Array.BYTES_PER_ELEMENT * 320 * 240 * 4;
     var srcOffset = 0;
-    var destOffset = 0;
+    var dstOffset = 0;
     var numBytes = 10;
 
     var srcBufferRead = webCLContext.createBuffer(webcl.MEM_READ_ONLY, BUFFER_SIZE);
-    var destBufferRead = webCLContext.createBuffer(webcl.MEM_READ_ONLY, BUFFER_SIZE);
-    var destBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
-    var destBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var dstBufferRead = webCLContext.createBuffer(webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var srcBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
+    var dstBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
+    var srcBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var dstBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, BUFFER_SIZE);
 
-    // Source and Destination buffers test case.
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferRead, destBufferRead, srcOffset, destOffset, numBytes)");
-    shouldBeTrue("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferRead, destBufferWrite, srcOffset, destOffset, numBytes)");
-    shouldBeTrue("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferRead, destBufferReadWrite, srcOffset, destOffset, numBytes)");
+    // Testing with destination buffer as MEM_READ_ONLY memory object.
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstBufferRead, srcOffset, dstOffset, numBytes)");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferWrite, dstBufferRead, srcOffset, dstOffset, numBytes)");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, dstBufferRead, srcOffset, dstOffset, numBytes)");
+
+    // Testing with destination buffer as MEM_WRITE_ONLY memory object.
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstBufferWrite, srcOffset, dstOffset, numBytes)");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferWrite, dstBufferWrite, srcOffset, dstOffset, numBytes)");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, dstBufferWrite, srcOffset, dstOffset, numBytes)");
+
+    // Testing with destination buffer as MEM_READ_WRITE memory object.
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffset, dstOffset, numBytes)");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferWrite, dstBufferReadWrite, srcOffset, dstOffset, numBytes)");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, dstBufferReadWrite, srcOffset, dstOffset, numBytes)");
 
     // Source and destination offsets test case.
-    shouldBeTrue("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferRead, destBufferReadWrite, srcOffset, destOffset, numBytes)");
     var srcOffsetInvalid = BUFFER_SIZE + 1;
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferRead, destBufferReadWrite, srcOffsetInvalid, destOffset, numBytes)");
-    var destOffsetInvalid = BUFFER_SIZE + 1;
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferRead, destBufferReadWrite, srcOffset, destOffsetInvalid, numBytes)");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffsetInvalid, dstOffset, numBytes)", "INVALID_VALUE");
+    var dstOffsetInvalid = BUFFER_SIZE + 10;
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffset, dstOffsetInvalid, numBytes)", "INVALID_VALUE");
 
     // Number of bytes to be copied test cases.
-    var numBytesInvalid = BUFFER_SIZE + 1;
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferRead, destBufferReadWrite, srcOffset, destOffset, numBytesInvalid)");
+    var numBytesInvalid = BUFFER_SIZE + 10;
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffset, dstOffset, numBytesInvalid)", "INVALID_VALUE");
 
     // Using same buffer as source and destination.
-    var srcBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, BUFFER_SIZE);
-    shouldBeTrue("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferReadWrite, srcBufferReadWrite, srcOffset, destOffset, numBytes)");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, srcBufferReadWrite, srcOffset, dstOffset, numBytes)");
     var srcOffset2 = BUFFER_SIZE / 2;
-    var destOffset2 = 0;
-    shouldBeTrue("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferReadWrite, srcBufferReadWrite, srcOffset2, destOffset2, numBytes)");
+    var dstOffset2 = 0;
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, srcBufferReadWrite, srcOffset2, dstOffset2, numBytes)");
 
     // Overlapping copy.
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue, destBufferReadWrite, destBufferReadWrite, srcOffset, srcOffset, numBytes)");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(dstBufferReadWrite, dstBufferReadWrite, srcOffset, srcOffset, numBytes)", "MEM_COPY_OVERLAP");
+
+    // Testing for exceptions.
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(invalid_object, dstBufferReadWrite, srcOffset, dstOffset, numBytes)", "INVALID_MEM_OBJECT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, invalid_object, srcOffset, dstOffset, numBytes)", "INVALID_MEM_OBJECT");
+
+    var webCLContext2 = wtu.createContext();
+    var dstBufferNew = webCLContext2.createBuffer(webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var srcBufferNew = webCLContext2.createBuffer(webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferNew, dstBufferNew, srcOffset, dstOffset, numBytes)", "INVALID_CONTEXT");
+
+    var webCLCommandQueueNew = wtu.createCommandQueue(webCLContext2);
+    shouldThrowExceptionName("wtu.enqueueCopyBuffer(webCLCommandQueueNew, srcBufferRead, dstBufferReadWrite, srcOffset, dstOffset, numBytes)", "INVALID_CONTEXT");
+
+    // FIXME :: Need to add test case for verification of exception: MEM_OBJECT_ALLOCATION_FAILURE and MISALIGNED_SUB_BUFFER_OFFSET.
 
     // FIXME :: Need to add test cases for events params.
 
-    // Testing invalid objects as params.
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue, invalid_object, destBufferReadWrite, srcOffset, destOffset, numBytes)");
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferRead, invalid_object, srcOffset, destOffset, numBytes)");
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferRead, destBufferReadWrite, invalid_object, destOffset, numBytes)");
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferRead, destBufferReadWrite, srcOffset, invalid_object, numBytes)");
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferRead, destBufferReadWrite, srcOffset, destOffset, invalid_object)");
-
-    // Test for Exceptions.
-    var webCLContext2 = wtu.createContext();
-    var destBuffer2 = webCLContext2.createBuffer(webcl.MEM_READ_WRITE, BUFFER_SIZE);
-    var srcBuffer2 = webCLContext2.createBuffer(webcl.MEM_READ_WRITE, BUFFER_SIZE);
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue, srcBuffer2, destBuffer2, srcOffset, destOffset, numBytes)");
-
-    var webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2);
-    shouldThrowWebCLException("wtu.enqueueCopyBuffer(webCLCommandQueue2, srcBufferRead, destBufferReadWrite, srcOffset, destOffset, numBytes)");
-
-    // FIXME :: Need to add test case for subbuffer handling.
 } catch (e) {
     testFailed("WebCLCommandQueue :: wtu.enqueueCopyBuffer throws an exception : " + e.message);
 }

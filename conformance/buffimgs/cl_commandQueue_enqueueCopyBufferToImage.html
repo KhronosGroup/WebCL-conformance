@@ -40,82 +40,65 @@
 </div>
 <script>
 try {
-    var jsInputImage;
-    jsInputImage = new Image();
-    jsInputImage.src = "pebbleHalf.jpg";
-    jsInputImage.onload = execute;
-} catch(e) {
-    testFailed("Unable to load HTML image element : " + e.message);
-}
+    debug("WebCLCommandQueue :: enqueueCopyBufferToImage() test case.");
+    debug("( WebCLBuffer srcBuffer, WebCLImage dstImage, CLuint srcOffset, sequence<CLuint> dstOrigin, sequence<CLuint> dstRegion, optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event) \n");
 
-var wtu = WebCLTestUtils;
-var webCLContext = wtu.createContext();
-var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-var webCLImageRead, webCLImageWrite, webCLImageReadWrite, webCLBufferRead, webCLBufferReadWrite, webCLBufferWrite, originInvalid, regionInvalid;
-var origin, region;
-var width, height;
+    var wtu = WebCLTestUtils;
+    var webCLContext = wtu.createContext();
+    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+    var origin = [0, 0];
+    var region = [10, 10];
+    var width = 10;
+    var height = 10;
 
-function execute()
-{
-    origin = new Int32Array([12, 25]);
-    region = new Int32Array([10, 20]);
-    width = jsInputImage.width;
-    height = jsInputImage.height;
+    var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, width, height);
+    var webCLBufferRead = webCLContext.createBuffer(webcl.MEM_READ_ONLY, Float32Array.BYTES_PER_ELEMENT * width * height * 4);
+    var webCLBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, Float32Array.BYTES_PER_ELEMENT * width * height * 4);
+    var webCLBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, Float32Array.BYTES_PER_ELEMENT * width * height * 4);
 
-    try {
-        debug("WebCLCommandQueue :: enqueueCopyBufferToImage() test case.");
-        debug("( WebCLBuffer srcBuffer, WebCLImage dstImage, CLuint srcOffset, CLuint[2] dstOrigin, CLuint[2] dstRegion, optional WebCLEvent[]? eventWaitList, optional WebCLEvent? event)");
+    // Testing for MEM_WRITE_ONLY Images.
+    var webCLImageWrite = webCLContext.createImage(webcl.MEM_WRITE_ONLY, webCLImageDescriptorReadWrite);
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferRead, webCLImageWrite, 0, origin, region);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageWrite, 0, origin, region);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferWrite, webCLImageWrite, 0, origin, region);");
 
-        webCLBufferRead = webCLContext.createBuffer(webcl.MEM_READ_ONLY, Float32Array.BYTES_PER_ELEMENT * width * height * 4);
-        webCLBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, Float32Array.BYTES_PER_ELEMENT * width * height * 4);
-        webCLBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, Float32Array.BYTES_PER_ELEMENT * width * height * 4);
+    // Testing for MEM_READ_WRITE Images.
+    var webCLImageReadWrite = webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferRead, webCLImageReadWrite, 0, origin, region);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, 0, origin, region);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferWrite, webCLImageReadWrite, 0, origin, region);");
 
-        // Testing for MEM_WRITE_ONLY Images.
-        webCLImageWrite = webCLContext.createImage(webcl.MEM_WRITE_ONLY, jsInputImage);
-        shouldBeTrue("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferRead, webCLImageWrite, 0, origin, region);");
-        shouldBeTrue("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageWrite, 0, origin, region);");
-        shouldThrowWebCLException("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferWrite, webCLImageWrite, 0, origin, region);");
+    // Testing for MEM_READ_ONLY Images.
+    var webCLImageRead = webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferRead, webCLImageRead, 0, origin, region);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageRead, 0, origin, region);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferWrite, webCLImageRead, 0, origin, region);");
 
-        // Testing for MEM_READ_WRITE Images.
-        webCLImageReadWrite = webCLContext.createImage(webcl.MEM_READ_WRITE, jsInputImage);
-        shouldBeTrue("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferRead, webCLImageReadWrite, 0, origin, region);");
-        shouldBeTrue("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, 0, origin, region);");
-        shouldThrowWebCLException("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferWrite, webCLImageReadWrite, 0, origin, region);");
+    // Testing for Exceptions.
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferToImage(invalid_object, webCLImageReadWrite, 0, origin, region);", "INVALID_MEM_OBJECT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, invalid_object, 0, origin, region);", "INVALID_MEM_OBJECT");
 
-        // Testing for MEM_READ_ONLY Images.
-        webCLImageRead = webCLContext.createImage(webcl.MEM_READ_ONLY, jsInputImage);
-        shouldThrowWebCLException("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferRead, webCLImageRead, 0, origin, region);");
-        shouldThrowWebCLException("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageRead, 0, origin, region);");
-        shouldThrowWebCLException("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferWrite, webCLImageRead, 0, origin, region);");
+    // Testing for values of offset.
+    var offsetInvalid = width * height; 
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, offsetInvalid, origin, region);", "INVALID_VALUE");
+    
+    // Testing for values of origin.
+    var originInvalid = [];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, 0, originInvalid, region);", "INVALID_VALUE");
 
-        // FIXME :: Need to add test cases passing event parameters.
+    // Testing for values of region.
+    var regionInvalid = [];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, 0, origin, regionInvalid);", "INVALID_VALUE");
 
-        // Testing for Exceptions.
-        shouldThrowWebCLException("wtu.enqueueCopyBufferToImage(webCLCommandQueue, invalid_object, webCLImageReadWrite, 0, origin, region);");
-        shouldThrowWebCLException("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, invalid_object, 0, origin, region);");
-        shouldThrowWebCLException("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, invalid_object, origin, region);");
+    // FIXME :: Need to add test cases passing event parameters.
+    
+    // FIXME To add tet cases to verufy for exception INVALID_IMAGE_SIZE.
 
-        // Testing for values of origin.
-        originInvalid = new Int32Array([-12, -20]);
-        shouldThrowWebCLException("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, 0, originInvalid, region);");
-
-        // Testing for values of region.
-        regionInvalid = new Int32Array([-10, -50]);
-        shouldThrowWebCLException("wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, 0, origin, regionInvalid);");
-
-    } catch (e) {
-        testFailed("WebCLCommandQueue :: enqueueCopyBufferToImage() throws an exception : " + e.message);
-    }
-
-    var script = document.createElement('script');
-    script.src = '../../resources/js-test-post.js';
-    script.type = 'text/javascript';
-
-    script.onload = function () {};
-
-    document.getElementsByTagName('head')[0].appendChild(script);
+} catch (e) {
+    testFailed("WebCLCommandQueue :: enqueueCopyBufferToImage() throws an exception : " + e.message);
 }
 successfullyParsed = true;
 </script>
+<script src="../../resources/js-test-post.js"></script>
 </body>
 </html>

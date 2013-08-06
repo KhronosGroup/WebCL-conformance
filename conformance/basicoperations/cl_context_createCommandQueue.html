@@ -38,7 +38,7 @@
 <script>
 try {
     debug("WebCLContext :: CreateCommandQueue() test case.");
-    debug("(optional WebCLDevice? device, optional CLenum properties)");
+    debug("(optional WebCLDevice? device = null, optional CLenum properties = 0)");
 
     var wtu = WebCLTestUtils;
     var webCLPlatforms = wtu.getPlatforms();
@@ -53,11 +53,11 @@ try {
     shouldBeType("webCLContext.createCommandQueue(null, webcl.QUEUE_PROFILING_ENABLE);", "WebCLCommandQueue");
 
     // Testing for Exceptions.
-    shouldThrowWebCLException("webCLContext.createCommandQueue(invalid_object);");
-    shouldThrowWebCLException("webCLContext.createCommandQueue(webCLDevices, invalid_object);");
+    shouldThrowExceptionName("webCLContext.createCommandQueue(invalid_object);", "INVALID_DEVICE");
+    shouldThrowExceptionName("webCLContext.createCommandQueue(webCLDevices, invalid_CLenum);", "INVALID_VALUE");
 
     var webCLContext2 = webcl.createContext();
-    shouldThrowWebCLException("webCLContext2.createCommandQueue(webCLDevices);");
+    shouldThrowExceptionName("webCLContext2.createCommandQueue(webCLDevices);", "INVALID_DEVICE");
 
     // FIXME To add test case throwing exception : INVALID_QUEUE_PROPERTIES
 

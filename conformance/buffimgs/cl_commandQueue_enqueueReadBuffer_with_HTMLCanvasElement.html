@@ -1,0 +1,91 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following condition
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>WebCLCommandQueue enqueueReadBuffer with HTMLCanvasElement conformance test.</title>
+    <link rel="stylesheet" href="../../resources/js-test-style.css"/>
+    <script src="../../resources/js-test-pre.js"></script>
+    <script src="../../resources/cl_utils.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+<div style="position:absolute; left:0px; top:0px; visibility:hidden" id="x">
+    <canvas id="inputCanvas" />
+</div>
+<script>
+try {
+    debug("WebCLCommandQueue :: enqueueReadBuffer() with HTMLCanvasElement test case.");
+    debug("( WebCLBuffer buffer, CLboolean blockingRead, CLuint bufferOffset, CLuint numBytes, HTMLCanvasElement dstCanvas, optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event)\n");
+
+    var wtu = WebCLTestUtils;
+    var webCLContext = wtu.createContext();
+    var canvas = document.getElementById("inputCanvas");
+    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+    var bufferOffset = 0;
+    var numBytes = DATA_SIZE;
+
+    // MEM_READ_ONLY Buffers.
+    var webCLBufferRead = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, true, bufferOffset, numBytes, canvas)");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, false, bufferOffset, numBytes, canvas)");
+
+    // MEM_WRITE_ONLY Buffers.
+    var webCLBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferWrite, true, bufferOffset, numBytes, canvas)");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferWrite, false, bufferOffset, numBytes, canvas)");
+
+    // MEM_READ_WRITE Buffers.
+    var webCLBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, canvas)");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numBytes, canvas)");
+
+    // Testing for exceptions. 
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(invalid_object, true, bufferOffset, numBytes, canvas)", "INVALID_MEM_OBJECT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, invalid_object)", "INVALID_VALUE");
+
+    // Testing for invalid value of bufferOffset.
+    var bufferOffsetInvalid = DATA_SIZE + 1;
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffsetInvalid, numBytes, canvas)", "INVALID_VALUE");
+
+    // Testing for invalid value of numBytes.
+    var numBytesInvalid = DATA_SIZE + 1;
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas)", "INVALID_VALUE");
+
+    // FIXME :: To add test case to verify for invalid canvas.
+
+    // FIXME :: Need to add test cases passing event parameters.
+
+} catch (e) {
+    testFailed("WebCLCommandQueue :: enqueueReadBuffer() with HTMLCanvasElement throws an exception : " + e.message);
+}
+successfullyParsed = true;
+</script>
+<script src="../../resources/js-test-post.js"></script>
+</body>
+</html>

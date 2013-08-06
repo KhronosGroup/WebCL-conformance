@@ -27,7 +27,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-    <title>WebCLCommandQueue enqueueTask conformance test.</title>
+    <title>buildCallback conformance test.</title>
     <link rel="stylesheet" href="../../resources/js-test-style.css"/>
     <script src="../../resources/js-test-pre.js"></script>
     <script src="../../resources/cl_utils.js"></script>
@@ -36,40 +36,25 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
+function callback(event)
+{
+    // Build is expected to get over by the time callback is called. So, expecting build status to be 0.
+    shouldBe("webCLProgram.getBuildInfo(webCLDevices[0], webcl.PROGRAM_BUILD_STATUS);", "0");
+    console.log("\ninside callback");
+}
+var webCLProgram, webCLDevices;
 try {
-    debug("WebCLCommandQueue :: enqueueTask test case.");
-    debug("(WebCLKernel kernel, optional WebCLEvent[]? eventWaitList = null, optional WebCLEvent? event = null)");
+    debug("build with Callback functionality test case.");
 
-    var count = SIZE;
-    var data = new Float32Array(DATA_SIZE);
-    for(var i = 0; i < count; i++) {
-        data[i] = Math.random();
-    }
     var wtu = WebCLTestUtils;
+    var webCLPlatform = wtu.getPlatforms();
+    webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLContext = wtu.createContext();
     var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
-    var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms);
-    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    webCLProgram.build(webCLDevices, "-cl-fast-relaxed-math");
-    var webCLKernel = webCLProgram.createKernel("square");
-
-    var input = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
-    var output = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
-
-    webCLKernel.setArg(0, input);
-    webCLKernel.setArg(1, output);
-    webCLKernel.setArg(2, count, WebCLKernelArgumentTypes.LONG);
-    shouldBeTrue("wtu.enqueueTask(webCLCommandQueue, webCLKernel);");
-
-    // FIXME :: Need to add test cases passing event parameters.
-
-    shouldThrowWebCLException("wtu.enqueueTask(webCLCommandQueue, invalid_object);");
-
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    webCLProgram.build(webCLDevices, "", callback());
 } catch(e) {
-    testFailed("WebCLCommandQueue :: enqueueTask Throws an exception : " + e.message);
+    testFailed("build with callback throws an exception : " + e.message);
 }
 successfullyParsed = true;
 </script>

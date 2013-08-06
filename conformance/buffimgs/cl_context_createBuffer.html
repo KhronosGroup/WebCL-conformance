@@ -38,35 +38,37 @@
 <script>
 try {
     debug("WebCLContext :: createBuffer test case.");
-    debug("(CLenum memFlags, CLuint sizeInBytes, optional ArrayBuffer hostPtr)");
+    debug("(CLenum memFlags, CLuint sizeInBytes, optional ArrayBufferView hostPtr)\n");
+
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var hostPtr = new ArrayBuffer(SIZE);
+    var hostPtr = new Float32Array(SIZE);
+    count = SIZE;
+    for (var i = 0; i < count; i++) {
+        hostPtr[i] = Math.random();
+    }
 
     // Testing for MEM_READ_ONLY Buffer.
-    shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);", "WebCLBuffer");
-    shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE, hostPtr);", "WebCLBuffer");
+    shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_ONLY, SIZE);", "WebCLBuffer");
+    shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_ONLY, SIZE, hostPtr);", "WebCLBuffer");
 
     // Testing for MEM_WRITE_ONLY Buffer.
-    shouldBeType("webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);", "WebCLBuffer");
-    shouldBeType("webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE, hostPtr);", "WebCLBuffer");
+    shouldBeType("webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, SIZE);", "WebCLBuffer");
+    shouldBeType("webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, SIZE, hostPtr);", "WebCLBuffer");
 
     // Testing for MEM_READ_WRITE Buffer.
-    shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);", "WebCLBuffer");
-    shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE, hostPtr);", "WebCLBuffer");
+    shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_WRITE, SIZE);", "WebCLBuffer");
+    shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_WRITE, SIZE, hostPtr);", "WebCLBuffer");
 
     // Testing for Exceptions.
-    shouldThrowWebCLException("webCLContext.createBuffer(invalid_object, DATA_SIZE);");
-    shouldThrowWebCLException("webCLContext.createBuffer(webcl.MEM_READ_WRITE, invalid_object);");
-    shouldThrowWebCLException("webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE, invalid_object);");
-    shouldThrowWebCLException("webCLContext.createBuffer(webcl.MEM_READ_WRITE, 0, hostPtr);");
-    shouldThrowWebCLException("webCLContext.createBuffer(webcl.MEM_READ_WRITE, 100, new ArrayBuffer(10));");
+    shouldThrowExceptionName("webCLContext.createBuffer(invalid_CLenum, SIZE);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, 0, hostPtr);", "INVALID_BUFFER_SIZE");
+    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, 100, new ArrayBuffer(10));", "INVALID_HOST_PTR");
 
     var webCLPlatforms = wtu.getPlatforms();
     var webCLDevices = wtu.getDevices(webCLPlatforms);
-    var deviceMaxMem = webCLDevices[0].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE);
-    var deviceMaxMemSize = deviceMaxMem + 1;
-    shouldThrowWebCLException("webCLContext.createBuffer(webcl.MEM_READ_ONLY, deviceMaxMemSize, new ArrayBuffer(1024));");
+    var invalidMemSize = (webCLDevices[0].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE)) + 1;
+    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_ONLY, invalidMemSize, hostPtr);", "INVALID_BUFFER_SIZE");
 
 } catch(e) {
     testFailed("WebCLContext :: createBuffer() throws an exception : " + e.message);

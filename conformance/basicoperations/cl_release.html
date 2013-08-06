@@ -49,24 +49,16 @@ try {
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
     var webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_MIRRORED_REPEAT, webcl.FILTER_NEAREST);
     var webCLEvent = wtu.createEvent(webCLContext);
+    var webCLMemoryObject = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
 
-    var releaseInfo = wtu.release(webCLEvent);
-    shouldBeTrue("releaseInfo");
+    shouldBeUndefined("webCLEvent.release()");
+    shouldBeUndefined("webCLMemoryObject.release()");
+    shouldBeUndefined("webCLKernel.release()");
+    shouldBeUndefined("webCLSampler.release()");
+    shouldBeUndefined("webCLProgram.release()");
+    shouldBeUndefined("webCLCommandQueue.release()");
+    shouldBeUndefined("webCLContext.release()");
 
-    releaseInfo = wtu.release(webCLKernel);
-    shouldBeTrue("releaseInfo");
-
-    releaseInfo = wtu.release(webCLSampler);
-    shouldBeTrue("releaseInfo");
-
-    releaseInfo = wtu.release(webCLProgram);
-    shouldBeTrue("releaseInfo");
-
-    releaseInfo = wtu.release(webCLCommandQueue);
-    shouldBeTrue("releaseInfo");
-
-    releaseInfo = wtu.release(webCLContext);
-    shouldBeTrue("releaseInfo");
 } catch (e) {
     testFailed("WebCL release() throws an exception : " + e.message);
 }

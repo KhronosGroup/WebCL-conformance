@@ -44,18 +44,18 @@ try {
 
     var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var webCLPlatform = wtu.getPlatforms();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
     webCLProgram.build(webCLDevices);
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
 
-    shouldBeType("webCLKernel.getInfo(webcl.KERNEL_CONTEXT)", WebCLContext);
-    shouldBeType("webCLKernel.getInfo(webcl.KERNEL_PROGRAM)", WebCLProgram);
+    shouldBe("webCLKernel.getInfo(webcl.KERNEL_CONTEXT)", "webCLContext");
+    shouldBe("webCLKernel.getInfo(webcl.KERNEL_PROGRAM)", "webCLProgram");
     shouldBeEqualToString("webCLKernel.getInfo(webcl.KERNEL_FUNCTION_NAME)", "square");
-    shouldBe("typeof " + "webCLKernel.getInfo(webcl.KERNEL_NUM_ARGS)", "'number'");
+    shouldBe("webCLKernel.getInfo(webcl.KERNEL_NUM_ARGS)", "3");
 
     // Testing for Exception.
-    shouldThrowWebCLException("webCLKernel.getInfo(invalid_object)");
+    shouldThrowExceptionName("webCLKernel.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
 } catch (e) {
     testFailed("WebCLKernel :: getInfo throws an exception : " + e.message);

@@ -45,16 +45,16 @@ try {
     if (webCLMemoryObject instanceof WebCLMemoryObject) {
         var subBuffer = webCLMemoryObject.createSubBuffer(webcl.MEM_READ_ONLY, 0, Float32Array.BYTES_PER_ELEMENT * 528);
 
-        shouldBeType("subBuffer.getInfo(webcl.MEM_ASSOCIATED_MEMOBJECT)", WebCLMemoryObject);
+        shouldBe("subBuffer.getInfo(webcl.MEM_ASSOCIATED_MEMOBJECT)", "webCLMemoryObject");
         shouldBeNull("webCLMemoryObject.getInfo(webcl.MEM_ASSOCIATED_MEMOBJECT)");
-        shouldBeType("webCLMemoryObject.getInfo(webcl.MEM_CONTEXT)", WebCLContext);
-        shouldBeNonNull("webCLMemoryObject.getInfo(webcl.MEM_TYPE)");
-        shouldBeNonNull("webCLMemoryObject.getInfo(webcl.MEM_FLAGS)");
-        shouldBe("typeof " + "webCLMemoryObject.getInfo(webcl.MEM_SIZE)", "'number'");
-        shouldBe("typeof " + "webCLMemoryObject.getInfo(webcl.MEM_OFFSET)", "'number'");
+        shouldBe("webCLMemoryObject.getInfo(webcl.MEM_CONTEXT)", "webCLContext");
+        shouldBe("webCLMemoryObject.getInfo(webcl.MEM_TYPE)", "webcl.MEM_OBJECT_BUFFER");
+        shouldBe("webCLMemoryObject.getInfo(webcl.MEM_FLAGS)", "webcl.MEM_READ_ONLY");
+        shouldBe("webCLMemoryObject.getInfo(webcl.MEM_SIZE)", "DATA_SIZE");
+        shouldBe("webCLMemoryObject.getInfo(webcl.MEM_OFFSET)", "0");
 
         // Testing for Exception.
-        shouldThrowWebCLException("webCLMemoryObject.getInfo(invalid_object)");
+        shouldThrowExceptionName("webCLMemoryObject.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
     } else
         testFailed("createBuffer() did not return WebCLMemoryObject.");

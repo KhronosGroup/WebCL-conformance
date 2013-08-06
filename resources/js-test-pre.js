@@ -413,21 +413,32 @@ function shouldThrow(_a, _e)
 
 function shouldBeType(_a, _type, quite) {
     var exception;
-    var _av;
+    var _av, _avPrototype;
+
+    /*  operator instanceof works based on prototype.constructor. Across multiple frames the
+        constructor definition need not be the same. Thus when running the test in iframe it fails for
+        certain type checks.
+        As a workaround we are comparing prototype of _a and _type
+        after evaluating respective strings.
+    */
+
     try {
         _av = eval(_a);
+        _aPrototype = Object.getPrototypeOf(_av).toString();
     } catch (e) {
         exception = e;
     }
 
     var _typev = eval(_type);
+    var _typePrototype = _typev.prototype.toString();
 
-    if (_av instanceof _typev) {
+    if (exception)
+        testFailed(_a + "should be an instance of " + _type + ". But threw exception " + exception);
+    else if (_av instanceof  _typev || _aPrototype == _typePrototype) {
         if (!quite)
             testPassed(_a + " is an instance of " + _type);
-    } else {
+    } else
         testFailed(_a + " is not an instance of " + _type);
-    }
 }
 
 function assertMsg(assertion, msg) {
@@ -495,6 +506,7 @@ function finishTest() {
 
 var invalid_function = 'invalid function';
 var invalid_object = 1234;
+var invalid_CLenum = 9999;
 var invalid_string = {toString: undefined};
 var invalid_number = {toString: undefined};
 var invalid_boolean = null;
@@ -502,37 +514,27 @@ var invalid_boolean = null;
 function shouldThrowExceptionName(_a, _e)
 {
     if (typeof _e != "string")
-        debug("WARN: shouldThrowNamed expects string arguments");
+        debug("WARN: shouldThrowExceptionName expects string arguments");
     var exception;
     var _av;
+    var isStrict = window.top.CLGlobalVariables ? window.top.CLGlobalVariables.getInstance().isStrict() : 0;
     try {
         _av = eval(_a);
     } catch (e) {
         exception = e;
     }
-    if (exception) {
-        if (typeof _e == "string" && exception.name == _e)
-            testPassed(_a + " threw exception " + exception.name + ".");
-        else
-            testFailed(_a + " should throw " + _e + ". Threw exception " + exception.name + ".");
-    } else
-        testFailed(_a + " should throw " + _e + ". Was " + _av + ".");
-}
 
-function shouldThrowWebCLException(_a)
-{
-  var exception;
-  var _av;
-  try {
-     _av = eval(_a);
-  } catch (e) {
-     exception = e;
-  }
-  if (exception) {
-    if (typeof(exception) == "object" && (exception instanceof WebCLException))
-        testPassed(_a + " threw exception " + exception.name + ".");
-  } else
-    testFailed(_a + " should throw WebCL Exception but was " + _av + ".");
+    if (!exception) {
+        testFailed(_a + " should throw " + _e + ". Was " + _av + ".");
+        return;
+    }
+    if (exception instanceof WebCLException) {
+        if (isStrict && exception.name != _e)
+            testFailed(_a + " should throw " + _e + ". Threw " + exception.name + ".");
+        else
+            testPassed(_a + " threw exception " + exception.name + ".");
+    } else
+        testFailed(_a + " should throw " + _e + ". Threw " + exception + ".");
 }
 
 function shouldBeArrayOfType(_a, _type, quite)
