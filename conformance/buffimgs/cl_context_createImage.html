@@ -104,12 +104,12 @@ try {
 
     // Testing for invalid value of channelOrder.
     var webCLImageDescriptorObjectInvalidChannelOrder = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
-    webCLImageDescriptorObjectInvalidChannelOrder.channelOrder = invalid_object;
+    webCLImageDescriptorObjectInvalidChannelOrder.channelOrder = invalid_CLenum;
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorObjectInvalidChannelOrder);", "INVALID_IMAGE_FORMAT_DESCRIPTOR");
 
     // Testing for invalid value of channelType.
     var webCLImageDescriptorObjectInvalidChannelType = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
-    webCLImageDescriptorObjectInvalidChannelType.channelType = invalid_object;
+    webCLImageDescriptorObjectInvalidChannelType.channelType = invalid_CLenum;
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorObjectInvalidChannelType);", "INVALID_IMAGE_FORMAT_DESCRIPTOR");
 
     //Testing for INVALID_HOST_POINTER.
@@ -121,7 +121,7 @@ try {
     // FIXME :: To add test case to verify exception: IMAGE_FORMAT_NOT_SUPPORTED
 
 } catch(e) {
-    testFailed("WebCLContext :: createImage throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

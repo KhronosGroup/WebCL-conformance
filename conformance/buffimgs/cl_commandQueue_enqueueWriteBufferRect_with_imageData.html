@@ -62,23 +62,23 @@ try {
     }
 
     // Testing with buffer as MEM_READ_ONLY memory object.
-    var webCLBufferRead = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
+    var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferRead, true, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferRead, false, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
 
     // Testing with buffer as MEM_WRITE_ONLY memory object.
-    var webCLBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
+    var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferWrite, false, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
 
     // Testing with buffer as MEM_READ_WRITE memory object.
-    var webCLBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);
+    var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, false, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
 
     // Testing for exceptions.
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(invalid_object, true, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, invalid_object);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, invalid_imageData);", "INVALID_HOST_PTR");
 
     // Testing for invalid value of bufferOrigin.
     var bufferOriginInvalid = [];
@@ -100,8 +100,10 @@ try {
     var imgDataInvalid = canvasContext.createImageData(-10, -10);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, imgDataInvalid);", "INVALID_VALUE");
 
+    // FIXME :: Need to add test cases passing event parameters.
+
 } catch (e) {
-    testFailed("WebCLCommandQueue :: enqueueWriteBufferRect with imageData throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

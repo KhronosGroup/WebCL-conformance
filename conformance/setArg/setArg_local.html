@@ -62,8 +62,8 @@ try {
     wtu.build(webCLProgram, webCLDevices);
 
     webCLKernel = webCLProgram.createKernel("setArgLocal");
-    input = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
-    output = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
+    input = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
+    output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
     webCLCommandQueue.enqueueWriteBuffer(input, true, 0, DATA_SIZE, data);
 
     globalWorkSize[0] = count;

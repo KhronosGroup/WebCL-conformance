@@ -57,22 +57,22 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, origin, region, video);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, origin, region, video);");
 
-    // Testing for exceptions. 
+    // Testing for exceptions.
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(invalid_object, true, origin, region, video);", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, origin, region, invalid_object);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, origin, region, invalid_video);", "INVALID_HOST_PTR");
 
     // Testing for invalid value of origin.
     var originInvalid = [];
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, originInvalid, region, video);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, originInvalid, region, video);", "INVALID_VALUE");
 
     // Testing for invalid value of region.
     var regionInvalid = [];
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, regionInvalid, video);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, origin, regionInvalid, video);", "INVALID_VALUE");
 
-    // FIXME To add test case to verify for invalid value of video.
+    // FIXME :: Need to add test cases passing event parameters.
 
 } catch (e) {
-    testFailed("WebCLCommandQueue :: enqueueWriteImage with HTMLVideoElement throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

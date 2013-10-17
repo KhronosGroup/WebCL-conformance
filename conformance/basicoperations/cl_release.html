@@ -45,11 +45,11 @@ try {
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     var webCLPlatforms = wtu.getPlatforms();
     var webCLDevices = wtu.getDevices(webCLPlatforms);
-    webCLProgram.build(webCLDevices);
+    wtu.build(webCLProgram, webCLDevices);
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
     var webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_MIRRORED_REPEAT, webcl.FILTER_NEAREST);
     var webCLEvent = wtu.createEvent(webCLContext);
-    var webCLMemoryObject = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
+    var webCLMemoryObject = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
 
     shouldBeUndefined("webCLEvent.release()");
     shouldBeUndefined("webCLMemoryObject.release()");
@@ -60,7 +60,7 @@ try {
     shouldBeUndefined("webCLContext.release()");
 
 } catch (e) {
-    testFailed("WebCL release() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

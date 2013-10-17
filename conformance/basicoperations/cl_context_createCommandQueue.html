@@ -56,13 +56,13 @@ try {
     shouldThrowExceptionName("webCLContext.createCommandQueue(invalid_object);", "INVALID_DEVICE");
     shouldThrowExceptionName("webCLContext.createCommandQueue(webCLDevices, invalid_CLenum);", "INVALID_VALUE");
 
-    var webCLContext2 = webcl.createContext();
-    shouldThrowExceptionName("webCLContext2.createCommandQueue(webCLDevices);", "INVALID_DEVICE");
+    var webCLContextNew = wtu.createContext();
+    shouldThrowExceptionName("webCLContextNew.createCommandQueue(webCLDevices);", "INVALID_DEVICE");
 
     // FIXME To add test case throwing exception : INVALID_QUEUE_PROPERTIES
 
 } catch(e) {
-    testFailed("WebCLContext :: createCommandQueue() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

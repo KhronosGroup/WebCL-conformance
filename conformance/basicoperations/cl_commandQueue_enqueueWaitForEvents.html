@@ -44,15 +44,18 @@ try {
     var webCLEvent = wtu.createEvent(webCLContext);
     shouldBeTrue("webCLCommandQueue.enqueueWaitForEvents(webCLEvent);");
 
-    // Testing for EXCEPTIONS
-    var webCLCommandqueue2 = wtu.createCommandQueue(webCLContext);
-    shouldThrowExceptionName("webCLCommandQueue2.enqueueWaitForEvents(webCLEvent);", "INVALID_CONTEXT");
+    // Testing for Exceptions.
+    var webCLContextNew = wtu.createContext();
+    var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
+    var webCLEventNew = wtu.createEvent(webCLContextNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents([webCLEventNew]);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWaitForEvents([webCLEvent]);", "INVALID_CONTEXT");
 
     shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents();", "INVALID_EVENT_WAIT_LIST");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents(invalid_object);", "INVALID_EVENT_WAIT_LIST");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents([invalid_object]);", "INVALID_EVENT_WAIT_LIST");
 
 } catch (e) {
-    testFailed("WebCLCommandQueue :: enqueueWaitForEvents() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

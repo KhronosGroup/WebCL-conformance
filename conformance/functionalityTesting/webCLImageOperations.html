@@ -43,41 +43,111 @@ try {
     var webCLContext = wtu.createContext();
     var webCLPlatforms = wtu.getPlatforms();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var correct;
+    var correct, partialCopySize = 10;
     var count = SIZE;
-    var data = new Int32Array(SIZE);
-    var result = new Int32Array(SIZE);
-
-    var srcOrigin = new Int32Array([12, 25]);
-    var dstOrigin = new Int32Array([12, 25]);
-    var region = new Int32Array([10, 20]);
-    var imageWidth = 100;
-    var imageHeight = 100;
-
-    for (var i = 0; i < count; i++)
-        data[i] = Math.floor(Math.random() * 10);
+    var data, result;
+    var srcOrigin, dstOrigin, copySrcOrigin, copyDstOrigin, region, copyRegion;
+    var imageWidth = 20, imageHeight = 20;
+    var imageArea = imageWidth * imageHeight;
 
     var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
-    var srcImageReadWrite = webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
-    var dstImageReadWrite = webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
+    var srcImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
+    var dstImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
 
-    webCLCommandQueue.enqueueWriteImage(webCLCommandQueue, srcImageReadWrite, true, srcOrigin, region, 0, data);
-    webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region);
-    webCLCommandQueue.enqueueReadImage(dstImageReadWrite, true, dstOrigin, region, 0, result);
+    /*
+    *   Testing for webCLImage write/ copy/ read Operations
+    *   Copies imageArea (20 * 20) int values from source image to destination image.
+    */
+    try  {
+        srcOrigin = [0, 0];
+        dstOrigin = [0, 0];
+        copySrcOrigin = [0, 0];
+        copyDstOrigin = [0, 0];
+        region = [imageWidth, imageHeight];
 
-    correct = 0;
-    for (i = 0; i < count; i++)
-        if (data[i] == result[i])
-            correct++;
+        data = new Int32Array(imageArea);
+        result = new Int32Array(imageArea);
+        data = wtu.generateRandomInt(data, imageArea);
 
-    console.log("Computed " + correct + "/" + count + " correct values.");
-    if (correct == count)
-        testPassed("Test passed for all " + count + "values in writing into, copying and reading from WebCL Image.");
-    else
-        testFailed("Test failed for writing into, copying and reading from WebCL Image. Computed " + correct + " / " + count + " correct values.");
+        wtu.enqueueWriteImage(webCLCommandQueue, srcImageReadWrite, true, srcOrigin, region, 0, data);
+        wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, copySrcOrigin, copyDstOrigin, region);
+        wtu.enqueueReadImage(webCLCommandQueue, dstImageReadWrite, true, dstOrigin, region, 0, result);
+        wtu.verifyResult(data, result, imageArea, "webCLImageOperations for copying " + imageArea + "values");
+    } catch(e) {
+        testFailed(e.description);
+    }
 
+    /*
+    *   Testing for webCLImage write/ copy/ read Operations
+    *   Copies 10 int values of a column in source image to destination image.
+    */
+    try  {
+        srcOrigin = [0, 0];
+        dstOrigin = [0, 0];
+        copySrcOrigin = [19, 10];
+        copyDstOrigin = [0, 0];
+        dstRegion = [1, 10];
+        srcRegion = [imageWidth, imageHeight];
+        copyRegion = [1, 10];
+
+        data = new Int32Array(imageArea);
+        result = new Int32Array(partialCopySize);
+        data = wtu.generateRandomInt(data, imageArea);
+
+        wtu.enqueueWriteImage(webCLCommandQueue, srcImageReadWrite, true, srcOrigin, srcRegion, 0, data);
+        wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, copySrcOrigin, copyDstOrigin, copyRegion);
+        wtu.enqueueReadImage(webCLCommandQueue, dstImageReadWrite, true, dstOrigin, dstRegion, 0, result);
+
+        correct = 0;
+        // To verify the copied values.
+        for (i = (imageWidth * copySrcOrigin[1]) + copySrcOrigin[0], j = 0; j < partialCopySize; i += imageHeight, j++)
+            if (data[i] == result[j])
+                correct++;
+
+        if (correct == partialCopySize)
+            testPassed("webCLImageOperations for copying 10 values of a column in source image.");
+        else
+            testFailed("webCLImageOperations for copying 10 values of a column in source image failed. Computed " + correct + " / " + partialCopySize + "correct values.");
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+    /*
+    *   Testing for webCLImage write/ copy/ read Operations
+    *   Copies 10 int values of last row of source image to destination image.
+    */
+    try  {
+        srcOrigin = [0, 0];
+        srcRegion = [imageWidth, imageHeight];
+        dstOrigin = [0, 0];
+        dstRegion = [10, 1];
+        copySrcOrigin = [10, 19];
+        copyDstOrigin = [0, 0];
+        copyRegion = [10, 1];
+
+        data = new Int32Array(imageArea);
+        result = new Int32Array(partialCopySize);
+        data = wtu.generateRandomInt(data, imageArea);
+
+        wtu.enqueueWriteImage(webCLCommandQueue, srcImageReadWrite, true, srcOrigin, srcRegion, 0, data);
+        wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, copySrcOrigin, copyDstOrigin, copyRegion);
+        wtu.enqueueReadImage(webCLCommandQueue, dstImageReadWrite, true, dstOrigin, dstRegion, 0, result);
+
+        correct = 0;
+        // To verify copied values (last row)
+        for(i = imageArea - partialCopySize, j = 0; j < partialCopySize; i++, j++)
+            if (data[i] == result[j])
+                correct++;
+
+        if (correct == partialCopySize)
+            testPassed("webCLImageOperations for copying 10 values of last row of source image.");
+        else
+            testFailed("webCLImageOperations for copying 10 values of last row of source image failed. Computed " + correct + " / " + partialCopySize + "correct values.");
+    } catch(e) {
+        testFailed(e.description);
+    }
 } catch(e) {
-    testFailed("webCLImageOperations throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

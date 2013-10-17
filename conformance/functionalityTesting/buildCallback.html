@@ -52,9 +52,9 @@ try {
     var webCLContext = wtu.createContext();
     var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    webCLProgram.build(webCLDevices, "", callback());
+    wtu.build(webCLProgram, webCLDevices, "", callback());
 } catch(e) {
-    testFailed("build with callback throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

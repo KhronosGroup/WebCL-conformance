@@ -39,34 +39,39 @@
 <script>
 
 var getProgram = function (webCLContext, kernelSource) {
-    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    try {
+        webCLProgram = wtu.createProgram(webCLContext, kernelSource);
 
-    if (webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) !== webCLContext) {
-        console.log("webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) !== webCLContext.");
-        return null;
-    }
-
-    var associatedDevices = webCLProgram.getInfo(webcl.PROGRAM_DEVICES);
-    if (!associatedDevices && !associatedDevices.length)
-        return null;
-    else {
-        for (i = 0; i < associatedDevices.length; i++) {
-            if (typeof(associatedDevices[i]) != WebCLDevice)
-                return null;
+        if (webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) !== webCLContext) {
+            console.log("webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) !== webCLContext.");
+            return null;
         }
-    }
 
-    if (typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) != 'number') {
-        console.log("typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) != 'number'.");
-        return null;
-    }
-    if (webCLProgram.getInfo(webcl.PROGRAM_SOURCE) !== kernelSource) {
-        console.log("webCLProgram.getInfo(webcl.PROGRAM_SOURCE) !== \"kernelSource\"");
-        return null;
-    }
+        var associatedDevices = webCLProgram.getInfo(webcl.PROGRAM_DEVICES);
+        if (!associatedDevices && !associatedDevices.length)
+            return null;
+        else {
+            for (i = 0; i < associatedDevices.length; i++) {
+                if (typeof(associatedDevices[i]) != WebCLDevice)
+                    return null;
+            }
+        }
 
-    wtu.build(webCLProgram, webCLDevices);
-    return webCLProgram;
+        if (typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) != 'number') {
+            console.log("typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) != 'number'.");
+            return null;
+        }
+        if (webCLProgram.getInfo(webcl.PROGRAM_SOURCE) !== kernelSource) {
+            console.log("webCLProgram.getInfo(webcl.PROGRAM_SOURCE) !== \"kernelSource\"");
+            return null;
+        }
+
+        wtu.build(webCLProgram, webCLDevices);
+        return webCLProgram;
+
+    } catch(e) {
+        e.description = "Exception thrown while creating program and building it : " + e.name + ".";
+    }
 }
 
 try {
@@ -116,7 +121,7 @@ try {
         testPassed("Test passed for building for kernel: \"sample_kernel_code_bad\".");
 
 } catch(e) {
-    testFailed("createProgram throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

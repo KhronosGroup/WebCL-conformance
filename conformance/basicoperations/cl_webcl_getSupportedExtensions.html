@@ -27,7 +27,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-    <title>WebCLCommandQueue enqueueBarrier conformance test.</title>
+    <title>WebCL getSupportedExtensions conformance test.</title>
     <link rel="stylesheet" href="../../resources/js-test-style.css"/>
     <script src="../../resources/js-test-pre.js"></script>
     <script src="../../resources/cl_utils.js"></script>
@@ -37,17 +37,22 @@
 <div id="console"></div>
 <script>
 try {
-    debug("WebCLCommandQueue :: enqueueBarrier() test case.");
+    debug("WebCL getSupportedExtensions() test case.");
 
     var wtu = WebCLTestUtils;
-    var webCLContext = wtu.createContext();
-    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+    shouldBeArrayOfType("webcl.getSupportedExtensions();", "'string'");
 
-    shouldBeUndefined("webCLCommandQueue.enqueueBarrier();");
+    var webCLPlatform = wtu.getPlatforms();
+    shouldBeArrayOfType("webCLPlatform.getSupportedExtensions();", "'string'");
+
+    var webCLDevices = wtu.getDevices(webCLPlatform);
+    var webCLDevice = webCLDevices[0];
+    shouldBeArrayOfType("webCLDevice.getSupportedExtensions();", "'string'");
 
 } catch (e) {
-    testFailed(e.description);
+    testFailed("WebCL getSupportedExtensions throws an exception : " + e.message);
 }
+notifyFinishedToHarness();
 successfullyParsed = true;
 </script>
 <script src="../../resources/js-test-post.js"></script>

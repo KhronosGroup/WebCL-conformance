@@ -71,7 +71,7 @@ try {
     shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_ONLY, invalidMemSize, hostPtr);", "INVALID_BUFFER_SIZE");
 
 } catch(e) {
-    testFailed("WebCLContext :: createBuffer() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

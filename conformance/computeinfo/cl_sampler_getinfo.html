@@ -40,18 +40,18 @@ try {
     debug("WebCLSampler :: getInfo() test case.");
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_NONE, webcl.FILTER_NEAREST);
+    var webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_REPEAT, webcl.FILTER_NEAREST);
 
     shouldBe("webCLSampler.getInfo(webcl.SAMPLER_CONTEXT)", "webCLContext");
     shouldBeTrue("webCLSampler.getInfo(webcl.SAMPLER_NORMALIZED_COORDS)");
-    shouldBe("webCLSampler.getInfo(webcl.SAMPLER_ADDRESSING_MODE)", "webcl.ADDRESS_NONE");
+    shouldBe("webCLSampler.getInfo(webcl.SAMPLER_ADDRESSING_MODE)", "webcl.ADDRESS_REPEAT");
     shouldBe("webCLSampler.getInfo(webcl.SAMPLER_FILTER_MODE)", "webcl.FILTER_NEAREST");
 
     // Testing for exceptions.
     shouldThrowExceptionName("webCLSampler.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
 } catch (e) {
-    testFailed("WebCLSampler :: getInfo throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

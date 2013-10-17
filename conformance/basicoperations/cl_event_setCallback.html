@@ -54,7 +54,7 @@ try {
     shouldThrowExceptionName("webCLEvent.setCallback(invalid_CLenum, callback());", "INVALID_VALUE");
 
 } catch (e) {
-    testFailed("WebCLEvent :: setCallback() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

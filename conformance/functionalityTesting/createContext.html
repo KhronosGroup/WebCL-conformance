@@ -45,40 +45,45 @@ try {
     var webCLContext, deviceType, contextDevices, contextProperty;
 
     var createContext = function(platform, devices, type) {
-        webCLContext = webcl.createContext({platform:platform, devices:devices, deviceType:type});
+        try {
+            webCLContext = wtu.createContext(platform, devices, type);
 
-        contextDevices = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
-        contextProperty = webCLContext.getInfo(webcl.CONTEXT_PROPERTIES);
+            contextDevices = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
+            contextProperty = webCLContext.getInfo(webcl.CONTEXT_PROPERTIES);
 
-        if (typeof(platform) != 'undefined' && platform != null) {
-            if (contextProperty.platform !== platform)
-                return "CONTEXT_PROPERTIES::platform !== WebCLContext::platform.";
+            if (typeof(platform) != 'undefined' && platform != null) {
+                if (contextProperty.platform !== platform)
+                    return "CONTEXT_PROPERTIES::platform !== WebCLContext::platform.";
 
-            for (i = 0; i < contextDevices.length; i++)
-                if (contextDevices[i].getInfo(webcl.DEVICE_PLATFORM) !== platform)
-                    return "CONTEXT_PROPERTIES::platform !== WebCLContext::device.platform.";
+                for (i = 0; i < contextDevices.length; i++)
+                    if (contextDevices[i].getInfo(webcl.DEVICE_PLATFORM) !== platform)
+                        return "CONTEXT_PROPERTIES::platform !== WebCLContext::device.platform.";
+            }
+
+            if (typeof(devices) != 'undefined' && devices != null) {
+                for (i = 0; i < contextDevices.length; i++)
+                    if (contextDevices[i] !== devices[i] ||
+                            contextDevices[i].getInfo(webcl.DEVICE_PLATFORM) !== contextProperty.platform)
+                        return "CONTEXT_PROPERTIES::CONTEXT_DEVICES !== WebCLContext::devices.";
+            }
+
+            if (typeof(type) != 'undefined' && type != null) {
+                // ALL and default cannot be checked for. They are just alias to other types.
+                if (type == webcl.DEVICE_TYPE_ALL || type == webcl.DEVICE_TYPE_DEFAULT)
+                    return true;
+
+                if (contextProperty.deviceType != type)
+                    return "CONTEXT_PROPERTIES::type != type of WebCLContext::devices.";
+
+                for (i = 0; i < contextDevices.length; i++)
+                    if (contextDevices[i].getInfo(webcl.DEVICE_TYPE) != type)
+                        return "CONTEXT_PROPERTIES::devices.type != type of WebCLContext::devices.";
+            }
+            return true;
+
+        } catch(e) {
+            e.description = "Exception thrown while creating and validating context : " + e.name;
         }
-
-        if (typeof(devices) != 'undefined' && devices != null) {
-            for (i = 0; i < contextDevices.length; i++)
-                if (contextDevices[i] !== devices[i] ||
-                    contextDevices[i].getInfo(webcl.DEVICE_PLATFORM) !== contextProperty.platform)
-                    return "CONTEXT_PROPERTIES::CONTEXT_DEVICES !== WebCLContext::devices.";
-        }
-
-        if (typeof(type) != 'undefined' && type != null) {
-            // ALL and default cannot be checked for. They are just alias to other types.
-            if (type == webcl.DEVICE_TYPE_ALL || type == webcl.DEVICE_TYPE_DEFAULT)
-                return true;
-
-            if (contextProperty.deviceType != type)
-                return "CONTEXT_PROPERTIES::type != type of WebCLContext::devices.";
-
-            for (i = 0; i < contextDevices.length; i++)
-                if (contextDevices[i].getInfo(webcl.DEVICE_TYPE) != type)
-                    return "CONTEXT_PROPERTIES::devices.type != type of WebCLContext::devices.";
-        }
-        return true;
     }
 
     shouldBeTrue("createContext()");
@@ -92,7 +97,7 @@ try {
     shouldBeTrue("createContext(null, null, webcl.DEVICE_TYPE_DEFAULT)");
 
 } catch(e) {
-    testFailed("WebCL :: createContext throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

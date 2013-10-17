@@ -48,7 +48,7 @@ try {
     shouldThrowExceptionName("webCLPlatform.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
 } catch(e) {
-    testFailed("WebCLPlatform :: getInfo throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

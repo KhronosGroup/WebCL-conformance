@@ -41,7 +41,7 @@ try {
     debug("(CLenum memFlags, CLuint origin, CLuint sizeInBytes)");
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    webCLBuffer = webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);
+    webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
     var origin = 0;
 
     // Testing for creating sub buffer.
@@ -60,13 +60,17 @@ try {
     // Testing for exceptions.
     shouldThrowExceptionName("webCLBuffer.createSubBuffer(invalid_CLenum, 0, 10);", "INVALID_VALUE");
 
-    // FIXME :: To add test case verifying exception: MISALIGNED_SUB_BUFFER_OFFSET
+    var contextDeviceArray = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
+    for (var i = 0; i < contextDeviceArray.length; i++) {
+        var deviceMemAddressAlignment = contextDeviceArray[i].getInfo(webcl.DEVICE_MEM_BASE_ADDR_ALIGN);
+        shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, deviceMemAddressAlignment - 1, 1);", "MISALIGNED_SUB_BUFFER_OFFSET");
+    }
 
-    var webCLSubBuffer = webCLBuffer.createSubBuffer(webcl.MEM_READ_WRITE, origin, 100);
+    var webCLSubBuffer = wtu.createSubBuffer(webCLBuffer, webcl.MEM_READ_WRITE, origin, 100);
     shouldThrowExceptionName("webCLSubBuffer.createSubBuffer(webcl.MEM_READ_WRITE, origin, 10);", "INVALID_MEM_OBJECT");
 
 } catch(e) {
-    testFailed("WebCLBuffer :: createSubBuffer() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

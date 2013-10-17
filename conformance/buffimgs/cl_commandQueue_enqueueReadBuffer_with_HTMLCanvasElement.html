@@ -51,23 +51,23 @@ try {
     var numBytes = DATA_SIZE;
 
     // MEM_READ_ONLY Buffers.
-    var webCLBufferRead = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
+    var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, true, bufferOffset, numBytes, canvas)");
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, false, bufferOffset, numBytes, canvas)");
 
     // MEM_WRITE_ONLY Buffers.
-    var webCLBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
+    var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferWrite, true, bufferOffset, numBytes, canvas)");
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferWrite, false, bufferOffset, numBytes, canvas)");
 
     // MEM_READ_WRITE Buffers.
-    var webCLBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);
+    var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, canvas)");
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numBytes, canvas)");
 
-    // Testing for exceptions. 
+    // Testing for exceptions.
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(invalid_object, true, bufferOffset, numBytes, canvas)", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, invalid_object)", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, invalid_canvas)", "INVALID_HOST_PTR");
 
     // Testing for invalid value of bufferOffset.
     var bufferOffsetInvalid = DATA_SIZE + 1;
@@ -77,12 +77,10 @@ try {
     var numBytesInvalid = DATA_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas)", "INVALID_VALUE");
 
-    // FIXME :: To add test case to verify for invalid canvas.
-
     // FIXME :: Need to add test cases passing event parameters.
 
 } catch (e) {
-    testFailed("WebCLCommandQueue :: enqueueReadBuffer() with HTMLCanvasElement throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

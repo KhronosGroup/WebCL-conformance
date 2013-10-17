@@ -43,6 +43,7 @@ try {
     var wtu = WebCLTestUtils;
     var webCLPlatforms = wtu.getPlatforms();
 
+    shouldBeArrayOfType("webCLPlatforms.getDevices();", "WebCLDevice");
     shouldBeArrayOfType("webCLPlatforms.getDevices(webcl.DEVICE_TYPE_CPU);", "WebCLDevice");
     shouldBeArrayOfType("webCLPlatforms.getDevices(webcl.DEVICE_TYPE_GPU);", "WebCLDevice");
     shouldBeArrayOfType("webCLPlatforms.getDevices(webcl.DEVICE_TYPE_ALL);", "WebCLDevice");
@@ -53,7 +54,7 @@ try {
     shouldThrowExceptionName("webCLPlatforms.getDevices(invalid_CLenum);", "INVALID_VALUE");
 
 } catch(e) {
-    testFailed("getPlatforms throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

@@ -66,17 +66,17 @@ try {
     shouldThrowExceptionName("webCLKernel.getWorkGroupInfo(null, webcl.KERNEL_WORK_GROUP_SIZE);", "INVALID_DEVICE");
     shouldThrowExceptionName("webCLKernel.getWorkGroupInfo(webCLDevice, invalid_CLenum);", "INVALID_VALUE");
 
-    var webCLDevicesCPU = webCLPlatforms.getDevices(webcl.DEVICE_TYPE_CPU);
-    webCLContext = webcl.createContext({platform:webCLPlatforms, devices:webCLDevicesCPU, deviceType:null});
+    var webCLDevicesCPU = wtu.getDevices(webCLPlatforms, webcl.DEVICE_TYPE_CPU);
+    webCLContext = wtu.createContext(webCLPlatforms, webCLDevicesCPU);
     kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     wtu.build(webCLProgram, webCLDevicesCPU);
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
-    var webCLDevicesNew = webCLPlatforms.getDevices(webcl.DEVICE_TYPE_GPU);
+    var webCLDevicesNew = wtu.getDevices(webCLPlatforms, webcl.DEVICE_TYPE_GPU);
     shouldThrowExceptionName("webCLKernel.getWorkGroupInfo(webCLDevicesNew[0], webcl.KERNEL_WORK_GROUP_SIZE);", "INVALID_DEVICE");
 
 } catch(e) {
-    testFailed("WebCLKernel :: getWorkGroupInfo()throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

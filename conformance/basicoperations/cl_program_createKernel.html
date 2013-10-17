@@ -60,7 +60,7 @@ try {
     // FIXME To add testcase to verify exception : INVALID_KERNEL_DEFINITION.
 
 } catch(e) {
-    testFailed("WebCLProgram :: createKernel() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

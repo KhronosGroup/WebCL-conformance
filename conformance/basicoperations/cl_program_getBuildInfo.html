@@ -66,16 +66,16 @@ try {
     shouldThrowExceptionName("webCLProgram.getBuildInfo(webCLDevice, null);", "INVALID_VALUE");
 
     // Testing for exception : INVALID_DEVICE. 
-    var webCLDevicesCPU = webCLPlatforms.getDevices(webcl.DEVICE_TYPE_CPU);
-    webCLContext = webcl.createContext({platform:webCLPlatforms, devices:webCLDevicesCPU, deviceType:null});
+    var webCLDevicesCPU = wtu.getDevices(webCLPlatforms, webcl.DEVICE_TYPE_CPU);
+    webCLContext = wtu.createContext(webCLPlatforms, webCLDevicesCPU);
     kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     wtu.build(webCLProgram, webCLDevicesCPU);
-    var webCLDevicesNew = webCLPlatforms.getDevices(webcl.DEVICE_TYPE_GPU);
+    var webCLDevicesNew = wtu.getDevices(webCLPlatforms, webcl.DEVICE_TYPE_GPU);
     shouldThrowExceptionName("webCLProgram.getBuildInfo(webCLDevicesNew[0], webcl.PROGRAM_BUILD_STATUS);", "INVALID_DEVICE");
 
 } catch(e) {
-    testFailed("WebCLProgram :: getBuildInfo throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

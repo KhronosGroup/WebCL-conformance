@@ -38,10 +38,10 @@
 <script>
 try {
     var image = new Image();
-    image.src = "pebbleHalf.jpg";
+    image.src = "../../resources/pebbleHalf.jpg";
     image.onload = execute;
 } catch(e) {
-    testFailed("Unable to load HTML image element : " + e.message);
+    testFailed("Unable to load HTML image element : " + e.name);
 }
 function execute() {
     try {
@@ -56,10 +56,10 @@ function execute() {
 
         // Testing for exceptions.
         shouldThrowExceptionName("webCLContext.createImage(invalid_CLenum, image);", "INVALID_VALUE");
-        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, invalid_object);", "INVALID_VALUE");
+        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, invalid_image);", "INVALID_HOST_PTR");
 
     } catch(e) {
-        testFailed("WebCLContext :: createImage() with HTMLImageElement throws an exception : " + e.message);
+        testFailed(e.description);
     }
 
     // Since execute() is called on loading of the image, it is necessary to insert js-test-post.js in script tag, within this function.

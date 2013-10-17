@@ -39,7 +39,7 @@
 <script>
 var executeKernel = function (webCLContext, kernelName, webCLDevices, webCLCommandQueue, resultDataType, numBytes, expectedResult) {
     try {
-        webCLBuffer = webCLContext.createBuffer(webcl.MEM_READ_WRITE, 4);
+        webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, 4);
         kernelName = kernelName.replace(/^\s+|\s+$/g, '');
         var kernelPath = "../../resources/kernels/" + kernelName + ".cl";
         kernelSource = wtu.readKernel(kernelPath);
@@ -47,19 +47,19 @@ var executeKernel = function (webCLContext, kernelName, webCLDevices, webCLComma
         wtu.build(webCLProgram, webCLDevices);
 
         webCLKernel = wtu.createKernel(webCLProgram, kernelName);
-        webCLKernel.setArg(0, webCLBuffer);
+        wtu.setArg(webCLKernel, 0, webCLBuffer);
 
         globalWorkSize[0] = SIZE;
         localWorkSize[0] = webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);
 
-        webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, globalWorkSize.length(), [], globalWorkSize, localWorkSize);
-        webCLCommandQueue.enqueueReadBuffer(webCLBuffer, true, 0, numBytes, resultDataType);
+        wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkSize.length, [], globalWorkSize, localWorkSize);
+        wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, true, 0, numBytes, resultDataType);
         if (resultDataType[0] == expectedResult || String.fromCharCode(resultDataType[0]) == expectedResult)
             testPassed("Test passed for kernel: " + kernelName);
         else
             testFailed("Test failed for kernel: " + kernelName);
     } catch (e) {
-        testFailed("Exception thrown : " + e.message);
+        testFailed(e.description);
     }
 }
 
@@ -90,7 +90,7 @@ try {
     executeKernel(webCLContext, "test_stream_read_uchar", webCLDevices, webCLCommandQueue, resultInt, 1, 'w');
 
 } catch(e) {
-    testFailed("enqueueReadBuffer throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

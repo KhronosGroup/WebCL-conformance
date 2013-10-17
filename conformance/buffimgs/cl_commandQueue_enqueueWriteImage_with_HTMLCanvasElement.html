@@ -55,23 +55,23 @@ try {
     var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
 
     // Testing with image as MEM_READ_ONLY memory object.
-    var webCLImageRead = webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
+    var webCLImageRead = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, origin, region, canvas);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, origin, region, canvas);");
 
     // Testing with image as MEM_WRITE_ONLY memory object.
-    var webCLImageWrite = webCLContext.createImage(webcl.MEM_WRITE_ONLY, webCLImageDescriptorReadWrite);
+    var webCLImageWrite = wtu.createImage(webCLContext, webcl.MEM_WRITE_ONLY, webCLImageDescriptorReadWrite);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageWrite, true, origin, region, canvas);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageWrite, false, origin, region, canvas);");
 
     // Testing with image as MEM_READ_WRITE memory object.
-    var webCLImageReadWrite = webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+    var webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, canvas);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, false, origin, region, canvas);");
 
-    // Testing for exceptions. 
+    // Testing for exceptions.
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(invalid_object, true, origin, region, canvas);", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, invalid_object);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, invalid_canvas);", "INVALID_HOST_PTR");
 
     // Testing for invalid value of origin.
     var originInvalid = [];
@@ -81,10 +81,10 @@ try {
     var regionInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, regionInvalid, canvas);", "INVALID_VALUE");
 
-    // FIXME To add test case to verify for invalid value of canvas.
+    // FIXME :: Need to add test cases passing event parameters.
 
 } catch (e) {
-    testFailed("WebCLCommandQueue :: enqueueWriteImage with canvasElement throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

@@ -70,7 +70,7 @@ try {
     shouldThrowExceptionName("webCLContext.createSampler(true, webcl.ADDRESS_NONE, invalid_CLenum);", "INVALID_VALUE");
 
 } catch(e) {
-    testFailed("WebCLContext :: createSampler() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

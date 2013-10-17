@@ -38,9 +38,9 @@
 <script>
 // Runs a kernel "kernelVectorTwo" taking 8 inputs of different types and assigns it to the output buffer.
 var kernel_arg_types = [Int8Array, Uint8Array, Int16Array, Uint16Array, Int32Array, Uint32Array, Int32Array, Uint32Array, Float32Array];
-var kernel_arg_values = [ 
-    [ [-10, -11], [10, 11], [-10, -11], [10, 11], [-10, -11], [10, 11], [-10, -1], [10, 11], [10.0, 11.0]],
-    [ [-78, -11], [178, 11], [-178, -11], [178, 11], [-178, -11], [178, 11], [-178, -1], [178, 11], [178.78, 11.78]]
+var kernel_arg_values = [
+    [ [-10, -11], [10, 11], [-10, -11], [10, 11], [-10, -11], [10, 11], [0, -10, 0, -1], [0, 10, 0, 11], [10.0, 11.0]],
+    [ [-78, -11], [178, 11], [-178, -11], [178, 11], [-178, -11], [178, 11], [0, -178, 0, -1], [0, 178, 0, 11], [178.78, 11.78]]
     ];
 var VECTOR_SIZE = 2;
 var count = VECTOR_SIZE * 9;
@@ -58,10 +58,10 @@ try {
     var kernelSource = wtu.readKernel("../../resources/kernels/setArg_Vector2.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     wtu.build(webCLProgram, webCLDevices);
-    
+
     webCLKernel = webCLProgram.createKernel("kernelVectorTwo");
-    
-    var output = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, Float32Array.BYTES_PER_ELEMENT * count);
+
+    var output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, Float32Array.BYTES_PER_ELEMENT * count);
     var i;
     for (i = 0; i < kernel_arg_values.length; i++) {
         try {
@@ -77,8 +77,8 @@ try {
             webCLKernel.setArg(j, output);
             var globalWorkSize = new Int32Array(1);
             globalWorkSize[0] = 2;
-            webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, globalWorkSize.length(), [], globalWorkSize, []);
-    
+            webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, globalWorkSize.length, [], globalWorkSize, []);
+
             var results = new Float32Array(count);
             webCLCommandQueue.enqueueReadBuffer(output, true, 0, Float32Array.BYTES_PER_ELEMENT * count, results);
         } catch (e) {
@@ -87,9 +87,6 @@ try {
         }
         var z, flag = true, resultString = "";
         for (y = 0; y < kernel_arg_value.length; y++) {
-            // FIXME :: Once long and Ulong is clear on spec remove the below 2 lines.
-            if (y == 6 || y == 7)
-                continue;
             for (z = 0; z < VECTOR_SIZE; z++) {
                 resultString = resultString + results[((y * VECTOR_SIZE) + z)] + ", ";
                 if (results[((y * VECTOR_SIZE) + z)].toFixed(2) != kernel_arg_value[y][z].toFixed(2)) {

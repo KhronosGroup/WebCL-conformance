@@ -78,10 +78,10 @@
   .timeout { }
   .success { }
   .fail { }
-  .testpage { border: 1px solid black; background-color: #ccc; }
+  .testpage { border: 1px solid black; background-color: #ccc; overflow:hidden; }
   .testpagesuccess { border: 1px solid black; background-color: #8F8; }
   .testpagefail { border: 1px solid black; background-color: #F88; }
-  .testpageskipped { border: 1px solid black; background-color: #888; }
+  .testpageskipped { border: 1px solid black; background-color: #eee; }
   .testpagetimeout { border: 1px solid black; background-color: #FC8; }
   .nowebcl { font-weight: bold; color: red; }
   #error-wrap {
@@ -147,6 +147,7 @@ function start() {
     this.totalTimeouts = 0;
     this.totalSkipped = 0;
     this.testIndex = testIndex;
+    var that = this;
 
     this.elementId = "page" + pageCount++;
     var li = reporter.localDoc.createElement('li');
@@ -156,6 +157,37 @@ function start() {
     check.type = 'checkbox';
     check.checked = true;
     div.appendChild(check);
+    check.onclick = function() {
+        if (!that.folder.checked())
+            // Since parent is disabled, disabling this checkbox.
+            return false;
+        else {
+            if (!this.checked) {
+                that.totalsElem.textContent = ' SKIPPED';
+                that.elem.setAttribute("class", "testpageskipped");
+
+                // Removing all previous failure/skipped cases' description.
+                while (that.resultElem.hasChildNodes()) {
+                    that.resultElem.removeChild(that.resultElem.childNodes[0]);
+                }
+
+                // Disabling 'expandCollapseButton' button.
+                var divChildren = that.elem.getElementsByTagName('DIV')[0].children;
+                for (var i = 0; i < divChildren.length; i++) {
+                    if (divChildren[i].name == 'expandCollapseButton') {
+                        divChildren[i].disabled = true;
+                        divChildren[i].value = 'view more';
+                        break;
+                    }
+                }
+
+            } else {
+                that.totalsElem.textContent = ""; // Removing result of previous run.
+                that.elem.setAttribute("class", "testpage");
+            }
+        }
+
+    }
     var button = reporter.localDoc.createElement('input');
     button.type = 'button';
     button.value = 'run';
@@ -164,6 +196,23 @@ function start() {
       reporter.runTest(url);
       Results.style.display = "block";
     };
+
+    var expandCollapseButton = reporter.localDoc.createElement('input');
+    expandCollapseButton.type = 'button';
+    expandCollapseButton.disabled= true;
+    expandCollapseButton.setAttribute('name', 'expandCollapseButton');
+    expandCollapseButton.value = 'view more';
+    expandCollapseButton.style.float = "right";
+    expandCollapseButton.onclick = function() {
+        if (that.resultElem.style.display == "none") {
+            that.resultElem.style.display = "block";
+            this.value = 'view less';
+        } else {
+            that.resultElem.style.display = "none";
+            this.value = 'view more';
+        }
+    }
+
     if (reporter.noWebCL) {
       button.disabled = true;
     }
@@ -184,6 +233,7 @@ function start() {
     this.resultElem = ul;
     this.elem = li;
     this.check = check;
+    div.appendChild(expandCollapseButton);
   };
 
   Page.prototype.addResult = function(msg, success, skipped) {
@@ -192,12 +242,12 @@ function start() {
       ++this.totalTimeouts;
       var result = "timeout";
       var css = "timeout";
-    } else if (success) {
-      if(skipped) {
+    } else if (skipped) {
         ++this.totalSkipped;
-      } else {
+        // don't report skipped.
+        return;
+    } else if (success) {
         ++this.totalSuccessful;
-      }
       // don't report success.
       return;
     } else {
@@ -205,11 +255,20 @@ function start() {
       var css = "fail";
     }
 
+    var divChildren = this.elem.getElementsByTagName('DIV')[0].children;
+    for (var i = 0; i < divChildren.length; i++) {
+        if (divChildren[i].name == 'expandCollapseButton') {
+            divChildren[i].disabled = false;
+            break;
+        }
+    }
+
     var node = this.reporter.localDoc.createTextNode(result + ': ' + msg);
     var li = this.reporter.localDoc.createElement('li');
     li.appendChild(node);
     li.setAttribute('class', css);
     this.resultElem.appendChild(li);
+    this.resultElem.style.display = "none";
   };
 
   Page.prototype.startPage = function() {
@@ -219,6 +278,7 @@ function start() {
     this.totalTests = 0;
     this.totalSuccessful = 0;
     this.totalTimeouts = 0;
+    this.totalSkipped = 0;
     // remove previous results.
     while (this.resultElem.hasChildNodes()) {
       this.resultElem.removeChild(this.resultElem.childNodes[0]);
@@ -232,8 +292,9 @@ function start() {
   };
 
   Page.prototype.finishPage = function(success) {
+    document.getElementById('platformDevices').style.display = 'block';
     if(this.totalSkipped) {
-      var msg = ' (' + this.totalSkipped + ' of ' + this.totalTests + ' skipped)';
+      var msg = '  SKIPPED';
     } else {
       var msg = ' (' + this.totalSuccessful + ' of ' + this.totalTests + ' passed)';
     }
@@ -286,6 +347,12 @@ function start() {
     check.type = 'checkbox';
     check.checked = true;
     div.appendChild(check);
+    check.onclick = function() {
+        // Check if not root, and check for checked status of parent folder.
+        if (that.folder ? !(that.folder.checked()) : false)
+            // Since parent is disabled, disabling this checkbox.
+            return false;
+    }
     var button = doc.createElement('input');
     button.type = 'button';
     button.value = 'run';
@@ -411,6 +478,9 @@ function start() {
     this.noWebCL = !ctx;
     this.contextInfo = {};
     this.root = new Folder(this, null, 0, "all");
+    while (this.resultElem.hasChildNodes()) {
+        this.resultElem.removeChild(this.resultElem.childNodes[0]);
+    }
     this.resultElem.appendChild(this.root.elem);
     this.callbacks = { };
 
@@ -444,6 +514,7 @@ function start() {
 
   Reporter.prototype.runTest = function(url) {
     var page = this.pagesByURL[url];
+    document.getElementById('platformDevices').style.display = 'none';
     testHarness.runTests({start: page.firstTestIndex(), count: 1});
   };
 
@@ -471,6 +542,7 @@ function start() {
 
   Reporter.prototype.finishPage = function(url, success) {
     var page = this.pagesByURL[url];
+    document.getElementById('platformDevices').style.display = 'block';
     page.finishPage(success);
   };
 
@@ -492,7 +564,8 @@ function start() {
         timeout = ', ' + totalTimeouts + ' timed out';
       }
       var msg = ' (' + totalSuccessful + ' of ' +
-                totalTests + ' passed' + timeout + ')';
+                (totalTests-totalSkipped) + ' passed)'
+                + '  (' + totalSkipped + ' skipped)';
       this.fullResultsNode.textContent = msg;
 
       // generate a text summary
@@ -632,6 +705,9 @@ function start() {
   var makeIFrames = function() {
     var toparea = document.getElementById("toparea");
     var frame = document.getElementById("frames");
+    while (frame.hasChildNodes()) {
+        frame.removeChild(frame.childNodes[0]);
+    }
     var areaWidth = Math.max(100, toparea.clientWidth - 300);
     var areaHeight = Math.max(100, frame.clientHeight);
 
@@ -780,6 +856,8 @@ function initCL() {
         platforms.options[platforms.options.length] = new Option("Platform" + (i + 1), i);
     }
     platforms[0].selected;
+    var webCLGlobalObject = CLGlobalVariables.getInstance();
+    webCLGlobalObject.setwebCLDevices(null);
 }
 
 var getDeviceType = function(webCLDevices) {
@@ -798,18 +876,25 @@ var getDeviceType = function(webCLDevices) {
 function displayDevices() {
     // Fetch the selected platform.
     document.getElementById("devicesSpan").style.display = 'block';
-    document.getElementById("platforms").disabled = true;
+    var finalResultText = document.getElementById("fullresults");
+    while (finalResultText.hasChildNodes()) {
+        finalResultText.removeChild(finalResultText.childNodes[0]);
+    }
+    var results = document.getElementById("results");
+    for (var i = 0; i < results.childElementCount; i++) {
+        results.childNodes[i].style.display = "none";
+    }
     var webCLPlatformIndex = document.getElementById('platforms').options[document.getElementById('platforms').selectedIndex].value;
     var platform = webCLPlatforms[webCLPlatformIndex];
-    var webCLGLObject = CLGlobalVariables.getInstance();
-    webCLGLObject.setwebCLPlatform(platform);
+    var webCLGlobalObject = CLGlobalVariables.getInstance();
+    webCLGlobalObject.setwebCLPlatform(platform);
 
     // Fetch available devices for selected platform and populate.
-    // FIXME :: This should be DEVICE_TYPE_ALL as mac is not supporting this.
     var devices = document.getElementById("devices");
-    webCLDevices = platform.getDevices(webcl.DEVICE_TYPE_CPU);
-    var webCLDevicesGPU = platform.getDevices(webcl.DEVICE_TYPE_GPU);
-    webCLDevices.push(webCLDevicesGPU[0]);
+    webCLDevices = platform.getDevices(webcl.DEVICE_TYPE_ALL);
+    while (devices.hasChildNodes()) {
+        devices.removeChild(devices.childNodes[0]);
+    }
 
     if (webCLDevices != null) {
         for (var j = 0; j < webCLDevices.length ; j++) {
@@ -842,8 +927,8 @@ function displaySubmit() {
 
 function getTestCases() {
     // Fetch selected device(s) and verify.
-    var webCLGLObject = CLGlobalVariables.getInstance();
-    var selectedPlatform = webCLGLObject.getwebCLPlatform();
+    var webCLGlobalObject = CLGlobalVariables.getInstance();
+    var selectedPlatform = webCLGlobalObject.getwebCLPlatform();
 
     var selectedDevice = [];
     var devices = document.getElementById("devices");
@@ -854,7 +939,7 @@ function getTestCases() {
 
     // Set selected devices.
     if (typeof(selectedDevice) == 'object' && selectedDevice.length) {
-        webCLGLObject.setwebCLDevices(selectedDevice);
+        webCLGlobalObject.setwebCLDevices(selectedDevice);
     } else {
         console.error("Failed in selecting device(s).");
         return 0;
@@ -863,7 +948,6 @@ function getTestCases() {
     // Display test cases.
     document.getElementById("runTestsButton").disable = false;
     document.getElementById("testResultsHTML").disbale = false;
-    document.getElementById("platformDevices").style.display = 'none';
     start();
 }
 

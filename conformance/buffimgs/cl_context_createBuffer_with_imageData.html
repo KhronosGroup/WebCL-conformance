@@ -60,10 +60,10 @@ try {
 
     // Testing for exceptions.
     shouldThrowExceptionName("webCLContext.createBuffer(invalid_CLenum, imgData);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, invalid_object);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, invalid_imageData);", "INVALID_HOST_PTR");
 
 } catch(e) {
-    testFailed("WebCLContext :: createBuffer() with imageData throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

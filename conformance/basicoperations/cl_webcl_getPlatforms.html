@@ -42,7 +42,7 @@ try {
     shouldBeArrayOfType("webcl.getPlatforms();", "WebCLPlatform");
 
 } catch(e) {
-    testFailed("WebCL :: getPlatforms() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

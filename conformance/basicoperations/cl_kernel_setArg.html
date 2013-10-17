@@ -40,7 +40,9 @@
 <script>
 try {
     debug("WebCLKernel :: setArg() test case.");
-    debug("(CLuint index, any value, optional CLtype type)");
+    debug("(CLuint index, WebCLMemoryObject memObject)");
+    debug("(CLuint index, WebCLSampler sampler)");
+    debug("(CLuint index, ArrayBufferView value)\n");
 
     var DATA_SIZE = Float32Array.BYTES_PER_ELEMENT * 1024;
     var wtu = WebCLTestUtils;
@@ -57,11 +59,11 @@ try {
     var webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_MIRRORED_REPEAT, webcl.FILTER_NEAREST);
     shouldBeUndefined("webCLSquareKernel.setArg(0, webCLSampler);");
 
-    var webCLBuffer = webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);
+    var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
     shouldBeUndefined("webCLSquareKernel.setArg(0, webCLBuffer);");
 
     var webCLImageDescriptorObject  = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, "100", "100");
-    var webCLImage = webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptorObject);
+    var webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorObject);
     shouldBeUndefined("webCLSquareKernel.setArg(0, webCLImage);");
 
     // Testing for "number" as values for kernel input.
@@ -76,21 +78,22 @@ try {
     shouldBeUndefined("webCLKernel.setArg(3, wtu.generateData(Uint16Array, 1));");
     shouldBeUndefined("webCLKernel.setArg(4, wtu.generateData(Int32Array, 1));");
     shouldBeUndefined("webCLKernel.setArg(5, wtu.generateData(Uint32Array, 1));");
+    shouldBeUndefined("webCLKernel.setArg(6, wtu.generateData(Int32Array, 2));");
+    shouldBeUndefined("webCLKernel.setArg(7, wtu.generateData(Uint32Array, 2));");
     shouldBeUndefined("webCLKernel.setArg(8, wtu.generateData(Float32Array, 1));");
 
-    // FIXME :: NEED to add test cases to test LONG and ULONG data types.
 
     // testing __local params.
     var kernelSource = wtu.readKernel("../../resources/kernels/setArg_local.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    webCLProgram.build(webCLDevices);
+    wtu.build(webCLProgram, webCLDevices);
     var webCLLocalKernel = wtu.createKernel(webCLProgram, "setArgLocal");
     shouldBeUndefined("webCLLocalKernel.setArg(3, wtu.generateData(Uint32Array, 1));");
 
     // Testing Vector kernel inputs.
     kernelSource = wtu.readKernel("../../resources/kernels/setArg_Vector2.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    webCLProgram.build(webCLDevices);
+    wtu.build(webCLProgram, webCLDevices);
 
     var webCLKernelVector2 = wtu.createKernel(webCLProgram, "kernelVectorTwo");
     shouldBeUndefined("webCLKernelVector2.setArg(0, wtu.generateData(Int8Array, 2));");
@@ -99,11 +102,13 @@ try {
     shouldBeUndefined("webCLKernelVector2.setArg(3, wtu.generateData(Uint16Array, 2));");
     shouldBeUndefined("webCLKernelVector2.setArg(4, wtu.generateData(Int32Array, 2));");
     shouldBeUndefined("webCLKernelVector2.setArg(5, wtu.generateData(Uint32Array, 2));");
+    shouldBeUndefined("webCLKernelVector2.setArg(6, wtu.generateData(Int32Array, 4));");
+    shouldBeUndefined("webCLKernelVector2.setArg(7, wtu.generateData(Uint32Array, 4));");
     shouldBeUndefined("webCLKernelVector2.setArg(8, wtu.generateData(Float32Array, 2));");
 
     kernelSource = wtu.readKernel("../../resources/kernels/setArg_Vector3.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    webCLProgram.build(webCLDevices);
+    wtu.build(webCLProgram, webCLDevices);
 
     var webCLKernelVector3 = wtu.createKernel(webCLProgram, "kernelVectorThree");
     shouldBeUndefined("webCLKernelVector3.setArg(0, wtu.generateData(Int8Array, 3));");
@@ -112,11 +117,13 @@ try {
     shouldBeUndefined("webCLKernelVector3.setArg(3, wtu.generateData(Uint16Array, 3));");
     shouldBeUndefined("webCLKernelVector3.setArg(4, wtu.generateData(Int32Array, 3));");
     shouldBeUndefined("webCLKernelVector3.setArg(5, wtu.generateData(Uint32Array, 3));");
+    shouldBeUndefined("webCLKernelVector3.setArg(6, wtu.generateData(Int32Array, 6));");
+    shouldBeUndefined("webCLKernelVector3.setArg(7, wtu.generateData(Uint32Array, 6));");
     shouldBeUndefined("webCLKernelVector3.setArg(8, wtu.generateData(Float32Array, 3));");
 
     kernelSource = wtu.readKernel("../../resources/kernels/setArg_Vector4.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    webCLProgram.build(webCLDevices);
+    wtu.build(webCLProgram, webCLDevices);
 
     var webCLKernelVector4 = wtu.createKernel(webCLProgram, "kernelVectorFour");
     shouldBeUndefined("webCLKernelVector4.setArg(0, wtu.generateData(Int8Array, 4));");
@@ -125,11 +132,13 @@ try {
     shouldBeUndefined("webCLKernelVector4.setArg(3, wtu.generateData(Uint16Array, 4));");
     shouldBeUndefined("webCLKernelVector4.setArg(4, wtu.generateData(Int32Array, 4));");
     shouldBeUndefined("webCLKernelVector4.setArg(5, wtu.generateData(Uint32Array, 4));");
+    shouldBeUndefined("webCLKernelVector4.setArg(6, wtu.generateData(Int32Array, 8));");
+    shouldBeUndefined("webCLKernelVector4.setArg(7, wtu.generateData(Uint32Array, 8));");
     shouldBeUndefined("webCLKernelVector4.setArg(8, wtu.generateData(Float32Array, 4));");
 
     kernelSource = wtu.readKernel("../../resources/kernels/setArg_Vector8.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    webCLProgram.build(webCLDevices);
+    wtu.build(webCLProgram, webCLDevices);
 
     var webCLKernelVector8 = wtu.createKernel(webCLProgram,"kernelVectorEight");
     shouldBeUndefined("webCLKernelVector8.setArg(0, wtu.generateData(Int8Array, 8));");
@@ -138,11 +147,13 @@ try {
     shouldBeUndefined("webCLKernelVector8.setArg(3, wtu.generateData(Uint16Array, 8));");
     shouldBeUndefined("webCLKernelVector8.setArg(4, wtu.generateData(Int32Array, 8));");
     shouldBeUndefined("webCLKernelVector8.setArg(5, wtu.generateData(Uint32Array, 8));");
+    shouldBeUndefined("webCLKernelVector8.setArg(6, wtu.generateData(Int32Array, 16));");
+    shouldBeUndefined("webCLKernelVector8.setArg(7, wtu.generateData(Uint32Array, 16));");
     shouldBeUndefined("webCLKernelVector8.setArg(8, wtu.generateData(Float32Array, 8));");
 
     kernelSource = wtu.readKernel("../../resources/kernels/setArg_Vector16.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    webCLProgram.build(webCLDevices);
+    wtu.build(webCLProgram, webCLDevices);
 
     var webCLKernelVector16 = wtu.createKernel(webCLProgram, "kernelVectorSixteen");
     shouldBeUndefined("webCLKernelVector16.setArg(0, wtu.generateData(Int16Array, 16));");
@@ -151,6 +162,8 @@ try {
     shouldBeUndefined("webCLKernelVector16.setArg(3, wtu.generateData(Uint16Array, 16));");
     shouldBeUndefined("webCLKernelVector16.setArg(4, wtu.generateData(Int32Array, 16));");
     shouldBeUndefined("webCLKernelVector16.setArg(5, wtu.generateData(Uint32Array, 16));");
+    shouldBeUndefined("webCLKernelVector16.setArg(6, wtu.generateData(Int32Array, 32));");
+    shouldBeUndefined("webCLKernelVector16.setArg(7, wtu.generateData(Uint32Array, 32));");
     shouldBeUndefined("webCLKernelVector16.setArg(8, wtu.generateData(Float32Array, 16));");
 
     // Testing for Exception.
@@ -168,17 +181,17 @@ try {
     shouldThrowExceptionName("webCLKernel.setArg(0, [10.90]);", "INVALID_ARG_VALUE");
 
     // FIXME:: KEEP AT LAST TILL RELEASE IS FIXED.
-    webCLBuffer.release();
+    wtu.release(webCLBuffer);
     shouldThrowExceptionName("webCLSquareKernel.setArg(1, webCLBuffer);", "INVALID_MEM_OBJECT");
-    webCLImage.release();
+    wtu.release(webCLImage);
     shouldThrowExceptionName("webCLSquareKernel.setArg(1, webCLImage);", "INVALID_MEM_OBJECT");
-    webCLSampler.release();
+    wtu.release(webCLSampler);
     shouldThrowExceptionName("webCLSquareKernel.setArg(0, webCLSampler);", "INVALID_SAMPLER");
-    webCLSquareKernel.release();
-    shouldThrowExceptionName("webCLSquareKernel.setArg(1, webCLBuffer);", "INVALID_KERNEL");
+    wtu.release(webCLSquareKernel);
+    shouldThrowExceptionName("webCLSquareKernel.setArg(1, webCLSquareKernel);", "INVALID_KERNEL");
 
 } catch (e) {
-    testFailed("WebCLKernel :: setArg() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

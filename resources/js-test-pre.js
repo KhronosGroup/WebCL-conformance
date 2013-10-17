@@ -504,12 +504,12 @@ function finishTest() {
 
 // WebCL specific methods.
 
-var invalid_function = 'invalid function';
-var invalid_object = 1234;
+var invalid_object = new Object();
 var invalid_CLenum = 9999;
-var invalid_string = {toString: undefined};
-var invalid_number = {toString: undefined};
-var invalid_boolean = null;
+var invalid_canvas = document.createElement('canvas');
+var invalid_imageData = invalid_canvas.getContext("2d").createImageData(100,100);
+var invalid_image = new Image();
+var invalid_video = document.createElement('video');
 
 function shouldThrowExceptionName(_a, _e)
 {
@@ -551,7 +551,7 @@ function shouldBeArrayOfType(_a, _type, quite)
 
     if (Object.prototype.toString.call(_av) === '[object Array]') { //To check if _av is an instance of Array.
         for (var i = 0; i < _av.length; i++) {
-            if (_av[i] instanceof _typev || typeof(_av) == _typev) {
+            if (typeof(_av[i]) == _typev || _av[i] instanceof _typev) {
                 continue;
             }
         }

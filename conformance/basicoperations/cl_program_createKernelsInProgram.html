@@ -54,7 +54,7 @@ try {
     shouldBeArrayOfType("webCLProgram.createKernelsInProgram();", "WebCLKernel");
 
 } catch(e) {
-    testFailed("WebCLProgram :: createKernelsInProgram() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

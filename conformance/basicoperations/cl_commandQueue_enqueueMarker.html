@@ -51,7 +51,7 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueMarker(invalid_object);", "INVALID_VALUE");
 
 } catch (e) {
-    testFailed("WebCLCommandQueue :: enqueueMarker() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

@@ -46,7 +46,7 @@ try {
     shouldBeUndefined("webCLCommandQueue.flush();");
 
 } catch (e) {
-    testFailed("WebCL throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

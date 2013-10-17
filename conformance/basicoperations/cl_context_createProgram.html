@@ -51,7 +51,7 @@ try {
     shouldThrowExceptionName("webCLContext.createProgram(kernelSourceEmpty);", "INVALID_VALUE");
 
 } catch (e) {
-    testFailed("WebCLContext :: createProgram() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

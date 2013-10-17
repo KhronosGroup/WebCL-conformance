@@ -52,7 +52,7 @@ try {
     shouldThrowExceptionName("webCLContext.getSupportedImageFormats(invalid_CLenum);", "INVALID_VALUE");
 
 } catch(e) {
-    testFailed("WebCLContext :: getSupportedImageFormats() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

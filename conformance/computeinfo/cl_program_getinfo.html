@@ -54,7 +54,7 @@ try {
     shouldThrowExceptionName("webCLProgram.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
 } catch (e) {
-    testFailed("WebCLProgram :: getInfo throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

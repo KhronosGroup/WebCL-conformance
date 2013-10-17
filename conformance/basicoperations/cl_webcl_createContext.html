@@ -65,7 +65,7 @@ try {
     shouldThrowExceptionName("webcl.createContext({platform:invalid_object, webCLDevices:null, deviceType:invalid_object});", "INVALID_CONTEXT");
 
 } catch(e) {
-    testFailed("WebCL :: createContext throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

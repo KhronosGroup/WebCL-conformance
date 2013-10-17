@@ -21,3 +21,4 @@ cl_commandQueue_finish.html
 cl_commandQueue_flush.html
 cl_commandQueue_enqueueBarrier.html
 cl_webcl_getPlatforms.html
+cl_webcl_getSupportedExtensions.html

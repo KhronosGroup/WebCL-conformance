@@ -57,14 +57,18 @@ try {
 
     webCLKernel = webCLProgram.createKernel("kernelVectorEight");
 
-    var output = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, Float32Array.BYTES_PER_ELEMENT * count);
+    var output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, Float32Array.BYTES_PER_ELEMENT * count);
     var i;
     for (i = 0; i < RUN_COUNT; i++) {
         try {
             var j, kernel_arg_value = new Array(kernel_arg_types.length);
             // Generate Random Data arrays and set it as kernel Argument.
             for (j = 0; j < kernel_arg_types.length; j++) {
-                var input = wtu.generateData(kernel_arg_types[j], VECTOR_SIZE);
+                // For Long and Ulong we need to send pair of Int32 as int64 is not yet available.
+                if (y == 6 || y == 7)
+                    var input = wtu.generateData(kernel_arg_types[j], VECTOR_SIZE * 2);
+                else
+                    var input = wtu.generateData(kernel_arg_types[j], VECTOR_SIZE);
                 kernel_arg_value[j] = input;
                 webCLKernel.setArg(j, input);
             }
@@ -80,9 +84,6 @@ try {
         var z, flag = true, resultString = "";
         for (y = 0; y < kernel_arg_value.length; y++) {
             resultString = resultString + "["
-            // FIXME :: Once long and Ulong is clear on spec remove the below 2 lines.
-            if (y == 6 || y == 7)
-                continue;
             for (z = 0; z < VECTOR_SIZE; z++) {
                 resultString = resultString + results[((y * VECTOR_SIZE) + z)] + ", ";
                 if (results[((y * VECTOR_SIZE) + z)].toFixed(2) != kernel_arg_value[y][z].toFixed(2)) {

@@ -38,10 +38,10 @@
 <script>
 try {
     var image = new Image();
-    image.src = "pebbleHalf.jpg";
+    image.src = "../../resources/pebbleHalf.jpg";
     image.onload = execute;
 } catch(e) {
-    testFailed("Unable to load HTML image element : " + e.message);
+    testFailed("Unable to load HTML image element : " + e.name);
 }
 function execute() {
     try {
@@ -54,34 +54,32 @@ function execute() {
         var bufferOffset = 0;
 
         // MEM_READ_ONLY Buffers.
-        var webCLBufferRead = webCLContext.createBuffer(webcl.MEM_READ_ONLY, DATA_SIZE);
+        var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferRead, true, bufferOffset, image)");
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferRead, false, bufferOffset, image)");
 
         // MEM_WRITE_ONLY Buffers.
-        var webCLBufferWrite = webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, DATA_SIZE);
+        var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferWrite, true, bufferOffset, image)");
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferWrite, false, bufferOffset, image)");
 
         // MEM_READ_WRITE Buffers.
-        var webCLBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, DATA_SIZE);
+        var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image)");
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, false, bufferOffset, image)");
 
         // Testing for exceptions.
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(invalid_object, true, bufferOffset, image)", "INVALID_MEM_OBJECT");
-        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, invalid_object)", "INVALID_VALUE");
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, invalid_image)", "INVALID_HOST_PTR");
 
         // Testing for invalid value of bufferOffset.
         var bufferOffsetInvalid = DATA_SIZE + 1;
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffsetInvalid, image)", "INVALID_VALUE");
 
-        // FIXME :: To add test case to verify for invalid image.
-
         // FIXME :: Need to add test cases passing event parameters.
 
     } catch (e) {
-        testFailed("WebCLCommandQueue :: enqueueWriteBuffer() with HTMLImageElement throws an exception : " + e.message);
+        testFailed(e.description);
     }
     var script = document.createElement('script');
     script.src = '../../resources/js-test-post.js';

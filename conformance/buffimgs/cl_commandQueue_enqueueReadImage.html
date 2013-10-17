@@ -53,32 +53,36 @@ try {
 
     // MEM_READ_ONLY images.
     var webCLImageDescriptorObject = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
-    var webCLImageRead = webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptorObject);
+    var webCLImageRead = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorObject);
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageRead, true, origin, region, hostRowPitch, hostPtr);");
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageRead, false, origin, region, hostRowPitch, hostPtr);");
 
     // MEM_WRITE_ONLY images.
     webCLImageDescriptorObject = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_WRITE_ONLY, imageWidth, imageHeight);
-    var webCLImageWrite = webCLContext.createImage(webcl.MEM_WRITE_ONLY, webCLImageDescriptorObject);
+    var webCLImageWrite = wtu.createImage(webCLContext, webcl.MEM_WRITE_ONLY, webCLImageDescriptorObject);
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageWrite, true, origin, region, hostRowPitch, hostPtr);");
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageWrite, false, origin, region, hostRowPitch, hostPtr);");
 
     // MEM_READ_WRITE images.
     webCLImageDescriptorObject = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
-    var webCLImageReadWrite = webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorObject);
+    var webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorObject);
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr);");
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, false, origin, region, hostRowPitch, hostPtr);");
 
     // Testing for values of Image Offsets.
     var originInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, originInvalid, region, hostRowPitch, hostPtr);", "INVALID_VALUE");
-    var originInvalid = [imageWidth + 1, imageHeight + 1];
+    originInvalid = [imageWidth + 1, imageHeight + 1];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, originInvalid, region, hostRowPitch, hostPtr);", "INVALID_VALUE");
+    originInvalid = new Int32Array(1);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, originInvalid, region, hostRowPitch, hostPtr);", "INVALID_VALUE");
 
     // Testing for values of rectangular region.
     var regionInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, regionInvalid, hostRowPitch, hostPtr);", "INVALID_VALUE");
-    var regionInvalid = [imageWidth + 1, imageHeight + 1];
+    regionInvalid = [imageWidth + 1, imageHeight + 1];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, regionInvalid, hostRowPitch, hostPtr);", "INVALID_VALUE");
+    regionInvalid = new Int32Array(1);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, regionInvalid, hostRowPitch, hostPtr);", "INVALID_VALUE");
 
     // Testing for values of hostRowPitch.
@@ -87,22 +91,32 @@ try {
     var hostRowPitchInvalid = (imageWidth * Float32Array.BYTES_PER_ELEMENT) - 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageRead, true, origin, region, hostRowPitchInvalid, hostPtr);", "INVALID_VALUE");
 
-    // Testing for exceptions. 
+    // Testing for exceptions.
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(invalid_object, true, origin, region, hostRowPitch, hostPtr);", "INVALID_MEM_OBJECT");
 
-    var webCLContext2 = wtu.createContext();
-    var webCLImage2 = webCLContext2.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorObject);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImage2, true, origin, region, hostRowPitch, hostPtr);", "INVALID_CONTEXT");
-
-    var webCLCommandQueueNew = wtu.createCommandQueue(webCLContext2);
+    var webCLContextNew = wtu.createContext();
+    var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
+    var webCLImageNew = wtu.createImage(webCLContextNew, webcl.MEM_READ_WRITE, webCLImageDescriptorObject);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageNew, true, origin, region, hostRowPitch, hostPtr);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr);", "INVALID_CONTEXT");
+
+    var webCLEvent = wtu.createEvent(webCLContext);
+    var webCLEventNew = wtu.createEvent(webCLContextNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLEventNew], null);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLEvent], null);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [], webCLEventNew);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [], webCLEvent);", "INVALID_CONTEXT");
+
+    wtu.release(webCLEventNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLEventNew], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+    
+    webCLEvent.setUserEventStatus(-1);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
     // FIXME Need to add test case for INVALID_IMAGE_SIZE.
 
-    // FIXME :: Need to add test cases passing event parameters.
-
 } catch (e) {
-    testFailed("WebCLCommandQueue :: enqueueReadImage() throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

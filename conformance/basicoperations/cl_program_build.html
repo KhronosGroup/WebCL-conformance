@@ -43,7 +43,7 @@ function callback(event)
 
 try {
     debug("WebCLProgram :: build() test case.\n");
-    debug("(optional WebCLDevice>? devices, optional DOMString? options, optional WebCLCallback whenFinished)\n");
+    debug("(optional sequence<WebCLDevice>? devices, optional DOMString? options, optional WebCLCallback whenFinished)");
     var wtu = WebCLTestUtils;
     var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     var webCLPlatform = wtu.getPlatforms();
@@ -56,8 +56,8 @@ try {
 
     var createContextAndProgram = function (webCLPlatform, type) {
         try {
-            webCLDevice = webCLPlatform.getDevices(type);
-            webCLContext = webcl.createContext({platform:webCLPlatform, devices:webCLDevice});
+            webCLDevice = wtu.getDevices(webCLPlatform, type);
+            webCLContext = wtu.createContext(webCLPlatform, webCLDevice);
             webCLProgram = wtu.createProgram(webCLContext, kernelSource);
             return webCLDevice;
         } catch(e) {
@@ -91,8 +91,12 @@ try {
     webCLContext = wtu.createContext();
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
 
+    shouldBeUndefined("webCLProgram.build();");
+    shouldBeUndefined("webCLProgram.build(webCLDevice);");
+    shouldBeUndefined("webCLProgram.build(null, \"-cl-opt-disable\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-D SIZE\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-D SIZE=1024\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-DSIZE=1024\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-opt-disable\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-denorms-are-zero\");");
@@ -113,8 +117,10 @@ try {
     shouldThrowExceptionName("webCLProgram.build(webCLDevice, \"-D\");", "INVALID_BUILD_OPTIONS");
 
     // Testing with callback.
+    shouldBeUndefined("webCLProgram.build(null, null, callback);");
     shouldBeUndefined("webCLProgram.build(webCLDevice, null, callback);");
-    shouldBeUndefined("webCLProgram.build(webCLDevice, null, null);");
+    shouldBeUndefined("webCLProgram.build(null, \"-cl-fast-relaxed-math\", callback);");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-fast-relaxed-math\", callback);");
 
     // Testing for Exceptions.
 
@@ -131,24 +137,24 @@ try {
     // Testing for exception "INVALID_OPERATION".
     kernelSource = wtu.readKernel("../../resources/kernels/nbody_simulation.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    webCLProgram.build(webCLDevice, null, callback);
+    wtu.build(webCLProgram, webCLDevice, null, callback);
     shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "INVALID_OPERATION");
 
     // Testing for exception "INVALID_DEVICE".
-    var webCLDevicesCPU = webCLPlatform.getDevices(webcl.DEVICE_TYPE_CPU);
-    webCLContext = webcl.createContext({platform:webCLPlatform, devices:webCLDevicesCPU, deviceType:null});
+    var webCLDevicesCPU = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_CPU);
+    webCLContext = wtu.createContext(webCLPlatform, webCLDevicesCPU);
     kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webCLDevicesNew = webCLPlatform.getDevices(webcl.DEVICE_TYPE_GPU);
+    var webCLDevicesNew = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_GPU);
     shouldThrowExceptionName("webCLProgram.build(webCLDevicesNew[0]);", "INVALID_DEVICE");
 
     // Testing for exception "INVALID_OPERATION".
-    webCLProgram.build(webCLDevicesCPU);
-    webCLProgram.createKernel("square");
+    wtu.build(webCLProgram, webCLDevicesCPU);
+    wtu.createKernel(webCLProgram, "square");
     shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "INVALID_OPERATION");
 
 } catch (e) {
-    testFailed("WebCLProgram :: build () throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

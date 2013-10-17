@@ -46,7 +46,7 @@ try {
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     var webCLPlatform = wtu.getPlatforms();
     var webCLDevices = wtu.getDevices(webCLPlatform);
-    webCLProgram.build(webCLDevices);
+    wtu.build(webCLProgram, webCLDevices);
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
 
     shouldBe("webCLKernel.getInfo(webcl.KERNEL_CONTEXT)", "webCLContext");
@@ -58,7 +58,7 @@ try {
     shouldThrowExceptionName("webCLKernel.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
 } catch (e) {
-    testFailed("WebCLKernel :: getInfo throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

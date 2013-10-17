@@ -45,44 +45,101 @@ try {
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     var correct;
     var count = SIZE;
-    var data = new ArrayBuffer(SIZE);
-    var result = new ArrayBuffer(SIZE);
 
-    var hostOrigin = new Int32Array([0, 0]);
-    var srcOrigin = new Int32Array([10, 20]);
-    var dstOrigin = new Int32Array([10, 20]);
-    var region = new Int32Array([15, 25]);
+    var rectWidth = 320;
+    var rectHeight = 240;
+    var rectArea = rectWidth * rectHeight;
+    var BUFFER_SIZE = rectWidth * rectHeight * Int32Array.BYTES_PER_ELEMENT;
+    var data = new Int32Array(BUFFER_SIZE);
+    var result = new Int32Array(BUFFER_SIZE);
 
-    for (i = 0; i < count; i++)
-        data[i] = (Math.floor(Math.random()*10) ) + 1;
+    var srcBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var dstBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
 
-    var hostRowPitch = WIDTH_STEP;
-    var hostSlicePitch = WIDTH_STEP;
-    var srcRowPitch = WIDTH_STEP;
-    var srcSlicePitch = WIDTH_STEP;
-    var dstRowPitch = WIDTH_STEP;
-    var dstSlicePitch = WIDTH_STEP;
+    /*
+     *   Testing for partial size rectOperation.
+     *   Copies int values from source to destination buffer.
+     */
 
-    var srcBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, BUFFER_SIZE);
-    var dstBufferReadWrite = webCLContext.createBuffer(webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    try {
+        var loopCount = 20;
+        var data = new Int32Array(20);
+        var result = new Int32Array(20);
+        for (i = 0; i < loopCount; i++)
+            data[i] = Math.floor(Math.random()*10);
 
-    webCLCommandQueue.enqueueWriteBufferRect(srcBufferReadWrite, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
-    webCLCommandQueue.enqueueCopyBufferRect(srcBufferReadWrite, dstBufferReadWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
-    webCLCommandQueue.enqueueReadBufferRect(dstBufferReadWrite, true, dstOrigin, hostOrigin, region, dstRowPitch, dstSlicePitch, hostRowPitch, hostSlicePitch, result);
+        var hostOrigin = [0, 0, 0];
+        var srcOrigin = [0, 0, 0];
+        var dstOrigin = [0, 0, 0];
+        var region = [2, 10, 1];
 
-    correct = 0;
-    for (i = 0; i < count; i++)
-        if (data[i] == result[i])
-            correct++;
+        var hostRowPitch = 0;
+        var hostSlicePitch = 0;
+        var srcRowPitch = 0;
+        var srcSlicePitch = 0;
+        var dstRowPitch = 0;
+        var dstSlicePitch = 0;
 
-    console.log("Computed " + correct + "/" + count + " correct values.");
-    if (correct == count)
-        testPassed("Test passed for all " + count + " values in writing into, copying and reading from a bufferRect.");
-    else
-        testFailed("Test failed for writing into, copying and reading from a bufferRect. Computed " + correct + " / " + count + " correct values.");
+        wtu.enqueueWriteBufferRect(webCLCommandQueue, srcBufferReadWrite, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
+        wru.enqueueCopyBufferRect(webCLCommandQueue, srcBufferReadWrite, dstBufferReadWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
+        wtu.enqueueReadBufferRect(webCLCommandQueue, dstBufferReadWrite, true, dstOrigin, hostOrigin, region, dstRowPitch, dstSlicePitch, hostRowPitch, hostSlicePitch, result);
+
+        correct = 0;
+        for (i = 0; i < loopCount; i++)
+            if (data[i] == result[i])
+                correct++;
+
+        if (correct == loopCount)
+            testPassed("Test passed for all " + loopCount + " values in writing into, copying and reading from a bufferRect.");
+        else
+            testFailed("Test failed for writing into, copying and reading from a bufferRect. Computed " + correct + " / " + loopCount + " correct values.");
+
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+    /*
+     *   Testing for complete size rectOperation.
+     *   Copies int values from source to destination buffer.
+     */
+
+    try {
+        var data = new Int32Array(BUFFER_SIZE);
+        var result = new Int32Array(BUFFER_SIZE);
+        count = rectArea * Int32Array.BYTES_PER_ELEMENT;
+
+        for (i = 0; i < count; i++)
+            data[i] = Math.floor(Math.random()*10);
+
+        region = [rectWidth, rectHeight, 4];
+
+        hostRowPitch = rectWidth;
+        hostSlicePitch = rectArea;
+        srcRowPitch = rectWidth;
+        srcSlicePitch = rectArea;
+        dstRowPitch = rectWidth;
+        dstSlicePitch = rectArea;
+
+        wtu.enqueueWriteBufferRect(webCLCommandQueue, srcBufferReadWrite, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
+        wtu.enqueueCopyBufferRect(webCLCommandQueue, srcBufferReadWrite, dstBufferReadWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
+        wtu.enqueueReadBufferRect(webCLCommandQueue, dstBufferReadWrite, true, dstOrigin, hostOrigin, region, dstRowPitch, dstSlicePitch, hostRowPitch, hostSlicePitch, result);
+
+        correct = 0;
+        for (i = 0; i < count; i++)
+            if (data[i] == result[i])
+                correct++;
+
+        if (correct == count)
+            testPassed("Test passed for all " + count + " values in writing into, copying and reading from a bufferRect.");
+        else
+            testFailed("Test failed for writing into, copying and reading from a bufferRect. Computed " + correct + " / " + count + " correct values.");
+
+    } catch(e) {
+        testFailed(e.description);
+    }
 
 } catch(e) {
-    testFailed("bufferRectOperations throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

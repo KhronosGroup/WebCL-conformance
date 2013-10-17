@@ -47,15 +47,13 @@ try {
     var imageHeight = 100;
 
     var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
-    webCLImage = webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
-    if (webCLImage instanceof WebCLImage) {
-        shouldBeType("webCLImage.getInfo()", WebCLImageDescriptor);
-        shouldBe("webCLImage.getInfo().width", "imageWidth", true);
-        shouldBe("webCLImage.getInfo().height", "imageHeight", true);
-    } else
-        testFailed("webCLImage() returned : " + webCLImage);
+    webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
+    shouldBeType("webCLImage.getInfo()", WebCLImageDescriptor);
+    shouldBe("webCLImage.getInfo().width", "imageWidth", true);
+    shouldBe("webCLImage.getInfo().height", "imageHeight", true);
+
 } catch (e) {
-    testFailed("WebCLImage :: getInfo throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

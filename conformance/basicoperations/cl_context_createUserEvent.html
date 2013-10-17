@@ -45,7 +45,7 @@ try {
     shouldBeType("webCLContext.createUserEvent();", "WebCLEvent");
 
 } catch(e) {
-    testFailed("WebCLContext :: createUserEvent throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

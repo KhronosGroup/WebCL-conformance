@@ -52,7 +52,7 @@ try {
     shouldThrowExceptionName("webCLEvent.getInfo(invalid_CLenum)", "INVALID_VALUE");
 
 } catch (e) {
-    testFailed("WebCLEvent :: getInfo throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

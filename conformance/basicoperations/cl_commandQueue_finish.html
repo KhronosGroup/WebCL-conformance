@@ -47,7 +47,7 @@ try {
     shouldBeUndefined("webCLCommandQueue.finish();");
 
 } catch (e) {
-    testFailed("WebCLCommandQueue :: finish () throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>

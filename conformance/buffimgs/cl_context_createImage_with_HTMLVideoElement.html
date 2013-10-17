@@ -53,10 +53,10 @@ try {
 
     // Testing for exceptions.
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_WRITE_ONLY, video);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, invalid_object);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, invalid_video);", "INVALID_HOST_PTR");
 
 } catch(e) {
-    testFailed("WebCLContext :: createImage() with HTMLVideoElement throws an exception : " + e.message);
+    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>
