@@ -1,3 +1,4 @@
 basics/00_test_list.txt
 buildingAndRunning/00_test_list.txt
 enqueueOperations/00_test_list.txt
+release/00_test_list.txt

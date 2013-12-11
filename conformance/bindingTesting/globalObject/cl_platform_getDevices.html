@@ -43,12 +43,11 @@ try {
     var wtu = WebCLTestUtils;
     var webCLPlatform = wtu.getPlatform();
 
-    shouldBeArrayOfType("webCLPlatform.getDevices();", "WebCLDevice");
-    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_CPU);", "WebCLDevice");
-    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_GPU);", "WebCLDevice");
-    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ALL);", "WebCLDevice");
-    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ACCELERATOR);", "WebCLDevice");
-    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_DEFAULT);", "WebCLDevice");
+    shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_CPU);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
+    shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_GPU);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
+    shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ACCELERATOR);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
+    shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_DEFAULT);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
+    shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ALL);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
 
     // Testing for Exceptions.
     shouldThrowExceptionName("webCLPlatform.getDevices(invalid_CLenum);", "INVALID_VALUE");

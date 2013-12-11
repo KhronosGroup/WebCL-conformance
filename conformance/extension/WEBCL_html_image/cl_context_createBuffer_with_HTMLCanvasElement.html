@@ -47,8 +47,8 @@ try {
     var canvas = document.getElementById("inputCanvas");
 
     shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_ONLY, canvas);", "WEBCL_EXTENSION_NOT_ENABLED");
-    if (!wtu.enableExtension(webcl, "WEBCL_html_sharing")) {
-        throw { description : "Failed to enable extension : WEBCL_html_sharing. Exitting..."};
+    if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
+        throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..."};
     }
 
     shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_ONLY, canvas);", "WebCLBuffer");

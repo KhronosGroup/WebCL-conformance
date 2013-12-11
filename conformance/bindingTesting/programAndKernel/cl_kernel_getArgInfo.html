@@ -59,36 +59,36 @@ try {
 
     kernelInfo = wtu.getArgInfo(webCLKernelWithLocalArgument, 0);
     if ((kernelInfo.name === "input")
-        && (kernelInfo.typeName === float)
-        && (kernelInfo.addressQualifier === global)
-        && (kernelInfo.accessQualifier === none))
+        && (kernelInfo.typeName === "float")
+        && (kernelInfo.addressQualifier === "global")
+        && (kernelInfo.accessQualifier === "none"))
         testPassed("getArg of index 0 for kernel \"setArgLocal\" was as expected.");
     else
         testFailed("getArg of index 0 for kernel \"setArgLocal\" failed.");
 
     kernelInfo = wtu.getArgInfo(webCLKernelWithLocalArgument, 1);
     if ((kernelInfo.name === "output")
-        && (kernelInfo.typeName === float)
-        && (kernelInfo.addressQualifier === global)
-        && (kernelInfo.accessQualifier === none))
+        && (kernelInfo.typeName === "float")
+        && (kernelInfo.addressQualifier === "global")
+        && (kernelInfo.accessQualifier === "none"))
         testPassed("getArg of index 1 for kernel \"setArgLocal\" was as expected.");
     else
         testFailed("getArg of index 1 for kernel \"setArgLocal\" failed.");
 
     kernelInfo = wtu.getArgInfo(webCLKernelWithLocalArgument, 2);
     if ((kernelInfo.name === "temp")
-        && (kernelInfo.typeName === float)
-        && (kernelInfo.addressQualifier === local)
-        && (kernelInfo.accessQualifier === none))
+        && (kernelInfo.typeName === "float")
+        && (kernelInfo.addressQualifier === "local")
+        && (kernelInfo.accessQualifier === "none"))
         testPassed("getArg of index 2 for kernel \"setArgLocal\" was as expected.");
     else
         testFailed("getArg of index 2 for kernel \"setArgLocal\" failed.");
 
     kernelInfo = wtu.getArgInfo(webCLKernelWithLocalArgument, 3);
     if ((kernelInfo.name === "count")
-        && (kernelInfo.typeName === int)
-        && (kernelInfo.addressQualifier === constant)
-        && (kernelInfo.accessQualifier === none))
+        && (kernelInfo.typeName === "int")
+        && (kernelInfo.addressQualifier === "constant")
+        && (kernelInfo.accessQualifier === "none"))
         testPassed("getArg of index 3 for kernel \"setArgLocal\" was as expected.");
     else
         testFailed("getArg of index 3 for kernel \"setArgLocal\" failed.");
@@ -107,27 +107,27 @@ try {
 
     kernelInfo = wtu.getArgInfo(webCLgetArgSampleKernel, 0);
     if ((kernelInfo.name === "input")
-        && (kernelInfo.typeName === float)
-        && (kernelInfo.addressQualifier === global)
-        && (kernelInfo.accessQualifier === write_only))
+        && (kernelInfo.typeName === "float")
+        && (kernelInfo.addressQualifier === "global")
+        && (kernelInfo.accessQualifier === "write_only"))
         testPassed("getArg of index 0 for kernel \"getArg_sample\" was as expected.");
     else
         testFailed("getArg of index 0 for kernel \"getArg_sample\" failed.");
 
     kernelInfo = wtu.getArgInfo(webCLgetArgSampleKernel, 1);
     if ((kernelInfo.name === "output")
-        && (kernelInfo.typeName === float)
-        && (kernelInfo.addressQualifier === global)
-        && (kernelInfo.accessQualifier === read_write))
+        && (kernelInfo.typeName === "float")
+        && (kernelInfo.addressQualifier === "global")
+        && (kernelInfo.accessQualifier === "read_write"))
         testPassed("getArg of index 1 for kernel \"getArg_sample\" was as expected.");
     else
         testFailed("getArg of index 1 for kernel \"getArg_sample\" failed.");
 
     kernelInfo = wtu.getArgInfo(webCLgetArgSampleKernel, 2);
     if ((kernelInfo.name === "webCLSampler")
-        && (kernelInfo.typeName === sampler)
-        && (kernelInfo.addressQualifier === private)
-        && (kernelInfo.accessQualifier === read_only))
+        && (kernelInfo.typeName === "sampler")
+        && (kernelInfo.addressQualifier === "private")
+        && (kernelInfo.accessQualifier === "read_only"))
         testPassed("getArg of index 2 for kernel \"getArg_sample\" was as expected.");
     else
         testFailed("getArg of index 2 for kernel \"getArg_sample\" failed.");

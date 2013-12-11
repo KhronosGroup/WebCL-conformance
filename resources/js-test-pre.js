@@ -566,9 +566,9 @@ function shouldBeArrayOfType(_a, _type, quite)
     }
 }
 
-function shouldBeTypeOrException(_a, _type, _exception, quite)
+function shouldBeTypeOrException(_a, _type, _e, isArray, quite)
 {
-    if (typeof _a != "string" || typeof _type != "string" || typeof _exception != "string")
+    if (typeof _a != "string" || typeof _type != "string" || typeof _e != "string")
         debug("WARN: shouldBe() expects string arguments");
 
     var exception;
@@ -590,11 +590,13 @@ function shouldBeTypeOrException(_a, _type, _exception, quite)
                 testFailed(_a + " should throw " + _e + ". Threw " + exception.name + ".");
             else
                 testPassed(_a + " threw exception " + exception.name + ".");
-        }
-    } else if (_av instanceof  _typev || _aPrototype == _typePrototype) {
+        } else
+            testFailed(_a + " threw exception " + exception.message);
+    } else if (isArray)
+       shouldBeArrayOfType(_a, _type);
+    else if (_av instanceof  _typev || _aPrototype == _typePrototype) {
         if (!quite)
             testPassed(_a + " is an instance of " + _type);
     } else
         testFailed(_a + " is not an instance of " + _type);
 }
-

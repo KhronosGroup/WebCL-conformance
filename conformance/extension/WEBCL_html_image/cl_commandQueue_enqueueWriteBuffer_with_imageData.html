@@ -60,8 +60,8 @@ try {
 
     var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, true, bufferOffset, imgData)", "WEBCL_EXTENSION_NOT_ENABLED");
-    if (!wtu.enableExtension(webcl, "WEBCL_html_sharing")) {
-        throw { description : "Failed to enable extension : WEBCL_html_sharing. Exitting..." };
+    if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
+        throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
     }
 
     // MEM_READ_ONLY Buffers.

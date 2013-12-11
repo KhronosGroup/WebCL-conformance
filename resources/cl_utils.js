@@ -243,6 +243,17 @@ var release = function(webCLObject) {
     }
 }
 
+var releaseAll = function(webCLObject) {
+    try {
+        if (webCLObject instanceof WebCLContext || Object.getPrototypeOf(webCLObject) == Object.getPrototypeOf(webcl))
+            eval("webCLObject.releaseAll()");
+        else
+            throw { description : "releaseAll is not defined for " + webCLObject };
+    } catch(e) {
+        e.description = webCLObject + " :: releaseAll threw exception : " + e.name;
+    }
+}
+
 var setArg = function(webCLKernel, index, value) {
     try {
         webCLKernel.setArg(index, value);
@@ -456,6 +467,7 @@ generateData:generateData,
 createBuffer:createBuffer,
 createImage:createImage,
 release:release,
+releaseAll:releaseAll,
 setArg:setArg,
 createSubBuffer:createSubBuffer,
 enqueueCopyBuffer:enqueueCopyBuffer,

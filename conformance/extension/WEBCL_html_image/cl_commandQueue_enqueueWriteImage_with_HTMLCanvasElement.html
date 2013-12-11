@@ -56,8 +56,8 @@ try {
 
     var webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImage, true, origin, region, canvas);", "WEBCL_EXTENSION_NOT_ENABLED");
-    if (!wtu.enableExtension(webcl, "WEBCL_html_sharing")) {
-        throw { description : "Failed to enable extension : WEBCL_html_sharing. Exitting..." };
+    if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
+        throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
     }
 
     // Testing with image as MEM_READ_ONLY memory object.

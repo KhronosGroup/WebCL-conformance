@@ -60,8 +60,11 @@ try {
             webCLContext = wtu.createContext(webCLPlatform, webCLDevice);
             webCLProgram = wtu.createProgram(webCLContext, kernelSource);
             return webCLDevice;
-        } catch(e) {
-            testFailed("For the device type : " + type + ", Exception was thrown while creating device specific context & program : " + e.name);
+        } catch (e) {
+            if (e.name === "DEVICE_NOT_FOUND")
+                testPassed("For the device type : " + type + ", DEVICE_NOT_FOUND exception was thrown");
+            else
+                testFailed("For the device type : " + type + ", Exception was thrown while creating device specific context & program : " + e.name);
             return null;
         }
     }

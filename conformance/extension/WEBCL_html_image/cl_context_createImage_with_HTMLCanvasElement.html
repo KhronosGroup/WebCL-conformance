@@ -48,8 +48,8 @@ try {
     var webCLImageDescriptor = {width : canvas.width, height : canvas.height, channelOrder : webcl.RGBA, channelType : webcl.UNORM_INT8};
 
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptor, canvas);", "WEBCL_EXTENSION_NOT_ENABLED");
-    if (!wtu.enableExtension(webcl, "WEBCL_html_sharing")) {
-        throw { description : "Failed to enable extension : WEBCL_html_sharing. Exitting..."};
+    if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
+        throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..."};
     }
 
     shouldBeType("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptor, canvas);", "WebCLImage");

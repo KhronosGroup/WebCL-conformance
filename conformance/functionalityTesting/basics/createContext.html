@@ -44,57 +44,68 @@ try {
     var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLContext, deviceType, contextDevices, contextProperty;
 
-    var createContext = function(platform, devices, type) {
+    var createContext = function(platform, devices, deviceType) {
         try {
-            webCLContext = wtu.createContext(platform, devices, type);
+            webCLContext = wtu.createContext(platform, devices, deviceType);
 
             contextDevices = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
             contextProperty = webCLContext.getInfo(webcl.CONTEXT_PROPERTIES);
 
             if (typeof(platform) != 'undefined' && platform != null) {
-                if (contextProperty.platform !== platform)
-                    return "CONTEXT_PROPERTIES::platform !== WebCLContext::platform.";
+                if (contextProperty.platform !== platform) {
+                    console.log("Failed in validating Platform used to create WebCLContext. Expected : " + platform + ". Obtained : " + contextProperty.platform);
+                    return null;
+                }
 
                 for (i = 0; i < contextDevices.length; i++)
-                    if (contextDevices[i].getInfo(webcl.DEVICE_PLATFORM) !== platform)
-                        return "CONTEXT_PROPERTIES::platform !== WebCLContext::device.platform.";
+                    if (contextDevices[i].getInfo(webcl.DEVICE_PLATFORM) !== platform) {
+                        console.log("Failed in validating platform for devices[ " + i + "] used to create WebCLContext. Expected : " + platform + ". Obtained : " + contextDevices[i].getInfo(webcl.DEVICE_PLATFORM));
+                        return null;
+                    }
             }
 
             if (typeof(devices) != 'undefined' && devices != null) {
                 for (i = 0; i < contextDevices.length; i++)
                     if (contextDevices[i] !== devices[i] ||
-                            contextDevices[i].getInfo(webcl.DEVICE_PLATFORM) !== contextProperty.platform)
-                        return "CONTEXT_PROPERTIES::CONTEXT_DEVICES !== WebCLContext::devices.";
+                            contextDevices[i].getInfo(webcl.DEVICE_PLATFORM) !== contextProperty.platform) {
+                        console.log("Failed in validating devices[ " + i + " ] and its platform used to create WebCLContext. Expected : " + devices[i] + " && " + contextProperty.platform + ". Obtained : " + contextDevices[i] + " && " + contextDevices[i].getInfo(webcl.DEVICE_PLATFORM));
+                        return null;
+                    }
             }
 
-            if (typeof(type) != 'undefined' && type != null) {
-                // ALL and default cannot be checked for. They are just alias to other types.
-                if (type == webcl.DEVICE_TYPE_ALL || type == webcl.DEVICE_TYPE_DEFAULT)
-                    return true;
+            if (typeof(deviceType) != 'undefined' && deviceType != null) {
+                // ALL and DEFAULT cannot be checked for. They are just alias to other types.
+                if (deviceType == webcl.DEVICE_TYPE_ALL || deviceType == webcl.DEVICE_TYPE_DEFAULT)
+                    return webCLContext;
 
-                if (contextProperty.deviceType != type)
-                    return "CONTEXT_PROPERTIES::type != type of WebCLContext::devices.";
+                if (contextProperty.deviceType != deviceType) {
+                    console.log("Failed in validating deviceType used to create WebCLContext. Expected : " + deviceType + ". Obtained : " + contextProperty.deviceType);
+                    return null;
+                }
 
                 for (i = 0; i < contextDevices.length; i++)
-                    if (contextDevices[i].getInfo(webcl.DEVICE_TYPE) != type)
-                        return "CONTEXT_PROPERTIES::devices.type != type of WebCLContext::devices.";
+                    if (contextDevices[i].getInfo(webcl.DEVICE_TYPE) != deviceType) {
+                        console.log("Failed in validating deviceType for device[ " + i + " ] used to create WebCLContext. Expected : " + deviceType + ". Obtained : " + contextDevices[i].getInfo(webcl.DEVICE_TYPE));
+                        return null;
+                    }
             }
-            return true;
+            return webCLContext;
 
         } catch(e) {
             e.description = "Exception thrown while creating and validating context : " + e.name;
+            throw e;
         }
     }
 
-    shouldBeTrue("createContext()");
-    shouldBeTrue("createContext(webCLPlatform)");
-    shouldBeTrue("createContext(webCLPlatform, webCLDevices)");
-    shouldBeTrue("createContext(null, webCLDevices)");
-    shouldBeTrue("createContext(null, null, webcl.DEVICE_TYPE_CPU)");
-    shouldBeTrue("createContext(null, null, webcl.DEVICE_TYPE_GPU)");
-    shouldBeTrue("createContext(null, null, webcl.DEVICE_TYPE_ACCELERATOR)");
-    shouldBeTrue("createContext(null, null, webcl.DEVICE_TYPE_ALL)");
-    shouldBeTrue("createContext(null, null, webcl.DEVICE_TYPE_DEFAULT)");
+    shouldBeTypeOrException("createContext()", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("createContext(webCLPlatform)", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("createContext(webCLPlatform, webCLDevices)", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("createContext(null, webCLDevices)", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("createContext(null, null, webcl.DEVICE_TYPE_CPU)", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("createContext(null, null, webcl.DEVICE_TYPE_GPU)", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("createContext(null, null, webcl.DEVICE_TYPE_ACCELERATOR)", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("createContext(null, null, webcl.DEVICE_TYPE_ALL)", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("createContext(null, null, webcl.DEVICE_TYPE_DEFAULT)", "WebCLContext", "DEVICE_NOT_FOUND");
 
 } catch(e) {
     testFailed(e.description);
