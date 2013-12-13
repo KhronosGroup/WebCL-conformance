@@ -28,9 +28,9 @@
 <head>
 <meta charset="utf-8">
     <title>WebCLContext createProgram conformance test.</title>
-    <link rel="stylesheet" href="../../../../resources/js-test-style.css"/>
-    <script src="../../../../resources/js-test-pre.js"></script>
-    <script src="../../../../resources/cl_utils.js"></script>
+    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
+    <script src="../../../resources/js-test-pre.js"></script>
+    <script src="../../../resources/cl_utils.js"></script>
 </head>
 <body>
 <div id="description"></div>
@@ -42,7 +42,7 @@ try {
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var kernelSource = wtu.readKernel("../../../../resources/kernels/square.cl");
+    var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     var kernelSourceEmpty = "";
 
     shouldBeType("webCLContext.createProgram(kernelSource);", "WebCLProgram");
@@ -55,6 +55,6 @@ try {
 }
 successfullyParsed = true;
 </script>
-<script src="../../../../resources/js-test-post.js"></script>
+<script src="../../../resources/js-test-post.js"></script>
 </body>
 </html>
