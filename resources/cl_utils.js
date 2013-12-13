@@ -186,6 +186,7 @@ var build = function(webCLProgram, webCLDevices, options, callback)
             return true;
     } catch(e) {
         e.description = "WebCLProgram :: build threw exception : " + e.name;
+        e.log = webCLProgram.getBuildInfo(webCLDevices[0], webcl.PROGRAM_BUILD_LOG);
         throw e;
     }
 }
@@ -217,9 +218,12 @@ var readKernel = function(file) {
     }
 }
 
-var createBuffer = function(webCLContext, flag, bufferSize) {
+var createBuffer = function(webCLContext, flag, bufferSize, data) {
     try {
-        var webCLBuffer = eval("webCLContext.createBuffer(flag, bufferSize);");
+        if (arguments.length > 3)
+            var webCLBuffer = eval("webCLContext.createBuffer(flag, bufferSize, data);");
+        else
+            var webCLBuffer = eval("webCLContext.createBuffer(flag, bufferSize);");
         if (webCLBuffer instanceof WebCLBuffer)
             return webCLBuffer;
     } catch (e) {
@@ -256,9 +260,12 @@ var createSubBuffer = function(webCLBuffer, flag, origin, size) {
     }
 }
 
-var createImage = function(webCLContext, flag, webCLImageDescriptor) {
+var createImage = function(webCLContext, flag, imageDescriptor, data) {
     try {
-        webCLImage = webCLContext.createImage(flag, webCLImageDescriptor);
+        if (arguments.length > 3)
+            webCLImage = eval("webCLContext.createImage(flag, imageDescriptor, data);");
+        else
+            webCLImage = eval("webCLContext.createImage(flag, imageDescriptor);");
         if (webCLImage instanceof WebCLImage)
             return webCLImage;
     } catch (e) {
@@ -276,9 +283,9 @@ var enqueueCopyBuffer = function(webCLCommandQueue, srcBuffer, dstBuffer, srcOff
     }
 }
 
-var enqueueReadBuffer = function(webCLCommandQueue, buffer, blockingRead, bufferOffset, numBytes, hostPtr) {
+var enqueueReadBuffer = function(webCLCommandQueue, buffer, blockingRead, bufferOffset, numBytes, dst) {
     try {
-        webCLCommandQueue.enqueueReadBuffer(buffer, blockingRead, bufferOffset, numBytes, hostPtr);
+        webCLCommandQueue.enqueueReadBuffer(buffer, blockingRead, bufferOffset, numBytes, dst);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueReadBuffer threw exception : " + e.name;
         throw e;
@@ -330,9 +337,9 @@ var enqueueCopyImage = function(webCLCommandQueue, srcImage, dstImage, srcOrigin
     }
 }
 
-var enqueueReadImage = function(webCLCommandQueue, image, blockingRead, origin, region, hostRowPitch, hostPtr) {
+var enqueueReadImage = function(webCLCommandQueue, image, blockingRead, origin, region, hostRowPitch, dst) {
     try {
-        webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, hostRowPitch, hostPtr);
+        webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, hostRowPitch, dst);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueReadImage threw exception : " + e.name;
         throw e;
@@ -372,6 +379,18 @@ var generateRandomInt = function(data, loopSize) {
     return data;
 }
 
+var generateRandomFloat = function(data, loopSize) {
+    for (i = 0; i < loopSize; i++)
+        data[i] = Math.random() * 10;
+    return data;
+}
+
+var generateRandomNumberInRange = function (data, min, max, loopSize) {
+    for (i = 0; i < loopSize; i++)
+        data[i] = Math.random() * (max - min) + min;
+    return data;
+}
+
 var verifyResult = function(data, result, loopSize, msg) {
     correct = 0;
     for (i = 0; i < loopSize; i++)
@@ -381,6 +400,23 @@ var verifyResult = function(data, result, loopSize, msg) {
         testPassed("Test passed for " + msg + ".");
     else
         testFailed("Test failed for " + msg + ". Computed " + correct + " / " + loopSize + " correct values.");
+}
+
+var getSupportedExtensions = function(webCLObject) {
+    try {
+        return webCLObject.getSupportedExtensions();
+    } catch(e) {
+        e.description = webCLObject + " :: getSupportedExtensions threw exception : " + e.name;
+        throw e;
+    }
+}
+var setUserEventStatus = function(webCLEvent, statusValue) {
+    try {
+        webCLEvent.setUserEventStatus(statusValue);
+    } catch(e) {
+        e.description = "WebCLEvent :: setUserEventStatus threw exception : " + e.name;
+        throw e;
+    }
 }
 
 return {
@@ -414,7 +450,11 @@ enqueueWriteImage:enqueueWriteImage,
 enqueueCopyBufferToImage:enqueueCopyBufferToImage,
 enqueueCopyImageToBuffer:enqueueCopyImageToBuffer,
 generateRandomInt:generateRandomInt,
+generateRandomFloat:generateRandomFloat,
+generateRandomNumberInRange:generateRandomNumberInRange,
 verifyResult:verifyResult,
+getSupportedExtensions:getSupportedExtensions,
+setUserEventStatus:setUserEventStatus,
 none:false
 };
 }());

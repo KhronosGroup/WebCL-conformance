@@ -1,0 +1,122 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following condition
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>WebCLContext createBuffer functionality test.</title>
+    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
+    <script src="../../../resources/js-test-pre.js"></script>
+    <script src="../../../resources/cl_utils.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+<canvas id="inputCanvasForImageData" width="100" height="100"></canvas>
+<canvas id="inputCanvasForImage" width="200" height="100"></canvas>
+<script>
+debug("WebCLContext :: createBuffer functionality test case.");
+
+var wtu = WebCLTestUtils;
+var webCLContext = wtu.createContext();
+var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+
+/*
+ *   Creating buffer and filling it with ArrayBufferView.
+ */
+try {
+    var data = new Float32Array(SIZE);
+    var result = new Float32Array(SIZE);
+    count = SIZE;
+    var bufferOffset = 0;
+    var BUFFER_SIZE = Float32Array.BYTES_PER_ELEMENT * SIZE;
+
+    data = wtu.generateRandomFloat(data, count);
+    var webCLBufferWithHostPtr = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE, data);
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWithHostPtr, true, bufferOffset, BUFFER_SIZE, result);
+    wtu.verifyResult(data, result, count, "Validation of data filled by ArrayBufferView on creation of a buffer with size " + SIZE);
+} catch(e) {
+    testFailed(e.description);
+}
+
+/*
+ *   Creating buffer and filling it with imageData.
+ */
+try {
+    var canvasForImageData = document.getElementById("inputCanvasForImageData");
+    var resultCanvasForImageData = document.createElement("canvas");
+    var canvasContextForImageData = canvasForImageData.getContext("2d");
+    var resultCanvasContextForImageData = resultCanvasForImageData.getContext("2d");
+    var imgData = canvasContextForImageData.createImageData(100, 100);
+    imgData.data = wtu.generateRandomNumberInRange(imgData.data, 0, 255, imgData.data.length);
+    canvasContextForImageData.putImageData(imgData, 0, 0);
+
+    var webCLBufferWithImageData = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, imgData);
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWithImageData, true, bufferOffset, numBytes, resultCanvasForImageData);
+    resultImageData = resultCanvasContextForImageData.getImageData(0, 0, 100, 100);
+    wtu.verifyResult(imgData.data, resultImageData.data, imgData.data.length, "Validation of data filled by imageData on creation of a buffer with size (100 * 100)");
+} catch(e) {
+    testFailed(e.description);
+}
+
+/*
+ *   Creating buffer and filling it with Image element.
+ */
+try {
+    try {
+        var image = new Image();
+        image.src = "../../../resources/pebbleHalf.jpg";
+        image.onload = execute;
+    } catch(e) {
+        testFailed("Unable to load HTML image element : " + e.name);
+    }
+    function execute() {
+        var canvasForImage = document.getElementById("inputCanvasForImage");
+        var resultCanvasForImage = document.createElement("canvas");
+        var canvasContextForImage = canvasForImage.getContext("2d");
+        var resultCanvasContextForImage = resultCanvasForImage.getContext("2d");
+        var webCLBufferWithImage = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, image);
+        canvasContextForImage.drawImage(image, 0, 0);
+        var dataOfImage = canvasContextForImage.getImageData(0, 0, canvasForImage.width, canvasForImage.height);
+        wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWithImage, true, bufferOffset, image.width * image.height, resultCanvas);
+        resultImageData = resultCanvasContextForImage.getImageData(0, 0, canvasForImage.width, canvasForImage.height);
+        wtu.verifyResult(dataOfImage.data, resultImageData.data, canvasForImage.width * canvasForImage.height, "Validation of data filled by HTMLImage element on creation of a buffer with image : pebbleHalf.jpg");
+
+        // Since execute() is called on loading of the image, it is necessary to insert js-test-post.js in script tag, within this function.
+        var script = document.createElement('script');
+        script.src = '../../../resources/js-test-post.js';
+        script.type = 'text/javascript';
+        script.onload = function () {};
+        document.getElementsByTagName('head')[0].appendChild(script);
+    }
+
+} catch(e) {
+    testFailed(e.description);
+}
+successfullyParsed = true;
+</script>
+</body>
+</html>

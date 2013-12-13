@@ -1,0 +1,113 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following condition
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>WebCLCommandQueue enqueueWriteBufferRect with imageData conformance test.</title>
+    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
+    <script src="../../../resources/js-test-pre.js"></script>
+    <script src="../../../resources/cl_utils.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+<div style="position:absolute; left:0px; top:0px; visibility:hidden" id="x">
+    <canvas id="inputCanvas" />
+</div>
+<script>
+try {
+    debug("WebCLCommandQueue enqueueWriteBufferRect with imageData test case. \n");
+    debug("( WebCLBuffer buffer, CLboolean blockingWrite, sequence<CLuint> bufferOrigin, sequence<CLuint> srcOrigin, sequence<CLuint> region, CLuint bufferRowPitch, ImageData srcPixels, optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event)\n");
+
+    var wtu = WebCLTestUtils;
+    var webCLContext = wtu.createContext();
+    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+    var bufferOrigin = [0, 0, 0];
+    var srcOrigin = [0, 0, 0];
+    var region = [10, 10, 1];
+    var WIDTH_STEP = Float32Array.BYTES_PER_ELEMENT * 320 * 4;
+    var bufferRowPitch = WIDTH_STEP;
+    var canvas = document.getElementById("inputCanvas");
+    var canvasContext = canvas.getContext("2d");
+    DATA_SIZE = 40000;
+    var imgData = canvasContext.createImageData(100, 100);
+    for (var i = 0; i < imgData.data.length; i += 4) {
+        imgData.data[i+0] = 255;
+        imgData.data[i+1] = 0;
+        imgData.data[i+2] = 0;
+        imgData.data[i+3] = 255;
+    }
+
+    // Testing with buffer as MEM_READ_ONLY memory object.
+    var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferRead, true, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferRead, false, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
+
+    // Testing with buffer as MEM_WRITE_ONLY memory object.
+    var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferWrite, false, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
+
+    // Testing with buffer as MEM_READ_WRITE memory object.
+    var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, false, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);");
+
+    // Testing for exceptions.
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(invalid_object, true, bufferOrigin, srcOrigin, region, bufferRowPitch, imgData);", "INVALID_MEM_OBJECT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, invalid_imageData);", "INVALID_HOST_PTR");
+
+    // Testing for invalid value of bufferOrigin.
+    var bufferOriginInvalid = [];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOriginInvalid, srcOrigin, region, bufferRowPitch, imgData);", "INVALID_VALUE");
+
+    // Testing for invalid value of srcOrigin.
+    var srcOriginInvalid = [];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOriginInvalid, region, bufferRowPitch, imgData);", "INVALID_VALUE");
+
+    // Testing for invalid value of region.
+    var regionInvalid = [];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, regionInvalid, bufferRowPitch, imgData);", "INVALID_VALUE");
+
+    // Testing for invalid value of bufferRowPitch.
+    var bufferRowPitchInvalid = DATA_SIZE * 8;
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitchInvalid, imgData);", "INVALID_VALUE");
+
+    // Testing for invalid value of image data.
+    var imgDataInvalid = canvasContext.createImageData(-10, -10);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, imgDataInvalid);", "INVALID_VALUE");
+
+    // FIXME :: Need to add test cases passing event parameters.
+
+} catch (e) {
+    testFailed(e.description);
+}
+successfullyParsed = true;
+</script>
+<script src="../../../resources/js-test-post.js"></script>
+</body>
+</html>

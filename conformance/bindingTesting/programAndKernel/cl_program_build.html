@@ -1,0 +1,163 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following conditions
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>WebCLProgram build conformance test.</title>
+    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
+    <script src="../../../resources/js-test-pre.js"></script>
+    <script src="../../../resources/cl_utils.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+<script>
+var callback = function(event)
+{
+    console.log("event status : " + event.status);
+}
+
+try {
+    debug("WebCLProgram :: build() test case.\n");
+    debug("(optional sequence<WebCLDevice>? devices, optional DOMString? options, optional WebCLCallback whenFinished)");
+    var wtu = WebCLTestUtils;
+    var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
+    var webCLPlatform = wtu.getPlatforms();
+    var webCLDevice, webCLContext, webCLProgram;
+
+    /*
+    *   This function gets the device of the 'type' on the 'webCLPlatform', sent as parameters to the function by caller.
+    *   And creates context upon that platform and deviceType and creates a program and returns device.
+    */
+
+    var createContextAndProgram = function (webCLPlatform, type) {
+        try {
+            webCLDevice = wtu.getDevices(webCLPlatform, type);
+            webCLContext = wtu.createContext(webCLPlatform, webCLDevice);
+            webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+            return webCLDevice;
+        } catch(e) {
+            testFailed("For the device type : " + type + ", Exception was thrown while creating device specific context & program : " + e.name);
+            return null;
+        }
+    }
+
+    var webCLDeviceCPU = createContextAndProgram(webCLPlatform, webcl.DEVICE_TYPE_CPU);
+    if (webCLDeviceCPU)
+        shouldBeUndefined("webCLProgram.build(webCLDeviceCPU);");
+
+    var webCLDeviceGPU = createContextAndProgram(webCLPlatform, webcl.DEVICE_TYPE_GPU);
+    if (webCLDeviceGPU)
+        shouldBeUndefined("webCLProgram.build(webCLDeviceGPU);");
+
+    var webCLDeviceALL = createContextAndProgram(webCLPlatform, webcl.DEVICE_TYPE_ALL);
+    if (webCLDeviceALL)
+        shouldBeUndefined("webCLProgram.build(webCLDeviceALL);");
+
+    var webCLDeviceDEFAULT = createContextAndProgram(webCLPlatform, webcl.DEVICE_TYPE_DEFAULT);
+    if (webCLDeviceDEFAULT)
+        shouldBeUndefined("webCLProgram.build(webCLDeviceDEFAULT);");
+
+    var webCLDeviceACCELERATOR = createContextAndProgram(webCLPlatform, webcl.DEVICE_TYPE_ACCELERATOR);
+    if (webCLDeviceACCELERATOR)
+        shouldBeUndefined("webCLProgram.build(webCLDeviceACCELERATOR);");
+
+    // Testing for build-options.
+    var webCLDevice = wtu.getDevices(webCLPlatform);
+    webCLContext = wtu.createContext();
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+
+    shouldBeUndefined("webCLProgram.build();");
+    shouldBeUndefined("webCLProgram.build(webCLDevice);");
+    shouldBeUndefined("webCLProgram.build(null, \"-cl-opt-disable\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-D SIZE\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-D SIZE=1024\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-DSIZE=1024\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-opt-disable\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-denorms-are-zero\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-mad-enable\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-no-signed-zeros\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-unsafe-math-optimizations\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-finite-math-only\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-fast-relaxed-math\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-W\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-Werror\");");
+
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-Werror -cl-fast-relaxed-math\");");
+
+    // Test for exception "INVALID_BUILD_OPTIONS".
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice, \"-cl-strict-aliasing\");", "INVALID_BUILD_OPTIONS");
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice, \"-invalid-build-option\");", "INVALID_BUILD_OPTIONS");
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice, \"-cl-std=1.0\");", "INVALID_BUILD_OPTIONS");
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice, \"-D\");", "INVALID_BUILD_OPTIONS");
+
+    // Testing with callback.
+    shouldBeUndefined("webCLProgram.build(null, null, callback);");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, null, callback);");
+    shouldBeUndefined("webCLProgram.build(null, \"-cl-fast-relaxed-math\", callback);");
+    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-fast-relaxed-math\", callback);");
+
+    // Testing for Exceptions.
+
+    // Testing for exception "INVALID_DEVICE".
+    shouldThrowExceptionName("webCLProgram.build(invalid_object);", "INVALID_DEVICE");
+
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice, null, invalid_object);", "INVALID_VALUE");
+
+    // Testing for exception "BUILD_PROGRAM_FAILURE".
+    kernelSource = wtu.readKernel("../../../resources/kernels/nbody_simulation_bad.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "BUILD_PROGRAM_FAILURE");
+
+    // Testing for exception "INVALID_OPERATION".
+    kernelSource = wtu.readKernel("../../../resources/kernels/nbody_simulation.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    wtu.build(webCLProgram, webCLDevice, null, callback);
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "INVALID_OPERATION");
+
+    // Testing for exception "INVALID_DEVICE".
+    var webCLDevicesCPU = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_CPU);
+    webCLContext = wtu.createContext(webCLPlatform, webCLDevicesCPU);
+    kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    var webCLDevicesNew = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_GPU);
+    shouldThrowExceptionName("webCLProgram.build(webCLDevicesNew[0]);", "INVALID_DEVICE");
+
+    // Testing for exception "INVALID_OPERATION".
+    wtu.build(webCLProgram, webCLDevicesCPU);
+    wtu.createKernel(webCLProgram, "square");
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "INVALID_OPERATION");
+
+} catch (e) {
+    testFailed(e.description);
+}
+successfullyParsed = true;
+</script>
+<script src="../../../resources/js-test-post.js"></script>
+</body>
+</html>

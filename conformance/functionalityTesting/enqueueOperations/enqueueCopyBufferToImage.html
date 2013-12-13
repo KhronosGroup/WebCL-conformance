@@ -1,0 +1,171 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following conditions
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>enqueueCopyBufferToImage conformance test.</title>
+    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
+    <script src="../../../resources/js-test-pre.js"></script>
+    <script src="../../../resources/cl_utils.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+<script>
+try {
+    debug("enqueueCopyBufferToImage functionality test case.");
+
+    var wtu = WebCLTestUtils;
+    var webCLContext = wtu.createContext();
+    var webCLPlatforms = wtu.getPlatforms();
+    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+    var correct;
+    var count = SIZE;
+    var webCLBufferReadWrite, webCLImageReadWrite;
+    var partialCopySize = 10;
+    var data, result, origin, region;
+
+    var width = 100;
+    var height = 100;
+    var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, width, height);
+
+    /*
+    *   Testing for partial size enqueueCopyBufferToImage.
+    *   Copies 10 int values from source buffer to destination image.
+    */
+
+    try {
+        data = new Int32Array(partialCopySize);
+        result = new Int32Array(partialCopySize);
+        origin = [0, 0];
+        region = [2, 5];
+
+        data = wtu.generateRandomInt(data, partialCopySize);
+
+        webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, partialCopySize * Int32Array.BYTES_PER_ELEMENT);
+        wtu.enqueueWriteBuffer(webCLCommandQueue, webCLBufferReadWrite, true, 0, partialCopySize * Int32Array.BYTES_PER_ELEMENT, data);
+
+        webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+
+        webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, 0, origin, region);
+        wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, 0, result);
+
+        wtu.verifyResult(data, result, partialCopySize, "enqueueCopyBufferToImage for copying 10 values with origin as [0, 0] & region as [2,5]");
+
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+    /*
+    *   Testing for complete size enqueueCopyBufferToImage.
+    *   Copies imageArea (100 * 100) int values from source buffer to destination image.
+    */
+
+    try {
+        var imageArea = width * height;
+        data = new Int32Array(imageArea);
+        result = new Int32Array(imageArea);
+        origin = [0, 0];
+        region = [100, 100];
+
+        data = wtu.generateRandomInt(data, imageArea);
+
+        webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, imageArea * Int32Array.BYTES_PER_ELEMENT);
+        wtu.enqueueWriteBuffer(webCLCommandQueue, webCLBufferReadWrite, true, 0, imageArea * Int32Array.BYTES_PER_ELEMENT, data);
+
+        webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+
+        wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, 0, origin, region);
+        wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, 0, result);
+
+        wtu.verifyResult(data, result, imageArea, "enqueueCopyBufferToImage for copying imageArea (100 * 100) values with origin as [0, 0] & region as [width, height]");
+
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+    /*
+    *   Testing for partial size enqueueCopyBufferToImage.
+    *   Copies 10 int values from source buffer to the end of destination image.
+    */
+
+    try {
+        data = new Int32Array(partialCopySize);
+        result = new Int32Array(partialCopySize);
+        origin = [99, 90];
+        region = [1, 10];
+
+        data = wtu.generateRandomInt(data, partialCopySize);
+
+        webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, partialCopySize * Int32Array.BYTES_PER_ELEMENT);
+        wtu.enqueueWriteBuffer(webCLCommandQueue, webCLBufferReadWrite, true, 0, partialCopySize * Int32Array.BYTES_PER_ELEMENT, data);
+
+        webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+
+        wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, 0, origin, region);
+        wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, 0, result);
+
+        wtu.verifyResult(data, result, partialCopySize, "enqueueCopyBufferToImage for copying 10 values from buffer to end of the image."); 
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+    /*
+    *   Testing for partial size enqueueCopyBufferToImage.
+    *   Copies 10 int values from source buffer with offset as 50 to the destination image.
+    */
+
+    try {
+        data = new Int32Array(partialCopySize);
+        result = new Int32Array(partialCopySize);
+        origin = [0, 0];
+        region = [1, 10];
+        var bufferOffset = 50;
+
+        data = wtu.generateRandomInt(data, partialCopySize);
+
+        webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, (partialCopySize * Int32Array.BYTES_PER_ELEMENT) + bufferOffset);
+        wtu.enqueueWriteBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffset, partialCopySize * Int32Array.BYTES_PER_ELEMENT, data);
+
+        webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+
+        wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, bufferOffset, origin, region);
+        wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, 0, result);
+
+        wtu.verifyResult(data, result, partialCopySize, "enqueueCopyBufferToImage for copying 10 values from buffer with an offset of " + bufferOffset + " to the image. Origin : [0, 0] and region [1, 10]"); 
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+} catch(e) {
+    testFailed(e.description);
+}
+successfullyParsed = true;
+</script>
+<script src="../../../resources/js-test-post.js"></script>
+</body>
+</html>

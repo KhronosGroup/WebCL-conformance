@@ -184,7 +184,7 @@ function evalAndLog(_a)
   try {
      _av = eval(_a);
   } catch (e) {
-    testFailed(_a + " threw exception " + e);
+    testFailed(_a + " threw exception " + e.name);
   }
   return _av;
 }
@@ -203,7 +203,7 @@ function shouldBe(_a, _b, quiet)
     var _bv = eval(_b);
 
     if (exception)
-        testFailed(_a + " should be " + _bv + ". Threw exception " + exception);
+        testFailed(_a + " should be " + _bv + ". Threw exception " + exception.name);
     else if (isResultCorrect(_av, _bv)) {
         if (!quiet) {
             testPassed(_a + " is " + _b);
@@ -228,7 +228,7 @@ function shouldNotBe(_a, _b, quiet)
     var _bv = eval(_b);
 
     if (exception)
-        testFailed(_a + " should not be " + _bv + ". Threw exception " + exception);
+        testFailed(_a + " should not be " + _bv + ". Threw exception " + exception.name);
     else if (!isResultCorrect(_av, _bv)) {
         if (!quiet) {
             testPassed(_a + " is not " + _b);
@@ -262,7 +262,7 @@ function shouldEvaluateTo(actual, expected) {
     try {
       actualValue = eval(actual);
     } catch (e) {
-      testFailed("Evaluating " + actual + ": Threw exception " + e);
+      testFailed("Evaluating " + actual + ": Threw exception " + e.name);
       return;
     }
     shouldBe("'" + actualValue.toString().replace(/\n/g, "") + "'",
@@ -296,7 +296,7 @@ function shouldBeNonZero(_a)
   }
 
   if (exception)
-    testFailed(_a + " should be non-zero. Threw exception " + exception);
+    testFailed(_a + " should be non-zero. Threw exception " + exception.name);
   else if (_av != 0)
     testPassed(_a + " is non-zero.");
   else
@@ -314,7 +314,7 @@ function shouldBeNonNull(_a)
   }
 
   if (exception)
-    testFailed(_a + " should be non-null. Threw exception " + exception);
+    testFailed(_a + " should be non-null. Threw exception " + exception.name);
   else if (_av != null)
     testPassed(_a + " is non-null.");
   else
@@ -332,7 +332,7 @@ function shouldBeUndefined(_a)
   }
 
   if (exception)
-    testFailed(_a + " should be undefined. Threw exception " + exception);
+    testFailed(_a + " should be undefined. Threw exception " + exception.name);
   else if (typeof _av == "undefined")
     testPassed(_a + " is undefined.");
   else
@@ -350,7 +350,7 @@ function shouldBeDefined(_a)
   }
 
   if (exception)
-    testFailed(_a + " should be defined. Threw exception " + exception);
+    testFailed(_a + " should be defined. Threw exception " + exception.name);
   else if (_av !== undefined)
     testPassed(_a + " is defined.");
   else
@@ -371,7 +371,7 @@ function shouldBeGreaterThanOrEqual(_a, _b) {
     var _bv = eval(_b);
 
     if (exception)
-        testFailed(_a + " should be >= " + _b + ". Threw exception " + exception);
+        testFailed(_a + " should be >= " + _b + ". Threw exception " + exception.name);
     else if (typeof _av == "undefined" || _av < _bv)
         testFailed(_a + " should be >= " + _b + ". Was " + _av + " (of type " + typeof _av + ").");
     else
@@ -404,7 +404,7 @@ function shouldThrow(_a, _e)
     if (typeof _e == "undefined" || exception == _ev)
       testPassed(_a + " threw exception " + exception + ".");
     else
-      testFailed(_a + " should throw " + (typeof _e == "undefined" ? "an exception" : _ev) + ". Threw exception " + exception + ".");
+      testFailed(_a + " should throw " + (typeof _e == "undefined" ? "an exception" : _ev) + ". Threw exception " + exception.name + ".");
   } else if (typeof _av == "undefined")
     testFailed(_a + " should throw " + (typeof _e == "undefined" ? "an exception" : _ev) + ". Was undefined.");
   else
@@ -433,7 +433,7 @@ function shouldBeType(_a, _type, quite) {
     var _typePrototype = _typev.prototype.toString();
 
     if (exception)
-        testFailed(_a + "should be an instance of " + _type + ". But threw exception " + exception);
+        testFailed(_a + "should be an instance of " + _type + ". But threw exception " + exception.name);
     else if (_av instanceof  _typev || _aPrototype == _typePrototype) {
         if (!quite)
             testPassed(_a + " is an instance of " + _type);
@@ -534,7 +534,7 @@ function shouldThrowExceptionName(_a, _e)
         else
             testPassed(_a + " threw exception " + exception.name + ".");
     } else
-        testFailed(_a + " should throw " + _e + ". Threw " + exception + ".");
+        testFailed(_a + " should throw " + _e + ". Threw " + exception.name + ".");
 }
 
 function shouldBeArrayOfType(_a, _type, quite)

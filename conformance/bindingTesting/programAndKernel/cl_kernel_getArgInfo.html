@@ -1,0 +1,144 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following conditions
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>WebCLKernel getArgInfo conformance test.</title>
+    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
+    <script src="../../../resources/js-test-pre.js"></script>
+    <script src="../../../resources/cl_utils.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+<script>
+</script>
+<script>
+try {
+    debug("WebCLKernel :: getArgInfo() test case.");
+    debug("(CLuint index)\n");
+
+    var wtu = WebCLTestUtils;
+    var webCLContext = wtu.createContext();
+    var webCLPlatforms = wtu.getPlatforms();
+    var webCLDevices = wtu.getDevices(webCLPlatforms);
+
+    /*
+    *   Testing with kernel setArg_local.cl
+    */
+
+    var kernelSource = wtu.readKernel("../../../resources/kernels/setArg_local.cl");
+    var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    wtu.build(webCLProgram, webCLDevices);
+    var webCLKernelWithLocalArgument = wtu.createKernel(webCLProgram, "setArgLocal");
+
+    if ((webCLKernelWithLocalArgument.getArgInfo(0) != null)
+        && (webCLKernelWithLocalArgument.getArgInfo(0).name === "input")
+        && (webCLKernelWithLocalArgument.getArgInfo(0).typeName === float)
+        && (webCLKernelWithLocalArgument.getArgInfo(0).addressQualifier === global)
+        && (webCLKernelWithLocalArgument.getArgInfo(0).accessQualifier === none))
+        testPassed("getArg of index 0 for kernel \"setArgLocal\" was as expected.");
+    else
+        testFailed("getArg of index 0 for kernel \"setArgLocal\" failed.");
+
+    if ((webCLKernelWithLocalArgument.getArgInfo(1) != null)
+        && (webCLKernelWithLocalArgument.getArgInfo(1).name === "output")
+        && (webCLKernelWithLocalArgument.getArgInfo(1).typeName === float)
+        && (webCLKernelWithLocalArgument.getArgInfo(1).addressQualifier === global)
+        && (webCLKernelWithLocalArgument.getArgInfo(1).accessQualifier === none))
+        testPassed("getArg of index 1 for kernel \"setArgLocal\" was as expected.");
+    else
+        testFailed("getArg of index 1 for kernel \"setArgLocal\" failed.");
+
+    if ((webCLKernelWithLocalArgument.getArgInfo(2) != null)
+        && (webCLKernelWithLocalArgument.getArgInfo(2).name === "temp")
+        && (webCLKernelWithLocalArgument.getArgInfo(2).typeName === float)
+        && (webCLKernelWithLocalArgument.getArgInfo(2).addressQualifier === local)
+        && (webCLKernelWithLocalArgument.getArgInfo(2).accessQualifier === none))
+        testPassed("getArg of index 2 for kernel \"setArgLocal\" was as expected.");
+    else
+        testFailed("getArg of index 2 for kernel \"setArgLocal\" failed.");
+
+    if ((webCLKernelWithLocalArgument.getArgInfo(3) != null)
+        && (webCLKernelWithLocalArgument.getArgInfo(3).name === "count")
+        && (webCLKernelWithLocalArgument.getArgInfo(3).typeName === int)
+        && (webCLKernelWithLocalArgument.getArgInfo(3).addressQualifier === constant)
+        && (webCLKernelWithLocalArgument.getArgInfo(3).accessQualifier === none))
+        testPassed("getArg of index 3 for kernel \"setArgLocal\" was as expected.");
+    else
+        testFailed("getArg of index 3 for kernel \"setArgLocal\" failed.");
+
+    // Testing for exception.
+    shouldBeNull("webCLKernelWithLocalArgument.getArgInfo(4);");
+
+    /*
+    *   Testing with kernel getArg.cl
+    */
+
+    kernelSource = wtu.readKernel("../../../resources/kernels/getArg.cl");
+    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
+    wtu.build(webCLProgram, webCLDevices);
+    webCLgetArgSampleKernel = wtu.createKernel(webCLProgram, "getArg_sample");
+
+    if ((webCLgetArgSampleKernel.getArgInfo(0) != null)
+        && (webCLgetArgSampleKernel.getArgInfo(0).name === "input")
+        && (webCLgetArgSampleKernel.getArgInfo(0).typeName === float)
+        && (webCLgetArgSampleKernel.getArgInfo(0).addressQualifier === global)
+        && (webCLgetArgSampleKernel.getArgInfo(0).accessQualifier === write_only))
+        testPassed("getArg of index 0 for kernel \"getArg_sample\" was as expected.");
+    else
+        testFailed("getArg of index 0 for kernel \"getArg_sample\" failed.");
+
+    if ((webCLgetArgSampleKernel.getArgInfo(1) != null)
+        && (webCLgetArgSampleKernel.getArgInfo(1).name === "output")
+        && (webCLgetArgSampleKernel.getArgInfo(1).typeName === float)
+        && (webCLgetArgSampleKernel.getArgInfo(1).addressQualifier === global)
+        && (webCLgetArgSampleKernel.getArgInfo(1).accessQualifier === read_write))
+        testPassed("getArg of index 1 for kernel \"getArg_sample\" was as expected.");
+    else
+        testFailed("getArg of index 1 for kernel \"getArg_sample\" failed.");
+
+    if ((webCLgetArgSampleKernel.getArgInfo(2) != null)
+        && (webCLgetArgSampleKernel.getArgInfo(2).name === "webCLSampler")
+        && (webCLgetArgSampleKernel.getArgInfo(2).typeName === sampler)
+        && (webCLgetArgSampleKernel.getArgInfo(2).addressQualifier === private)
+        && (webCLgetArgSampleKernel.getArgInfo(2).accessQualifier === read_only))
+        testPassed("getArg of index 2 for kernel \"getArg_sample\" was as expected.");
+    else
+        testFailed("getArg of index 2 for kernel \"getArg_sample\" failed.");
+
+    // Testing for exception.
+    shouldBeNull("webCLgetArgSampleKernel.getArgInfo(3);");
+
+} catch (e) {
+    testFailed(e.description);
+}
+successfullyParsed = true;
+</script>
+<script src="../../../resources/js-test-post.js"></script>
+</body>
+</html>

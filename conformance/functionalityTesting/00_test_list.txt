@@ -1,12 +1,3 @@
-createKernelsInProgram.html
-createProgram.html
-buildOptions.html
-enqueueReadBuffer.html
-enqueueCopyBuffer.html
-enqueueWriteBuffer.html
-bufferRectOperations.html
-webCLImageOperations.html
-enqueueCopyBufferToImage.html
-enqueueCopyImageToBuffer.html
-createContext.html
-buildCallback.html
+basics/00_test_list.txt
+buildingAndRunning/00_test_list.txt
+enqueueOperations/00_test_list.txt

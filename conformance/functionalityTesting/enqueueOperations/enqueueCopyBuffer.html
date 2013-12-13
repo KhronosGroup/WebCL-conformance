@@ -1,0 +1,111 @@
+<!--
+ Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided the following conditions
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+ CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+ ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+ NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<html>
+<head>
+<meta charset="utf-8">
+    <title>enqueueCopyBuffer conformance test.</title>
+    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
+    <script src="../../../resources/js-test-pre.js"></script>
+    <script src="../../../resources/cl_utils.js"></script>
+</head>
+<body>
+<div id="description"></div>
+<div id="console"></div>
+<script>
+try {
+    debug("enqueueCopyBuffer functionality test case.");
+
+    var wtu = WebCLTestUtils;
+    var webCLContext = wtu.createContext();
+    var webCLPlatforms = wtu.getPlatforms();
+    var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+    var srcBuffer, destBuffer;
+    var correct;
+    var count = SIZE;
+    var data = new Int32Array(SIZE);
+    var result = new Int32Array(SIZE);
+
+    /*
+    *   Testing for partial size enqueueCopyBuffer.
+    *   Copies int values from source to destination buffer.
+    */
+
+    try {
+        var loopCountIndex = 0, loopCount = 20;
+        var srcOffset = 10, destOffset = 5;
+        data = wtu.generateRandomInt(data, loopCount);
+
+        srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+        wtu.enqueueWriteBuffer(webCLCommandQueue, srcBuffer, true, 0, DATA_SIZE, data);
+        destBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+        wtu.enqueueCopyBuffer(webCLCommandQueue, srcBuffer, destBuffer, (srcOffset * 4), (destOffset * 4), (loopCount * 4));
+        wtu.enqueueReadBuffer(webCLCommandQueue, destBuffer, true, 0, DATA_SIZE, result);
+
+        correct = 0;
+        for (i = srcOffset, j = destOffset; loopCountIndex < loopCount; i++, j++, loopCountIndex++) {
+            if (data[i] == result[j])
+                correct++;
+        }
+        console.log("Computed " + correct + "/" + loopCount + " correct values for partial size enqueueCopyBuffer.");
+        if (correct == loopCount)
+            testPassed("Test passed for all " + loopCount + " values for partial size enqueueCopyBuffer.");
+        else
+            testFailed("Test failed for  partial size enqueueCopyBuffer. Computed " + correct + " / " + loopCount + " correct values.");
+
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+    /*
+    *   Testing for complete buffer size enqueueCopyBuffer.
+    *   Copies int values from source to destination buffer.
+    */
+
+    try {
+        data = wtu.generateRandomInt(data, count);
+
+        srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+        wtu.enqueueWriteBuffer(webCLCommandQueue, srcBuffer, true, 0, DATA_SIZE, data);
+        destBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+        wtu.enqueueCopyBuffer(webCLCommandQueue, srcBuffer, destBuffer, 0, 0, DATA_SIZE);
+        wtu.enqueueReadBuffer(webCLCommandQueue, destBuffer, true, 0, DATA_SIZE, result);
+
+        wtu.verifyResult(data, result, count, "enqueueCopyBuffer for copying complete buffer (of size DATA_SIZE) values with 0 offset");
+
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+} catch(e) {
+    testFailed(e.description);
+}
+successfullyParsed = true;
+</script>
+<script src="../../../resources/js-test-post.js"></script>
+</body>
+</html>
