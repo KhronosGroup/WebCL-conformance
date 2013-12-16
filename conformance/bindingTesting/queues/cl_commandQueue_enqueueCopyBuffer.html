@@ -102,9 +102,10 @@ try {
 
     var commandQueueDevice = webCLCommandQueue.getInfo(webcl.QUEUE_DEVICE);
     var deviceMemAddressAlignment = commandQueueDevice.getInfo(webcl.DEVICE_MEM_BASE_ADDR_ALIGN);
-    subBuffer = webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, deviceMemAddressAlignment - 1, 1);
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyBuffer(subBuffer, dstBufferReadWrite, srcOffset, dstOffset, numBytes)", "MISALIGNED_SUB_BUFFER_OFFSET");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyBuffer(srcBufferRead, subBuffer, srcOffset, dstOffset, numBytes)", "MISALIGNED_SUB_BUFFER_OFFSET");
+    var srcSubBuffer = wtu.createSubBuffer(srcBufferReadWrite, webcl.MEM_READ_ONLY, deviceMemAddressAlignment - 1, 1);
+    var dstSubBuffer = wtu.createSubBuffer(dstBufferReadWrite, webcl.MEM_READ_ONLY, deviceMemAddressAlignment - 1, 1);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcSubBuffer, dstBufferReadWrite, srcOffset, dstOffset, numBytes)", "MISALIGNED_SUB_BUFFER_OFFSET");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstSubBuffer, srcOffset, dstOffset, numBytes)", "MISALIGNED_SUB_BUFFER_OFFSET");
 
     var webCLEvent = wtu.createEvent(webCLContext);
     var webCLEventNew = wtu.createEvent(webCLContextNew);

@@ -419,6 +419,15 @@ var setUserEventStatus = function(webCLEvent, statusValue) {
     }
 }
 
+var getArgInfo = function(webCLKernel, index) {
+    try {
+        return webCLKernel.getArgInfo(index);
+    } catch(e) {
+        e.description = "webCLKernel :: getArgInfo (" + index + ") threw exception : " + e.name;
+        throw e;
+    }
+}
+
 return {
 createContext:createContext,
 createProgram:createProgram,
@@ -455,6 +464,7 @@ generateRandomNumberInRange:generateRandomNumberInRange,
 verifyResult:verifyResult,
 getSupportedExtensions:getSupportedExtensions,
 setUserEventStatus:setUserEventStatus,
+getArgInfo:getArgInfo,
 none:false
 };
 }());

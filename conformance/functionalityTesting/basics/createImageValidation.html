@@ -90,14 +90,14 @@ try {
  *   Creating image and filling it with Image element.
  */
 try {
+    var image = new Image();
+    image.src = "../../../resources/pebbleHalf.jpg";
+    image.onload = execute;
+} catch(e) {
+    testFailed("Unable to load HTML image element : " + e.name);
+}
+function execute() {
     try {
-        var image = new Image();
-        image.src = "../../../resources/pebbleHalf.jpg";
-        image.onload = execute;
-    } catch(e) {
-        testFailed("Unable to load HTML image element : " + e.name);
-    }
-    function execute() {
         var canvasForImage = document.getElementById("inputCanvasForImage");
         var resultCanvasForImage = document.createElement("canvas");
         var canvasContextForImage = canvasForImage.getContext("2d");
@@ -108,17 +108,16 @@ try {
         wtu.enqueueReadImage(webCLCommandQueue, webCLImageWithImage, true, origin, region, hostRowPitch, resultCanvasForImage);
         resultImageData = resultCanvasContextForImage.getImageData(0, 0, canvasForImage.width, canvasForImage.height);
         wtu.verifyResult(dataOfImage.data, resultImageData.data, canvasForImage.width * canvasForImage.height, "Validation of data filled by HTMLImage element on creation of a buffer with image : pebbleHalf.jpg");
-
-        // Since execute() is called on loading of the image, it is necessary to insert js-test-post.js in script tag, within this function.
-        var script = document.createElement('script');
-        script.src = '../../../resources/js-test-post.js';
-        script.type = 'text/javascript';
-        script.onload = function () {};
-        document.getElementsByTagName('head')[0].appendChild(script);
+    } catch(e) {
+        testFailed(e.description);
     }
 
-} catch(e) {
-    testFailed(e.description);
+    // Since execute() is called on loading of the image, it is necessary to insert js-test-post.js in script tag, within this function.
+    var script = document.createElement('script');
+    script.src = '../../../resources/js-test-post.js';
+    script.type = 'text/javascript';
+    script.onload = function () {};
+    document.getElementsByTagName('head')[0].appendChild(script);
 }
 successfullyParsed = true;
 </script>

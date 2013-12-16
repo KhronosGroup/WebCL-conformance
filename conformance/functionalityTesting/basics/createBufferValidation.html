@@ -75,7 +75,7 @@ try {
     canvasContextForImageData.putImageData(imgData, 0, 0);
 
     var webCLBufferWithImageData = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, imgData);
-    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWithImageData, true, bufferOffset, numBytes, resultCanvasForImageData);
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWithImageData, true, bufferOffset, BUFFER_SIZE, resultCanvasForImageData);
     resultImageData = resultCanvasContextForImageData.getImageData(0, 0, 100, 100);
     wtu.verifyResult(imgData.data, resultImageData.data, imgData.data.length, "Validation of data filled by imageData on creation of a buffer with size (100 * 100)");
 } catch(e) {
@@ -86,14 +86,14 @@ try {
  *   Creating buffer and filling it with Image element.
  */
 try {
+    var image = new Image();
+    image.src = "../../../resources/pebbleHalf.jpg";
+    image.onload = execute;
+} catch(e) {
+    testFailed("Unable to load HTML image element : " + e.name);
+}
+function execute() {
     try {
-        var image = new Image();
-        image.src = "../../../resources/pebbleHalf.jpg";
-        image.onload = execute;
-    } catch(e) {
-        testFailed("Unable to load HTML image element : " + e.name);
-    }
-    function execute() {
         var canvasForImage = document.getElementById("inputCanvasForImage");
         var resultCanvasForImage = document.createElement("canvas");
         var canvasContextForImage = canvasForImage.getContext("2d");
@@ -101,20 +101,19 @@ try {
         var webCLBufferWithImage = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, image);
         canvasContextForImage.drawImage(image, 0, 0);
         var dataOfImage = canvasContextForImage.getImageData(0, 0, canvasForImage.width, canvasForImage.height);
-        wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWithImage, true, bufferOffset, image.width * image.height, resultCanvas);
+        wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWithImage, true, bufferOffset, image.width * image.height, resultCanvasForImage);
         resultImageData = resultCanvasContextForImage.getImageData(0, 0, canvasForImage.width, canvasForImage.height);
         wtu.verifyResult(dataOfImage.data, resultImageData.data, canvasForImage.width * canvasForImage.height, "Validation of data filled by HTMLImage element on creation of a buffer with image : pebbleHalf.jpg");
-
-        // Since execute() is called on loading of the image, it is necessary to insert js-test-post.js in script tag, within this function.
-        var script = document.createElement('script');
-        script.src = '../../../resources/js-test-post.js';
-        script.type = 'text/javascript';
-        script.onload = function () {};
-        document.getElementsByTagName('head')[0].appendChild(script);
+    } catch(e) {
+        testFailed(e.description);
     }
 
-} catch(e) {
-    testFailed(e.description);
+    // Since execute() is called on loading of the image, it is necessary to insert js-test-post.js in script tag, within this function.
+    var script = document.createElement('script');
+    script.src = '../../../resources/js-test-post.js';
+    script.type = 'text/javascript';
+    script.onload = function () {};
+    document.getElementsByTagName('head')[0].appendChild(script);
 }
 successfullyParsed = true;
 </script>

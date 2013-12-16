@@ -137,7 +137,7 @@ try {
 
     var webCLContextNew = wtu.createContext();
     var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
-    var kernelSource = wtu.readKernel("../../resources/kernels/square.cl");
+    var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     var webCLProgramNew = wtu.createProgram(webCLContextNew, kernelSource);
     wtu.build(webCLProgramNew, webCLDevices);
     var webCLKernelNew = wtu.createKernel(webCLProgramNew, "square");

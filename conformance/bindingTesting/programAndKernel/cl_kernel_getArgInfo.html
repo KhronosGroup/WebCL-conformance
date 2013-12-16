@@ -46,6 +46,7 @@ try {
     var webCLContext = wtu.createContext();
     var webCLPlatforms = wtu.getPlatforms();
     var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var kernelInfo;
 
     /*
     *   Testing with kernel setArg_local.cl
@@ -56,38 +57,38 @@ try {
     wtu.build(webCLProgram, webCLDevices);
     var webCLKernelWithLocalArgument = wtu.createKernel(webCLProgram, "setArgLocal");
 
-    if ((webCLKernelWithLocalArgument.getArgInfo(0) != null)
-        && (webCLKernelWithLocalArgument.getArgInfo(0).name === "input")
-        && (webCLKernelWithLocalArgument.getArgInfo(0).typeName === float)
-        && (webCLKernelWithLocalArgument.getArgInfo(0).addressQualifier === global)
-        && (webCLKernelWithLocalArgument.getArgInfo(0).accessQualifier === none))
+    kernelInfo = wtu.getArgInfo(webCLKernelWithLocalArgument, 0);
+    if ((kernelInfo.name === "input")
+        && (kernelInfo.typeName === float)
+        && (kernelInfo.addressQualifier === global)
+        && (kernelInfo.accessQualifier === none))
         testPassed("getArg of index 0 for kernel \"setArgLocal\" was as expected.");
     else
         testFailed("getArg of index 0 for kernel \"setArgLocal\" failed.");
 
-    if ((webCLKernelWithLocalArgument.getArgInfo(1) != null)
-        && (webCLKernelWithLocalArgument.getArgInfo(1).name === "output")
-        && (webCLKernelWithLocalArgument.getArgInfo(1).typeName === float)
-        && (webCLKernelWithLocalArgument.getArgInfo(1).addressQualifier === global)
-        && (webCLKernelWithLocalArgument.getArgInfo(1).accessQualifier === none))
+    kernelInfo = wtu.getArgInfo(webCLKernelWithLocalArgument, 1);
+    if ((kernelInfo.name === "output")
+        && (kernelInfo.typeName === float)
+        && (kernelInfo.addressQualifier === global)
+        && (kernelInfo.accessQualifier === none))
         testPassed("getArg of index 1 for kernel \"setArgLocal\" was as expected.");
     else
         testFailed("getArg of index 1 for kernel \"setArgLocal\" failed.");
 
-    if ((webCLKernelWithLocalArgument.getArgInfo(2) != null)
-        && (webCLKernelWithLocalArgument.getArgInfo(2).name === "temp")
-        && (webCLKernelWithLocalArgument.getArgInfo(2).typeName === float)
-        && (webCLKernelWithLocalArgument.getArgInfo(2).addressQualifier === local)
-        && (webCLKernelWithLocalArgument.getArgInfo(2).accessQualifier === none))
+    kernelInfo = wtu.getArgInfo(webCLKernelWithLocalArgument, 2);
+    if ((kernelInfo.name === "temp")
+        && (kernelInfo.typeName === float)
+        && (kernelInfo.addressQualifier === local)
+        && (kernelInfo.accessQualifier === none))
         testPassed("getArg of index 2 for kernel \"setArgLocal\" was as expected.");
     else
         testFailed("getArg of index 2 for kernel \"setArgLocal\" failed.");
 
-    if ((webCLKernelWithLocalArgument.getArgInfo(3) != null)
-        && (webCLKernelWithLocalArgument.getArgInfo(3).name === "count")
-        && (webCLKernelWithLocalArgument.getArgInfo(3).typeName === int)
-        && (webCLKernelWithLocalArgument.getArgInfo(3).addressQualifier === constant)
-        && (webCLKernelWithLocalArgument.getArgInfo(3).accessQualifier === none))
+    kernelInfo = wtu.getArgInfo(webCLKernelWithLocalArgument, 3);
+    if ((kernelInfo.name === "count")
+        && (kernelInfo.typeName === int)
+        && (kernelInfo.addressQualifier === constant)
+        && (kernelInfo.accessQualifier === none))
         testPassed("getArg of index 3 for kernel \"setArgLocal\" was as expected.");
     else
         testFailed("getArg of index 3 for kernel \"setArgLocal\" failed.");
@@ -104,29 +105,29 @@ try {
     wtu.build(webCLProgram, webCLDevices);
     webCLgetArgSampleKernel = wtu.createKernel(webCLProgram, "getArg_sample");
 
-    if ((webCLgetArgSampleKernel.getArgInfo(0) != null)
-        && (webCLgetArgSampleKernel.getArgInfo(0).name === "input")
-        && (webCLgetArgSampleKernel.getArgInfo(0).typeName === float)
-        && (webCLgetArgSampleKernel.getArgInfo(0).addressQualifier === global)
-        && (webCLgetArgSampleKernel.getArgInfo(0).accessQualifier === write_only))
+    kernelInfo = wtu.getArgInfo(webCLgetArgSampleKernel, 0);
+    if ((kernelInfo.name === "input")
+        && (kernelInfo.typeName === float)
+        && (kernelInfo.addressQualifier === global)
+        && (kernelInfo.accessQualifier === write_only))
         testPassed("getArg of index 0 for kernel \"getArg_sample\" was as expected.");
     else
         testFailed("getArg of index 0 for kernel \"getArg_sample\" failed.");
 
-    if ((webCLgetArgSampleKernel.getArgInfo(1) != null)
-        && (webCLgetArgSampleKernel.getArgInfo(1).name === "output")
-        && (webCLgetArgSampleKernel.getArgInfo(1).typeName === float)
-        && (webCLgetArgSampleKernel.getArgInfo(1).addressQualifier === global)
-        && (webCLgetArgSampleKernel.getArgInfo(1).accessQualifier === read_write))
+    kernelInfo = wtu.getArgInfo(webCLgetArgSampleKernel, 1);
+    if ((kernelInfo.name === "output")
+        && (kernelInfo.typeName === float)
+        && (kernelInfo.addressQualifier === global)
+        && (kernelInfo.accessQualifier === read_write))
         testPassed("getArg of index 1 for kernel \"getArg_sample\" was as expected.");
     else
         testFailed("getArg of index 1 for kernel \"getArg_sample\" failed.");
 
-    if ((webCLgetArgSampleKernel.getArgInfo(2) != null)
-        && (webCLgetArgSampleKernel.getArgInfo(2).name === "webCLSampler")
-        && (webCLgetArgSampleKernel.getArgInfo(2).typeName === sampler)
-        && (webCLgetArgSampleKernel.getArgInfo(2).addressQualifier === private)
-        && (webCLgetArgSampleKernel.getArgInfo(2).accessQualifier === read_only))
+    kernelInfo = wtu.getArgInfo(webCLgetArgSampleKernel, 2);
+    if ((kernelInfo.name === "webCLSampler")
+        && (kernelInfo.typeName === sampler)
+        && (kernelInfo.addressQualifier === private)
+        && (kernelInfo.accessQualifier === read_only))
         testPassed("getArg of index 2 for kernel \"getArg_sample\" was as expected.");
     else
         testFailed("getArg of index 2 for kernel \"getArg_sample\" failed.");

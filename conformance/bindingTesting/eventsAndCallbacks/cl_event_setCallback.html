@@ -36,9 +36,9 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-var callback = function(event)
+var callback = function()
 {
-    console.log("event status : " + event.status);
+    console.log("Inside callback");
 }
 try {
     debug("WebCLEvent :: setCallback test case.\n");
