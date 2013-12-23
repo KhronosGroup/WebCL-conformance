@@ -49,7 +49,7 @@ try {
     var hostRowPitch = 0;
     var origin = [0, 0];
     var region = [imageWidth, imageHeight];
-    var hostPtr = new Float32Array(DATA_SIZE);
+    var hostPtr = new Float32Array(imageWidth * imageHeight);
 
     // MEM_READ_ONLY images.
     var webCLImageDescriptorObject = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
@@ -109,7 +109,7 @@ try {
     wtu.release(webCLEventNew);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLEventNew], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
 
-    wtu.setUserEventStatus(webCLEvent, -1);
+    wtu.setStatus(webCLEvent, -1);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
     // FIXME Need to add test case for INVALID_IMAGE_SIZE.

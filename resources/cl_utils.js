@@ -28,10 +28,12 @@
 */
 
 var SIZE = 1024;
-var DATA_SIZE = Float32Array.BYTES_PER_ELEMENT * 1024;
-var WIDTH_STEP = Float32Array.BYTES_PER_ELEMENT * 320 * 4;
-var BUFFER_SIZE = Float32Array.BYTES_PER_ELEMENT * 320 * 240 * 4;
-
+var BUFFER_SIZE = Float32Array.BYTES_PER_ELEMENT * SIZE;
+var RECT_WIDTH = 320;
+var RECT_HEIGHT = 240;
+var RECT_AREA = RECT_WIDTH * RECT_HEIGHT;
+var BUFFER_RECT_SIZE = RECT_AREA * Float32Array.BYTES_PER_ELEMENT;
+var WIDTH_STEP = RECT_WIDTH * Float32Array.BYTES_PER_ELEMENT;
 
 var WebCLTestUtils = (function() {
 
@@ -134,7 +136,7 @@ var createSampler = function(webCLContext, normalizedCoords, addressingMode, fil
     }
 }
 
-var getPlatforms = function() {
+var getPlatform = function() {
     var gv = window.top.CLGlobalVariables;
     try {
         if (gv)
@@ -145,7 +147,7 @@ var getPlatforms = function() {
                 return webCLPlatforms[0];
         }
     } catch(e) {
-        e.description = "WebCL :: getPlatforms threw exception : " + e.name;
+        e.description = "WebCL :: getPlatform threw exception : " + e.name;
         throw e;
     }
 }
@@ -410,11 +412,11 @@ var getSupportedExtensions = function(webCLObject) {
         throw e;
     }
 }
-var setUserEventStatus = function(webCLEvent, statusValue) {
+var setStatus = function(webCLEvent, statusValue) {
     try {
-        webCLEvent.setUserEventStatus(statusValue);
+        webCLEvent.setStatus(statusValue);
     } catch(e) {
-        e.description = "WebCLEvent :: setUserEventStatus threw exception : " + e.name;
+        e.description = "WebCLEvent :: setStatus threw exception : " + e.name;
         throw e;
     }
 }
@@ -435,7 +437,7 @@ createCommandQueue:createCommandQueue,
 createEvent:createEvent,
 createKernel:createKernel,
 createSampler:createSampler,
-getPlatforms:getPlatforms,
+getPlatform:getPlatform,
 getDevices:getDevices,
 getSupportedImageFormats:getSupportedImageFormats,
 build:build,
@@ -463,7 +465,7 @@ generateRandomFloat:generateRandomFloat,
 generateRandomNumberInRange:generateRandomNumberInRange,
 verifyResult:verifyResult,
 getSupportedExtensions:getSupportedExtensions,
-setUserEventStatus:setUserEventStatus,
+setStatus:setStatus,
 getArgInfo:getArgInfo,
 none:false
 };

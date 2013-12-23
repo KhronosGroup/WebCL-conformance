@@ -43,8 +43,8 @@ try {
     var webCLContext = wtu.createContext();
     var kernelSource = wtu.readKernel("../../../resources/kernels/sample_two_kernels_in_one.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevies = wtu.getDevices(webCLPlatforms);
+    var webCLPlatform = wtu.getPlatform();
+    var webCLDevies = wtu.getDevices(webCLPlatform);
 
     // Testing for Exception.
     shouldThrowExceptionName("webCLProgram.createKernelsInProgram();", "INVALID_PROGRAM_EXECUTABLE");

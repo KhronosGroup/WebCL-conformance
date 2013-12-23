@@ -76,8 +76,8 @@ try {
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var webCLPlatform = wtu.getPlatform();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     var kernelSource, webCLKernel;
     var correct, correct_1, correct_2, input, output, resultObject;
@@ -99,9 +99,9 @@ try {
         if (resultObject && resultObject.kernelArray) {
             var kernelCopy = resultObject.kernelArray[0];
 
-            input = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
-            output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
-            wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, DATA_SIZE, dataInt);
+            input = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+            output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
+            wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, BUFFER_SIZE, dataInt);
 
             wtu.setArg(kernelCopy, 0, input);
             wtu.setArg(kernelCopy, 1, output);
@@ -109,7 +109,7 @@ try {
             globalWorkSize = [SIZE];
             localWorkSize = [kernelCopy.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelCopy, globalWorkSize.length, [], globalWorkSize, localWorkSize);
-            wtu.enqueueReadBuffer(webCLCommandQueue, output, true, 0, DATA_SIZE, resultInt);
+            wtu.enqueueReadBuffer(webCLCommandQueue, output, true, 0, BUFFER_SIZE, resultInt);
 
             wtu.verifyResult(dataInt, resultInt, count, "createKernelsInProgram for the kernel : \"sample_copy_kernel\"");
         } else
@@ -130,9 +130,9 @@ try {
         if (resultObject && resultObject.kernelArray) {
             var kernelSquare = resultObject.kernelArray[0];
 
-            input = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
-            output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
-            wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, DATA_SIZE, dataFloat);
+            input = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+            output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
+            wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, BUFFER_SIZE, dataFloat);
 
             wtu.setArg(kernelSquare, 0, input);
             wtu.setArg(kernelSquare, 1, output);
@@ -141,7 +141,7 @@ try {
             globalWorkSize = [SIZE];
             localWorkSize = [kernelSquare.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelSquare, globalWorkSize.length, [] , globalWorkSize, localWorkSize);
-            wtu.enqueueReadBuffer(webCLCommandQueue, output, true, 0, DATA_SIZE, resultFloat);
+            wtu.enqueueReadBuffer(webCLCommandQueue, output, true, 0, BUFFER_SIZE, resultFloat);
 
             correct = 0;
             for (i = 0; i < count; i++) {
@@ -171,9 +171,9 @@ try {
         if (resultObject && resultObject.kernelArray) {
             var kernelFloatToInt = resultObject.kernelArray[0];
 
-            input = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
-            output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
-            wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, DATA_SIZE, dataFloat);
+            input = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+            output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
+            wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, BUFFER_SIZE, dataFloat);
 
             wtu.setArg(kernelFloatToInt, 0, input);
             wtu.setArg(kernelFloatToInt, 1, output);
@@ -181,7 +181,7 @@ try {
             globalWorkSize = [SIZE];
             localWorkSize = [kernelFloatToInt.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelFloatToInt, globalWorkSize.length, [], globalWorkSize, localWorkSize);
-            wtu.enqueueReadBuffer(webCLCommandQueue, output, true, 0, DATA_SIZE, resultInt);
+            wtu.enqueueReadBuffer(webCLCommandQueue, output, true, 0, BUFFER_SIZE, resultInt);
 
             correct = 0;
             for (i = 0; i < count; i++) {
@@ -218,12 +218,12 @@ try {
             kernelSquare= resultObject.kernelArray[0];
             kernelFloatToInt = resultObject.kernelArray[1];
 
-            var inputSquareBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
-            var inputFloatBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
-            var outputSquareBuffer = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
-            var outputIntBuffer = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
-            wtu.enqueueWriteBuffer(webCLCommandQueue, inputSquareBuffer, true, 0, DATA_SIZE, dataSquare);
-            wtu.enqueueWriteBuffer(webCLCommandQueue, inputFloatBuffer, true, 0, DATA_SIZE, dataFloat);
+            var inputSquareBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+            var inputFloatBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+            var outputSquareBuffer = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
+            var outputIntBuffer = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
+            wtu.enqueueWriteBuffer(webCLCommandQueue, inputSquareBuffer, true, 0, BUFFER_SIZE, dataSquare);
+            wtu.enqueueWriteBuffer(webCLCommandQueue, inputFloatBuffer, true, 0, BUFFER_SIZE, dataFloat);
 
             wtu.setArg(kernelSquare, 0, inputSquareBuffer);
             wtu.setArg(kernelSquare, 1, outputSquareBuffer);
@@ -237,8 +237,8 @@ try {
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelSquare, globalWorkSize.length, [], globalWorkSize, localWorkSize);
             localWorkSize = [kernelFloatToInt.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelFloatToInt, globalWorkSize.length, [], globalWorkSize, localWorkSize);
-            wtu.enqueueReadBuffer(webCLCommandQueue, outputSquareBuffer, true, 0, DATA_SIZE, resultFloat);
-            wtu.enqueueReadBuffer(webCLCommandQueue, outputIntBuffer, true, 0, DATA_SIZE, resultInt);
+            wtu.enqueueReadBuffer(webCLCommandQueue, outputSquareBuffer, true, 0, BUFFER_SIZE, resultFloat);
+            wtu.enqueueReadBuffer(webCLCommandQueue, outputIntBuffer, true, 0, BUFFER_SIZE, resultInt);
 
             correct_1 = 0;
             for (i = 0; i < count; i++) {
@@ -285,12 +285,12 @@ try {
             kernelSample_test = resultObject.kernelArray[0];
             kernelSample_test2 = resultObject.kernelArray[1];
 
-            var inputSample_test = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
-            var inputSample_test2 = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
-            var outputSample_test = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
-            var outputSample_test2 = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
-            wtu.enqueueWriteBuffer(webCLCommandQueue, inputSample_test, true, 0, DATA_SIZE, dataFloat);
-            wtu.enqueueWriteBuffer(webCLCommandQueue, inputSample_test2, true, 0, DATA_SIZE, dataInt);
+            var inputSample_test = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+            var inputSample_test2 = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+            var outputSample_test = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
+            var outputSample_test2 = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
+            wtu.enqueueWriteBuffer(webCLCommandQueue, inputSample_test, true, 0, BUFFER_SIZE, dataFloat);
+            wtu.enqueueWriteBuffer(webCLCommandQueue, inputSample_test2, true, 0, BUFFER_SIZE, dataInt);
 
             wtu.setArg(kernelSample_test, 0, inputSample_test);
             wtu.setArg(kernelSample_test, 1, outputSample_test);
@@ -303,8 +303,8 @@ try {
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelSample_test, globalWorkSize.length, [], globalWorkSize, localWorkSize);
             localWorkSize = [kernelSample_test2.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelSample_test2, globalWorkSize.length, [] , globalWorkSize, localWorkSize);
-            wtu.enqueueReadBuffer(webCLCommandQueue, outputSample_test, true, 0, DATA_SIZE, resultInt);
-            wtu.enqueueReadBuffer(webCLCommandQueue, outputSample_test2, true, 0, DATA_SIZE, resultFloat);
+            wtu.enqueueReadBuffer(webCLCommandQueue, outputSample_test, true, 0, BUFFER_SIZE, resultInt);
+            wtu.enqueueReadBuffer(webCLCommandQueue, outputSample_test2, true, 0, BUFFER_SIZE, resultFloat);
 
             correct_1 = 0;
             for (i = 0; i < count; i++) {

@@ -61,7 +61,7 @@ try {
     wtu.release(webCLEvent1);
     shouldThrowExceptionName("webcl.waitForEvents([webCLEvent, webCLEvent1]);", "INVALID_EVENT");
 
-    wtu.setUserEventStatus(webCLEvent, -1);
+    wtu.setStatus(webCLEvent, -1);
     shouldThrowExceptionName("webcl.waitForEvents([webCLEvent]);", "INVALID_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
 } catch(e) {

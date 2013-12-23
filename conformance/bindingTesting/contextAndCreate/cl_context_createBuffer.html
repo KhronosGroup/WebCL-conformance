@@ -65,8 +65,8 @@ try {
     shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, 0, hostPtr);", "INVALID_BUFFER_SIZE");
     shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, 100, new Int32Array(10));", "INVALID_HOST_PTR");
 
-    var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var webCLPlatform = wtu.getPlatform();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
     var maxMemAllocSize = 0;
     for (i = 0; i < webCLDevices.length; i++) {
         if (maxMemAllocSize < webCLDevices[i].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE))

@@ -41,17 +41,17 @@ try {
     debug("(optional CLenum deviceType)");
 
     var wtu = WebCLTestUtils;
-    var webCLPlatforms = wtu.getPlatforms();
+    var webCLPlatform = wtu.getPlatform();
 
-    shouldBeArrayOfType("webCLPlatforms.getDevices();", "WebCLDevice");
-    shouldBeArrayOfType("webCLPlatforms.getDevices(webcl.DEVICE_TYPE_CPU);", "WebCLDevice");
-    shouldBeArrayOfType("webCLPlatforms.getDevices(webcl.DEVICE_TYPE_GPU);", "WebCLDevice");
-    shouldBeArrayOfType("webCLPlatforms.getDevices(webcl.DEVICE_TYPE_ALL);", "WebCLDevice");
-    shouldBeArrayOfType("webCLPlatforms.getDevices(webcl.DEVICE_TYPE_ACCELERATOR);", "WebCLDevice");
-    shouldBeArrayOfType("webCLPlatforms.getDevices(webcl.DEVICE_TYPE_DEFAULT);", "WebCLDevice");
+    shouldBeArrayOfType("webCLPlatform.getDevices();", "WebCLDevice");
+    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_CPU);", "WebCLDevice");
+    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_GPU);", "WebCLDevice");
+    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ALL);", "WebCLDevice");
+    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ACCELERATOR);", "WebCLDevice");
+    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_DEFAULT);", "WebCLDevice");
 
     // Testing for Exceptions.
-    shouldThrowExceptionName("webCLPlatforms.getDevices(invalid_CLenum);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLPlatform.getDevices(invalid_CLenum);", "INVALID_VALUE");
 
 } catch(e) {
     testFailed(e.description);

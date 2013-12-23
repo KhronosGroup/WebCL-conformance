@@ -45,7 +45,7 @@ debug("WebCLKernel setArg() vector16 type testing.");
 
 try {
     var wtu = WebCLTestUtils;
-    webCLPlatform = wtu.getPlatforms();
+    webCLPlatform = wtu.getPlatform();
     webCLDevices = wtu.getDevices(webCLPlatform);
 
     webCLContext = wtu.createContext();

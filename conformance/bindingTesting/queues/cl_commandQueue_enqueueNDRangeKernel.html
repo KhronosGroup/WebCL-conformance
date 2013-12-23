@@ -42,11 +42,10 @@ try {
 
     var SIZE = 1024;
     var count = SIZE;
-    var BUFFER_SIZE = Float32Array.BYTES_PER_ELEMENT * 320 * 240 * 4;
     var data = new Float32Array(SIZE);
 
     var wtu = WebCLTestUtils;
-    var webCLPlatform = wtu.getPlatforms();
+    var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLContext = wtu.createContext();
     data = wtu.generateRandomFloat(data, count);
@@ -67,7 +66,7 @@ try {
 
     input = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
     output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
-    wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, DATA_SIZE, data);
+    wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, BUFFER_SIZE, data);
     shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize);", "INVALID_KERNEL_ARGS");
 
     wtu.setArg(webCLKernel, 0, input);
@@ -128,7 +127,7 @@ try {
     data = wtu.generateRandomFloat(data, count);
     input = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
     output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
-    wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, DATA_SIZE, data);
+    wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, BUFFER_SIZE, data);
     wtu.setArg(webCLKernel, 0, input);
     wtu.setArg(webCLKernel, 1, output);
 
@@ -144,7 +143,7 @@ try {
     input = wtu.createBuffer(webCLContextNew, webcl.MEM_READ_ONLY, BUFFER_SIZE);
     output = wtu.createBuffer(webCLContextNew, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
     data = wtu.generateRandomFloat(data, count);
-    wtu.enqueueWriteBuffer(webCLCommandQueueNew, input, true, 0, DATA_SIZE, data);
+    wtu.enqueueWriteBuffer(webCLCommandQueueNew, input, true, 0, BUFFER_SIZE, data);
     wtu.setArg(webCLKernelNew, 0, input);
     wtu.setArg(webCLKernelNew, 1, output);
     wtu.setArg(webCLKernelNew, 2, new Uint32Array([count]));

@@ -49,7 +49,7 @@ var webCLPlatform, webCLDevices, webCLContext, webCLCommandQueue, webCLProgram, 
 try {
     debug("WebCLKernel setArg() vector2 type testing.");
     var wtu = WebCLTestUtils;
-    webCLPlatform = wtu.getPlatforms();
+    webCLPlatform = wtu.getPlatform();
     webCLDevices = wtu.getDevices(webCLPlatform);
 
     webCLContext = wtu.createContext();

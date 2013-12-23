@@ -41,50 +41,46 @@ try {
     debug("WebCLCommandQueue enqueueCopyBufferRect test case. \n");
     debug("( WebCLBuffer srcBuffer, WebCLBuffer dstBuffer, sequence<CLuint> srcOrigin, sequence<CLuint> dstOrigin, sequence<CLuint> region, CLuint srcRowPitch, CLuint srcSlicePitch, CLuint dstRowPitch, CLuint dstSlicePitch, optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event)\n");
 
-    var rectWidth = 320;
-    var rectHeight = 240;
-    var rectArea = rectWidth * rectHeight;
-    var BUFFER_SIZE = rectWidth * rectHeight * Int32Array.BYTES_PER_ELEMENT;
-    var srcRowPitch = rectWidth ;
-    var srcSlicePitch = rectArea;
-    var dstRowPitch = rectWidth ;
-    var dstSlicePitch = rectArea;
+    var srcRowPitch = RECT_WIDTH ;
+    var srcSlicePitch = RECT_AREA;
+    var dstRowPitch = RECT_WIDTH ;
+    var dstSlicePitch = RECT_AREA;
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var srcBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
-    var srcBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
-    var srcBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var srcBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_RECT_SIZE);
+    var srcBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_RECT_SIZE);
+    var srcBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
     var srcOrigin = [0, 0, 0];
     var dstOrigin = [0, 0, 0];
-    var region = [rectWidth, rectHeight, 2];
+    var region = [RECT_WIDTH, RECT_HEIGHT, 2];
 
     // Testing with destination buffer as MEM_READ_WRITE memory object.
-    var dstBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var dstBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBufferReadWrite, dstBufferReadWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBufferRead, dstBufferReadWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBufferWrite, dstBufferReadWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
 
     // Testing with destination buffer as MEM_READ_ONLY memory object.
-    var dstBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var dstBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_RECT_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBufferReadWrite, dstBufferRead, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBufferRead, dstBufferRead, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBufferWrite, dstBufferRead, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
 
     // Testing with destination buffer as MEM_WRITE_ONLY memory object.
-    var dstBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
+    var dstBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_RECT_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBufferReadWrite, dstBufferWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBufferRead, dstBufferWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBufferWrite, dstBufferWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
 
-    var srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-    var dstBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
+    var dstBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
 
     // Testing for invalid values of Buffer Origin.
     var srcOriginInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOriginInvalid, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
-    srcOriginInvalid = [BUFFER_SIZE + 1, BUFFER_SIZE + 1, 1];
+    srcOriginInvalid = [BUFFER_RECT_SIZE + 1, BUFFER_RECT_SIZE + 1, 1];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOriginInvalid, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
     srcOriginInvalid = [0];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOriginInvalid, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
@@ -93,7 +89,7 @@ try {
 
     var dstOriginInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOriginInvalid, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
-    dstOriginInvalid = [BUFFER_SIZE + 1, BUFFER_SIZE + 1, 1];
+    dstOriginInvalid = [BUFFER_RECT_SIZE + 1, BUFFER_RECT_SIZE + 1, 1];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOriginInvalid, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
     dstOriginInvalid = [0];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOriginInvalid, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
@@ -103,23 +99,23 @@ try {
     // Testing for values of rectangular region.
     var regionInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, regionInvalid, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
-    regionInvalid = [rectWidth + 1, rectHeight + 1, 1];
+    regionInvalid = [RECT_WIDTH + 1, RECT_HEIGHT + 1, 1];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, regionInvalid, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
-    regionInvalid = [rectWidth];
+    regionInvalid = [RECT_WIDTH];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, regionInvalid, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
-    regionInvalid = [rectWidth, rectHeight];
+    regionInvalid = [RECT_WIDTH, RECT_HEIGHT];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, regionInvalid, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
 
     // Testing for values of Source row pitch and Source slice pitch
-    var srcRowPitchInvalid = BUFFER_SIZE + 10;
+    var srcRowPitchInvalid = BUFFER_RECT_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitchInvalid, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
-    var srcSlicePitchInvalid = BUFFER_SIZE + 10;
+    var srcSlicePitchInvalid = BUFFER_RECT_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitchInvalid, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
 
     // Testing for values of Destination row pitch and Destination slice pitch
-    var dstRowPitchInvalid = BUFFER_SIZE + 10;
+    var dstRowPitchInvalid = BUFFER_RECT_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitchInvalid, dstSlicePitch);", "INVALID_VALUE");
-    var dstSlicePitchInvalid = BUFFER_SIZE + 10;
+    var dstSlicePitchInvalid = BUFFER_RECT_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitchInvalid);", "INVALID_VALUE");
 
     // Testing for exceptions.
@@ -130,8 +126,8 @@ try {
 
     var webCLContextNew = wtu.createContext();
     var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
-    var srcBufferNew = wtu.createBuffer(webCLContextNew, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-    var dstBufferNew = wtu.createBuffer(webCLContextNew, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var srcBufferNew = wtu.createBuffer(webCLContextNew, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
+    var dstBufferNew = wtu.createBuffer(webCLContextNew, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBufferNew, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBufferNew, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_CONTEXT");

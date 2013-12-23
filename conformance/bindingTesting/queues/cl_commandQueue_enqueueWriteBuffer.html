@@ -43,42 +43,42 @@ try {
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var hostPtr = new Float32Array(DATA_SIZE);
-    var numberBytes = DATA_SIZE;
+    var hostPtr = new Float32Array(SIZE);
+    var numberBytes = BUFFER_SIZE;
     var bufferOffset = 0;
-    for (var i = 0; i < DATA_SIZE; i++) {
+    for (var i = 0; i < SIZE; i++) {
         hostPtr[i] = Math.random();
     }
 
     // MEM_READ_ONLY Buffers.
-    var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
+    var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferRead, true, bufferOffset, numberBytes, hostPtr)");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferRead, false, bufferOffset, numberBytes, hostPtr)");
 
     // MEM_WRITE_ONLY Buffers.
-    var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
+    var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferWrite, true, bufferOffset, numberBytes, hostPtr)");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferWrite, false, bufferOffset, numberBytes, hostPtr)");
 
     // MEM_READ_WRITE Buffers.
-    var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr)");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr)");
 
     // Testing for exceptions.
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(invalid_object, true, bufferOffset, numberBytes, hostPtr);", "INVALID_MEM_OBJECT");
-    var bufferOffsetInvalid = DATA_SIZE + 1;
+    var bufferOffsetInvalid = BUFFER_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffsetInvalid, numberBytes, hostPtr);", "INVALID_VALUE");
-    var numberBytesInvalid = DATA_SIZE + 1;
+    var numberBytesInvalid = BUFFER_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytesInvalid, hostPtr);", "INVALID_VALUE");
     numberBytesInvalid = hostPtr.BYTES_PER_ELEMENT - 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytesInvalid, hostPtr);", "INVALID_VALUE");
-    var hostPtrInvalid = new Float32Array(DATA_SIZE - 1);
+    var hostPtrInvalid = new Float32Array(BUFFER_SIZE - 1);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtrInvalid);", "INVALID_VALUE");
 
     // Testing for exception "INVALID_CONTEXT"
     var webCLContextNew = wtu.createContext();
-    var webCLBufferNew = wtu.createBuffer(webCLContextNew, webcl.MEM_READ_WRITE, DATA_SIZE);
+    var webCLBufferNew = wtu.createBuffer(webCLContextNew, webcl.MEM_READ_WRITE, BUFFER_SIZE);
     var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferNew, true, bufferOffset, numberBytes, hostPtr);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr);", "INVALID_CONTEXT");
@@ -93,7 +93,7 @@ try {
     wtu.release(webCLEventNew);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLEventNew], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
 
-    wtu.setUserEventStatus(webCLEvent, -1);
+    wtu.setStatus(webCLEvent, -1);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
 } catch (e) {

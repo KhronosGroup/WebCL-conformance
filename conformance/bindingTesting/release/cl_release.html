@@ -43,13 +43,13 @@ try {
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var webCLPlatform = wtu.getPlatform();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
     wtu.build(webCLProgram, webCLDevices);
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
     var webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_MIRRORED_REPEAT, webcl.FILTER_NEAREST);
     var webCLEvent = wtu.createEvent(webCLContext);
-    var webCLMemoryObject = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
+    var webCLMemoryObject = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
 
     shouldBeUndefined("webCLEvent.release()");
     shouldBeUndefined("webCLMemoryObject.release()");

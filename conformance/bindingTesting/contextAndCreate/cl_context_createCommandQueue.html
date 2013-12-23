@@ -41,8 +41,8 @@ try {
     debug("(optional WebCLDevice? device = null, optional CLenum properties = 0)");
 
     var wtu = WebCLTestUtils;
-    var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var webCLPlatform = wtu.getPlatform();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLContext = wtu.createContext();
 
     shouldBeType("webCLContext.createCommandQueue();", "WebCLCommandQueue");

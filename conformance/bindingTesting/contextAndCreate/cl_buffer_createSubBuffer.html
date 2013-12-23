@@ -41,7 +41,7 @@ try {
     debug("(CLenum memFlags, CLuint origin, CLuint sizeInBytes)");
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
     var origin = 0;
 
     // Testing for creating sub buffer.
@@ -50,11 +50,11 @@ try {
     shouldBeType("webCLBuffer.createSubBuffer(webcl.MEM_READ_WRITE, origin, 10);", WebCLBuffer);
 
     // Testing for invalid values of origin.
-    var originInvalid = DATA_SIZE + 10;
+    var originInvalid = BUFFER_SIZE + 1;
     shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, originInvalid, 10);", "INVALID_VALUE");
 
     // Testing for invalid values of sizeInBytes.
-    var sizeInBytesInvalid = DATA_SIZE + 10;
+    var sizeInBytesInvalid = BUFFER_SIZE + 1;
     shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, origin, sizeInBytesInvalid);", "INVALID_VALUE");
 
     // Testing for exceptions.

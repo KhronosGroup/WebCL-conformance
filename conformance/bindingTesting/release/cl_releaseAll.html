@@ -2,7 +2,7 @@
  Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
- modification, are permitted provided the following condition
+ modification, are permitted provided the following conditions
  are met:
 
  1.  Redistributions of source code must retain the above copyright
@@ -27,7 +27,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-    <title>WebCLContext createImage functionality test.</title>
+    <title>WebCL releaseAll conformance test.</title>
     <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
     <script src="../../../resources/js-test-pre.js"></script>
     <script src="../../../resources/cl_utils.js"></script>
@@ -36,31 +36,16 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-debug("WebCLContext createImage functionality test case.");
-
-var wtu = WebCLTestUtils;
-var webCLContext = wtu.createContext();
-var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-
-/*
- *   Creating image and filling it with ArrayBufferView.
- */
 try {
-    var imageWidth = 100;
-    var imageHeight = 100;
-    var origin = [0, 0];
-    var region = [imageWidth, imageHeight];
-    var hostRowPitch = 0;
-    var imageArea = imageWidth * imageHeight;
-    var data = new Float32Array(imageArea);
-    var result = new Float32Array(imageArea);
-    data = wtu.generateRandomFloat(data, imageArea);
+    debug("WebCL releaseAll() test case.");
 
-    var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
-    var webCLImageWithHostPtr = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite, data);
-    wtu.enqueueReadImage(webCLCommandQueue, webCLImageWithHostPtr, true, origin, region, hostRowPitch, result);
-    wtu.verifyResult(data, result, imageArea, "Validation of data filled by ArrayBufferView on creation of a image with area : " + imageWidth + " * " + imageHeight);
-} catch(e) {
+    var wtu = WebCLTestUtils;
+    var webCLContext = wtu.createContext();
+
+    shouldBeUndefined("webCLContext.releaseAll()");
+    shouldBeUndefined("webcl.releaseAll()");
+
+} catch (e) {
     testFailed(e.description);
 }
 successfullyParsed = true;

@@ -42,7 +42,7 @@ try {
     var webCLContext = wtu.createContext();
     var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webCLPlatform = wtu.getPlatforms();
+    var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
 
     shouldBe("webCLProgram.getInfo(webcl.PROGRAM_CONTEXT)", "webCLContext");

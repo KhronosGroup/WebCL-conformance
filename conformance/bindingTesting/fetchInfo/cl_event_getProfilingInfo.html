@@ -41,8 +41,8 @@ try {
     debug("(CLenum name)");
 
     var wtu = WebCLTestUtils;
-    var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var webCLPlatform = wtu.getPlatform();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLContext = wtu.createContext();
     var data = new Float32Array(SIZE);
     var count = SIZE;
@@ -58,7 +58,7 @@ try {
 
     input = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
     output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
-    wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, DATA_SIZE, data);
+    wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, BUFFER_SIZE, data);
     wtu.setArg(webCLKernel, 0, input);
     wtu.setArg(webCLKernel, 1, output);
     wtu.setArg(webCLKernel, 2, new Uint32Array([count]));
@@ -77,7 +77,7 @@ try {
     wtu.enqueueNDRangeKernel(webCLCommandQueueNew, webCLKernel, globalWorkSize.length, [], globalWorkSize, localWorkSize);
     shouldThrowExceptionName("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);", "PROFILING_INFO_NOT_AVAILABLE");
 
-    wtu.setUserEventStatus(webCLEvent, invalid_CLenum);
+    wtu.setStatus(webCLEvent, invalid_CLenum);
     shouldThrowExceptionName("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);", "PROFILING_INFO_NOT_AVAILABLE");
 
 } catch(e) {

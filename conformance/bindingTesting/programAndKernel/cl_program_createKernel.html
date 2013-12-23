@@ -41,11 +41,11 @@ try {
     debug("(DOMString name)");
 
     var wtu = WebCLTestUtils;
-    var webCLPlatforms = wtu.getPlatforms();
+    var webCLPlatform = wtu.getPlatform();
     var webCLContext = wtu.createContext();
     var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var webCLDevices = wtu.getDevices(webCLPlatform);
 
     // Testing for Exception : INVALID_PROGRAM_EXECUTABLE .
     shouldThrowExceptionName("webCLProgram.createKernel(\"square\");", "INVALID_PROGRAM_EXECUTABLE");

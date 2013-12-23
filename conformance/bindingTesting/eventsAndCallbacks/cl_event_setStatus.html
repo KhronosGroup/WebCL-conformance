@@ -27,7 +27,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-    <title>WebCLEvent setUserEventStatus conformance test.</title>
+    <title>WebCLEvent setStatus conformance test.</title>
     <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
     <script src="../../../resources/js-test-pre.js"></script>
     <script src="../../../resources/cl_utils.js"></script>
@@ -37,20 +37,20 @@
 <div id="console"></div>
 <script>
 try {
-    debug("WebCLEvent :: setUserEventStatus test case.");
+    debug("WebCLEvent :: setStatus test case.");
     debug("(CLenum executionStatus)");
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var webCLEvent = wtu.createEvent(webCLContext);
 
-    shouldBeUndefined("webCLEvent.setUserEventStatus(webcl.COMPLETE);");
+    shouldBeUndefined("webCLEvent.setStatus(webcl.COMPLETE);");
 
     // Testing for Exception.
-    shouldThrowExceptionName("webCLEvent.setUserEventStatus(invalid_CLenum);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLEvent.setUserEventStatus(-10);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLEvent.setStatus(invalid_CLenum);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLEvent.setStatus(-10);", "INVALID_VALUE");
 
-    // FIXME to add test case to verify exception : INVALID_OPERATION. 
+    // FIXME to add test case to verify exception : INVALID_OPERATION.
 
 } catch(e) {
     testFailed(e.description);

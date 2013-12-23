@@ -46,7 +46,7 @@ try {
     debug("(optional sequence<WebCLDevice>? devices, optional DOMString? options, optional WebCLCallback whenFinished)");
     var wtu = WebCLTestUtils;
     var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
-    var webCLPlatform = wtu.getPlatforms();
+    var webCLPlatform = wtu.getPlatform();
     var webCLDevice, webCLContext, webCLProgram;
 
     /*

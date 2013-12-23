@@ -44,11 +44,10 @@ try {
     debug("(CLuint index, WebCLSampler sampler)");
     debug("(CLuint index, ArrayBufferView value)\n");
 
-    var DATA_SIZE = Float32Array.BYTES_PER_ELEMENT * 1024;
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var webCLPlatforms = wtu.getPlatforms();
-    var webCLDevices = wtu.getDevices(webCLPlatforms);
+    var webCLPlatform = wtu.getPlatform();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
 
     // Testing for MemoryObjects as values for kernel input.
     var kernelSource = wtu.readKernel("../../../resources/kernels/basic_image_buffer_sampler.cl");
@@ -56,7 +55,7 @@ try {
     wtu.build(webCLProgram, webCLDevices);
     var webCLSquareKernel = wtu.createKernel(webCLProgram, "basic");
 
-    var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
     shouldBeUndefined("webCLSquareKernel.setArg(0, webCLBuffer);");
 
     var webCLImageDescriptorObject  = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, "100", "100");

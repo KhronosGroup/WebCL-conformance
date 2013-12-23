@@ -44,10 +44,9 @@ try {
     var webCLContext = wtu.createContext();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
 
-    var BUFFER_SIZE = Float32Array.BYTES_PER_ELEMENT * 320 * 240 * 4;
     var srcOffset = 0;
     var dstOffset = 0;
-    var numBytes = 10;
+    var numBytes = BUFFER_SIZE;
 
     var srcBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
     var dstBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);

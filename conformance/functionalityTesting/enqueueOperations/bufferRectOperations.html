@@ -41,20 +41,16 @@ try {
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var webCLPlatforms = wtu.getPlatforms();
+    var webCLPlatform = wtu.getPlatform();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     var correct;
     var count = SIZE;
 
-    var rectWidth = 320;
-    var rectHeight = 240;
-    var rectArea = rectWidth * rectHeight;
-    var BUFFER_SIZE = rectWidth * rectHeight * Int32Array.BYTES_PER_ELEMENT;
-    var data = new Int32Array(BUFFER_SIZE);
-    var result = new Int32Array(BUFFER_SIZE);
+    var data = new Int32Array(RECT_AREA);
+    var result = new Int32Array(RECT_AREA);
 
-    var srcBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-    var dstBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var srcBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
+    var dstBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
 
     /*
      *   Testing for partial size rectOperation.
@@ -96,19 +92,18 @@ try {
      */
 
     try {
-        var data = new Int32Array(BUFFER_SIZE);
-        var result = new Int32Array(BUFFER_SIZE);
-        count = rectArea * Int32Array.BYTES_PER_ELEMENT;
+        var data = new Int32Array(RECT_AREA);
+        var result = new Int32Array(RECT_AREA);
 
-        region = [rectWidth, rectHeight, 4];
-        hostRowPitch = rectWidth;
-        hostSlicePitch = rectArea;
-        srcRowPitch = rectWidth;
-        srcSlicePitch = rectArea;
-        dstRowPitch = rectWidth;
-        dstSlicePitch = rectArea;
+        region = [RECT_WIDTH, RECT_HEIGHT, 4];
+        hostRowPitch = RECT_WIDTH;
+        hostSlicePitch = RECT_AREA;
+        srcRowPitch = RECT_WIDTH;
+        srcSlicePitch = RECT_AREA;
+        dstRowPitch = RECT_WIDTH;
+        dstSlicePitch = RECT_AREA;
 
-        data = wtu.generateRandomInt(data, count);
+        data = wtu.generateRandomInt(data, RECT_AREA);
 
         wtu.enqueueWriteBufferRect(webCLCommandQueue, srcBufferReadWrite, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
         wtu.enqueueCopyBufferRect(webCLCommandQueue, srcBufferReadWrite, dstBufferReadWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);

@@ -567,3 +567,35 @@ function shouldBeArrayOfType(_a, _type, quite)
     }
 }
 
+function shouldBeTypeOrException(_a, _type, _exception, quite)
+{
+    if (typeof _a != "string" || typeof _type != "string" || typeof _exception != "string")
+        debug("WARN: shouldBe() expects string arguments");
+
+    var exception;
+    var _av;
+    try {
+        _av = eval(_a);
+        _aPrototype = Object.getPrototypeOf(_av).toString();
+    } catch (e) {
+        exception = e;
+    }
+
+    var _typev = eval(_type);
+    var _typePrototype = _typev.prototype.toString();
+
+    if (exception) {
+        var isStrict = window.top.CLGlobalVariables ? window.top.CLGlobalVariables.getInstance().isStrict() : 0;
+        if (exception instanceof WebCLException) {
+            if (isStrict && exception.name != _e)
+                testFailed(_a + " should throw " + _e + ". Threw " + exception.name + ".");
+            else
+                testPassed(_a + " threw exception " + exception.name + ".");
+        }
+    } else if (_av instanceof  _typev || _aPrototype == _typePrototype) {
+        if (!quite)
+            testPassed(_a + " is an instance of " + _type);
+    } else
+        testFailed(_a + " is not an instance of " + _type);
+}
+
