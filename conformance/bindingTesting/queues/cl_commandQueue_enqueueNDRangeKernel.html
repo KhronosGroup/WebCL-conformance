@@ -80,8 +80,6 @@ try {
 
     // Testing for Exceptions & invalid values.
 
-    shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(invalid_object, workDim, globalWorkOffset, globalWorkSize, localWorkSize);", "INVALID_KERNEL");
-
     shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, 4, globalWorkOffset, globalWorkSize, localWorkSize);", "INVALID_WORK_DIMENSION");
 
     shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, [10, 10, 10], globalWorkSize, localWorkSize);", "INVALID_GLOBAL_OFFSET");
@@ -152,13 +150,18 @@ try {
 
     var webCLEvent = wtu.createEvent(webCLContext);
     var webCLEventNew = wtu.createEvent(webCLContextNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLEventNew], null);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLEvent], null);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLEventNew], webCLEvent);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLEvent], webCLEventNew);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [], webCLEventNew);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [], webCLEvent);", "INVALID_CONTEXT");
 
-    wtu.release(webCLEventNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLEventNew], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+    var releasedEvent = wtu.createEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+
+    var releasedKernel = webCLKernel;
+    wtu.release(webCLKernel);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(releasedKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize);", "INVALID_KERNEL");
 
 } catch(e) {
     testFailed(e.description);

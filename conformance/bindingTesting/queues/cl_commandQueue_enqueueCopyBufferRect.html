@@ -74,6 +74,14 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBufferRead, dstBufferWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBufferWrite, dstBufferWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
 
+    // Testing for exceptions.
+    var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_RECT_SIZE);
+    wtu.release(releasedBuffer);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(releasedBuffer, dstBufferReadWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_MEM_OBJECT");
+    releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_RECT_SIZE);
+    wtu.release(releasedBuffer);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBufferReadWrite, releasedBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_MEM_OBJECT");
+
     var srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
     var dstBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
 
@@ -118,10 +126,6 @@ try {
     var dstSlicePitchInvalid = BUFFER_RECT_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitchInvalid);", "INVALID_VALUE");
 
-    // Testing for exceptions.
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(invalid_object, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, invalid_object, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_MEM_OBJECT");
-
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, srcBuffer, srcOrigin, srcOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "MEM_COPY_OVERLAP");
 
     var webCLContextNew = wtu.createContext();
@@ -142,13 +146,14 @@ try {
 
     var webCLEvent = wtu.createEvent(webCLContext);
     var webCLEventNew = wtu.createEvent(webCLContextNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBufferNew, dstBufferNew, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch, [webCLEventNew], null);", "INVALID_CONTEXT")
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyBufferRect(srcBufferNew, dstBufferNew, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch, [webCLEvent], null);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBufferNew, dstBufferNew, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch, [webCLEventNew], webCLEvent);", "INVALID_CONTEXT")
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyBufferRect(srcBufferNew, dstBufferNew, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch, [webCLEvent], webCLEventNew);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyBufferRect(srcBufferNew, dstBufferNew, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch, [], webCLEvent);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBufferNew, dstBufferNew, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch, [], webCLEventNew);", "INVALID_CONTEXT");
 
-    wtu.release(webCLEventNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBufferNew, dstBufferNew, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch, [webCLEventNew], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+    var releasedEvent = wtu.createEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBufferNew, dstBufferNew, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
 
 } catch (e) {
     testFailed(e.description);

@@ -52,7 +52,10 @@ try {
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueWaitForEvents([webCLEvent]);", "INVALID_CONTEXT");
 
     shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents();", "INVALID_EVENT_WAIT_LIST");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents([invalid_object]);", "INVALID_EVENT_WAIT_LIST");
+
+    var releasedEvent = wtu.createEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents([releasedEvent]);", "INVALID_EVENT_WAIT_LIST");
 
 } catch (e) {
     testFailed(e.description);

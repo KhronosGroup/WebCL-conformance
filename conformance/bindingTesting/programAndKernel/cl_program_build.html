@@ -124,11 +124,6 @@ try {
 
     // Testing for Exceptions.
 
-    // Testing for exception "INVALID_DEVICE".
-    shouldThrowExceptionName("webCLProgram.build(invalid_object);", "INVALID_DEVICE");
-
-    shouldThrowExceptionName("webCLProgram.build(webCLDevice, null, invalid_object);", "INVALID_VALUE");
-
     // Testing for exception "BUILD_PROGRAM_FAILURE".
     kernelSource = wtu.readKernel("../../../resources/kernels/nbody_simulation_bad.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);

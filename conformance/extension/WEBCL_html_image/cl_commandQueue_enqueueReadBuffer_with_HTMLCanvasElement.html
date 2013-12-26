@@ -51,6 +51,12 @@ try {
     DATA_SIZE = 180000;
     var numBytes = DATA_SIZE;
 
+    var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBuffer, true, bufferOffset, numBytes, canvas);", "WEBCL_EXTENSION_NOT_ENABLED");
+    if (!wtu.enableExtension(webcl, "WEBCL_html_sharing")) {
+        throw { description : "Failed to enable extension : WEBCL_html_sharing. Exitting..." };
+    }
+
     // MEM_READ_ONLY Buffers.
     var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, true, bufferOffset, numBytes, canvas)");
@@ -67,18 +73,34 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numBytes, canvas)");
 
     // Testing for exceptions.
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(invalid_object, true, bufferOffset, numBytes, canvas)", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, invalid_canvas)", "INVALID_HOST_PTR");
+    var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    wtu.release(releasedBuffer);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(releasedBuffer, true, bufferOffset, numBytes, canvas)", "INVALID_MEM_OBJECT");
 
-    // Testing for invalid value of bufferOffset.
     var bufferOffsetInvalid = DATA_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffsetInvalid, numBytes, canvas)", "INVALID_VALUE");
-
-    // Testing for invalid value of numBytes.
     var numBytesInvalid = DATA_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas)", "INVALID_VALUE");
 
-    // FIXME :: Need to add test cases passing event parameters.
+    var webCLContextNew = wtu.createContext();
+    var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
+    var webCLBufferNew = wtu.createBuffer(webCLContextNew, webcl.MEM_READ_ONLY, DATA_SIZE);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferNew, true, bufferOffset, numBytesInvalid, canvas)", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas)", "INVALID_CONTEXT");
+
+    var webCLEvent = wtu.createEvent(webCLContext);
+    var webCLEventNew = wtu.createEvent(webCLContextNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas, [webCLEventNew], webCLEvent)", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas, [webCLEvent], webCLEventNew)", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas, [], webCLEvent)", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas, [], webCLEventNew)", "INVALID_CONTEXT");
+
+    var releasedEvent = wtu.createEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas, [releasedEvent], webCLEventNew)", "INVALID_EVENT_WAIT_LIST");
+
+    wtu.setStatus(webCLEvent, -1);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas, [webCLEvent], webCLEventNew)", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
 } catch (e) {
     testFailed(e.description);

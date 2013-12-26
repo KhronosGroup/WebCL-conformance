@@ -61,6 +61,12 @@ try {
 
     var region = [imageWidth, imageHeight];
     var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
+    var webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImage, true, origin, region, imgData);", "WEBCL_EXTENSION_NOT_ENABLED");
+
+    if (!wtu.enableExtension(webcl, "WEBCL_html_sharing")) {
+        throw { description : "Failed to enable extension : WEBCL_html_sharing. Exitting..." };
+    }
 
     // Testing with image as MEM_READ_ONLY memory object.
     var webCLImageRead = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
@@ -78,22 +84,49 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, false, origin, region, imgData);");
 
     // Testing for exceptions.
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(invalid_object, true, origin, region, imgData);", "INVALID_MEM_OBJECT");
+    var releasedImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+    wtu.release(releasedImage);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(releasedImage, true, origin, region, imgData);", "INVALID_MEM_OBJECT");
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, invalid_imageData);", "INVALID_HOST_PTR");
 
-    // Testing for invalid value of origin.
     var originInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, originInvalid, region, imgData);", "INVALID_VALUE");
+    originInvalid = [0];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, originInvalid, region, imgData);", "INVALID_VALUE");
+    var originOutOfBound = [imageWidth + 1, imageHeight + 1];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, originOutOfBound, region, imgData);", "INVALID_VALUE");
 
-    // Testing for invalid value of region.
     var regionInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, regionInvalid, imgData);", "INVALID_VALUE");
+    regionInvalid = [0];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, regionInvalid, imgData);", "INVALID_VALUE");
+    var regionOutOfBound = [imageWidth + 1, imageHeight + 1];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, regionOutOfBound, imgData);", "INVALID_VALUE");
 
-    // Testing for invalid value of image data.
     var imgDataInvalid = canvasContext.createImageData(-10, -10);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, imgDataInvalid);", "INVALID_VALUE");
 
-    // FIXME :: Need to add test cases passing event parameters.
+    var webCLContextNew = wtu.createContext();
+    var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
+    var webCLImageNew = wtu.createImage(webCLContext, webcl.MEM_WRITE_ONLY, webCLImageDescriptorReadWrite);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageNew, true, origin, region, imgData);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteImage(webCLImageReadWrite, true, origin, region, imgData);", "INVALID_CONTEXT");
+
+    var webCLEvent = wtu.createEvent(webCLContext);
+    var webCLEventNew = wtu.createEvent(webCLContextNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, imgData, [webCLEventNew], webCLEvent);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteImage(webCLImageReadWrite, true, origin, region, imgData, [webCLEvent], webCLEventNew);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, imgData, [], webCLEventNew);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteImage(webCLImageReadWrite, true, origin, region, imgData, [], webCLEvent);", "INVALID_CONTEXT");
+
+    var releasedEvent = wtu.createEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, imgData, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+
+    wtu.setStatus(webCLEvent, -1);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, imgData, [webCLEvent], webCLEventNew);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
+
+    // FIXME To add test case to verify exception : INVALID_IMAGE_SIZE.
 
 } catch (e) {
     testFailed(e.description);

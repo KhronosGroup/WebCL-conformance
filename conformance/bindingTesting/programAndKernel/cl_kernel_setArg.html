@@ -167,7 +167,6 @@ try {
 
     // Testing for Exception.
     debug("INVALID_ARG_INDEX::");
-    shouldThrowExceptionName("webCLSquareKernel.setArg(invalid_object, webCLBuffer);", "INVALID_ARG_INDEX");
     var kernelNumArgs = webCLSquareKernel.getInfo(webcl.KERNEL_NUM_ARGS);
     shouldThrowExceptionName("webCLSquareKernel.setArg((kernelNumArgs + 1), webCLBuffer);", "INVALID_ARG_INDEX");
 

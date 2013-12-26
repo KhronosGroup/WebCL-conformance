@@ -430,6 +430,15 @@ var getArgInfo = function(webCLKernel, index) {
     }
 }
 
+var enableExtension = function(object, extensionName) {
+    try {
+        return object.enableExtension(extensionName);
+    } catch(e) {
+        e.description = object + " :: enableExtension ( " + extensionName + " ) threw exception : " + e.name;
+        throw e;
+    }
+}
+
 return {
 createContext:createContext,
 createProgram:createProgram,
@@ -467,6 +476,7 @@ verifyResult:verifyResult,
 getSupportedExtensions:getSupportedExtensions,
 setStatus:setStatus,
 getArgInfo:getArgInfo,
+enableExtension:enableExtension,
 none:false
 };
 }());

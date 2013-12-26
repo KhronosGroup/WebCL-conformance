@@ -504,7 +504,6 @@ function finishTest() {
 
 // WebCL specific methods.
 
-var invalid_object = new Object();
 var invalid_CLenum = 9999;
 var invalid_canvas = document.createElement('canvas');
 var invalid_imageData = invalid_canvas.getContext("2d").createImageData(100,100);

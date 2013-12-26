@@ -41,7 +41,7 @@
 <script>
 try {
     debug("WebCLCommandQueue enqueueReadBufferRect with HTML Canvas element test case. \n");
-    debug("( WebCLBuffer buffer, CLboolean blockingRead, sequence<CLuint> bufferOrigin, sequence<CLuint> dstOrigin, sequence<CLuint> region, CLuint bufferRowPitch, HTMLCanvasElement dstCanvas, optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event)\n");
+    debug("(WebCLBuffer buffer, CLboolean blockingRead, sequence>CLuint> bufferOrigin, sequence>CLuint> dstOrigin, sequence>CLuint> region, CLuint bufferRowPitch, CLuint bufferSlicePitch, HTMLCanvasElement dstCanvas, optional sequence<WebCLEvent> eventWaitList, optional WebCLEvent? event)\n");
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
@@ -49,45 +49,90 @@ try {
     var bufferOrigin = [0, 0, 0];
     var dstOrigin = [0, 0, 0];
     var region = [10, 10, 1];
-    var WIDTH_STEP = Float32Array.BYTES_PER_ELEMENT * 320 * 4;
-    var bufferRowPitch = WIDTH_STEP;
+    var bufferRowPitch = 0;
+    var bufferSlicePitch = 0;
     DATA_SIZE = 180000;
     var canvas = document.getElementById("inputCanvas");
 
+    var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBuffer, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);", "WEBCL_EXTENSION_NOT_ENABLED");
+
+    if (!wtu.enableExtension(webcl, "WEBCL_html_sharing")) {
+        throw { description : "Failed to enable extension : WEBCL_html_sharing. Exitting..." };
+    }
+
     // Testing with buffer as MEM_READ_ONLY memory object.
     var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
-    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferRead, true, bufferOrigin, dstOrigin, region, bufferRowPitch, canvas);");
-    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferRead, false, bufferOrigin, dstOrigin, region, bufferRowPitch, canvas);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferRead, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferRead, false, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");
 
     // Testing with buffer as MEM_WRITE_ONLY memory object.
     var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
-    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, canvas);");
-    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferWrite, false, bufferOrigin, dstOrigin, region, bufferRowPitch, canvas);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferWrite, false, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");
 
     // Testing with buffer as MEM_READ_WRITE memory object.
     var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
-    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, canvas);");
-    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, false, bufferOrigin, dstOrigin, region, bufferRowPitch, canvas);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, false, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");
 
     // Testing for exceptions.
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(invalid_object, true, bufferOrigin, dstOrigin, region, bufferRowPitch, canvas);", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, invalid_canvas);", "INVALID_HOST_PTR");
+    var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
+    wtu.release(releasedBuffer);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(releasedBuffer, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_MEM_OBJECT");
 
-    // Testing for invalid value of bufferOrigin.
     var bufferOriginInvalid = [];
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOriginInvalid, dstOrigin, region, bufferRowPitch, canvas);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOriginInvalid, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
+    bufferOriginInvalid = [0];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOriginInvalid, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
+    bufferOriginInvalid = [0, 0];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOriginInvalid, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
+    var bufferOriginOutOfBound = [DATA_SIZE + 1, DATA_SIZE + 1, 0];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOriginOutOfBound, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
 
-    // Testing for invalid value of dstOrigin.
     var dstOriginInvalid = [];
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOriginInvalid, region, bufferRowPitch, canvas);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOriginInvalid, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
+    dstOriginInvalid = [0];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOriginInvalid, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
+    dstOriginInvalid = [0, 0];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOriginInvalid, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
+    var dstOriginOutOfBound = [DATA_SIZE + 1, DATA_SIZE + 1, 0];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOriginOutOfBound, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
 
-    // Testing for invalid value of region.
     var regionInvalid = [];
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, regionInvalid, bufferRowPitch, canvas);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, regionInvalid, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
+    regionInvalid = [0];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, regionInvalid, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
+    regionInvalid = [0, 0];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, regionInvalid, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
+    var regionOutOfBound = [DATA_SIZE + 1, DATA_SIZE + 1, 1];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, regionOutOfBound, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
 
-    // Testing for invalid value of bufferRowPitch.
-    var bufferRowPitchInvalid = DATA_SIZE * 8;
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitchInvalid, canvas);", "INVALID_VALUE");
+    var bufferRowPitchInvalid = DATA_SIZE + 1;
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitchInvalid, bufferSlicePitch, canvas);", "INVALID_VALUE");
+
+    var bufferSlicePitchInvalid = DATA_SIZE + 1;
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitchInvalid, canvas);", "INVALID_VALUE");
+
+    var webCLContextNew = wtu.createContext();
+    var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
+    var webCLBufferNew = wtu.createBuffer(webCLContextNew, webcl.MEM_READ_WRITE, DATA_SIZE);
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferNew, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_CONTEXT");
+
+    var webCLEvent = wtu.createEvent(webCLContext);
+    var webCLEventNew = wtu.createEvent(webCLContextNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [webCLEventNew], webCLEvent);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [webCLEvent], webCLEventNew);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEventNew);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent);", "INVALID_CONTEXT");
+
+    var releasedEvent = wtu.createEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [releasedEvent], webCLEventNew);", "INVALID_EVENT_WAIT_LIST");
+
+    wtu.setStatus(webCLEvent, -1);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [webCLEventNew], webCLEvent);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
 } catch (e) {
     testFailed(e.description);

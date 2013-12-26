@@ -41,7 +41,7 @@
 <script>
 try {
     debug("WebCLContext :: createImage with imageData test case.");
-    debug("(CLenum memFlags, ImageData srcPixels)\n");
+    debug("(CLenum memFlags, WebCLImageDescriptor descriptor, ImageData srcPixels)\n");
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
@@ -54,14 +54,39 @@ try {
         imgData.data[i+2] = 0;
         imgData.data[i+3] = 255;
     }
+    var webCLImageDescriptor = {width : imgData.width, height : imgData.height, channelOrder : webcl.RGBA, channelType : webcl.UNORM_INT8};
 
-    shouldBeType("webCLContext.createImage(webcl.MEM_READ_ONLY, imgData);", "WebCLImage");
-    shouldBeType("webCLContext.createImage(webcl.MEM_WRITE_ONLY, imgData);", "WebCLImage");
-    shouldBeType("webCLContext.createImage(webcl.MEM_READ_WRITE, imgData);", "WebCLImage");
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptor, imgData);", "WEBCL_EXTENSION_NOT_ENABLED");
+    if (!wtu.enableExtension(webcl, "WEBCL_html_sharing")) {
+        throw { description : "Failed to enable extension : WEBCL_html_sharing. Exitting..."};
+    }
+
+    shouldBeType("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptor, imgData);", "WebCLImage");
+    shouldBeType("webCLContext.createImage(webcl.MEM_WRITE_ONLY, webCLImageDescriptor, imgData);", "WebCLImage");
+    shouldBeType("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptor, imgData);", "WebCLImage");
 
     // Testing for exceptions.
-    shouldThrowExceptionName("webCLContext.createImage(invalid_CLenum, imgData);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, invalid_imageData);", "INVALID_HOST_PTR");
+    shouldThrowExceptionName("webCLContext.createImage(invalid_CLenum, webCLImageDescriptor, imgData);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptor, invalid_imageData);", "INVALID_HOST_PTR");
+
+    var webCLPlatform = wtu.getPlatform();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
+
+    var imageWidthMax = webCLDevices[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_WIDTH);
+    var imgDataInvalidWidth = canvasContext.createImageData(imageWidthMax + 1, 10);
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptor, imgDataInvalidWidth);", "INVALID_IMAGE_SIZE");
+
+    var imageHeightMax = webCLDevices[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT);
+    var imgDataInvalidHeight = canvasContext.createImageData(10, imageHeightMax + 1);
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptor, imgDataInvalidWidth);", "INVALID_IMAGE_SIZE");
+
+    var webCLImageDescriptorObjectInvalidChannelOrder = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imgData.width, imgData.height);
+    webCLImageDescriptorObjectInvalidChannelOrder.channelOrder = invalid_CLenum;
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorObjectInvalidChannelOrder, imgData);", "INVALID_IMAGE_FORMAT_DESCRIPTOR");
+
+    var webCLImageDescriptorObjectInvalidChannelType = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imgData.width, imgData.height);
+    webCLImageDescriptorObjectInvalidChannelType.channelType = invalid_CLenum;
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorObjectInvalidChannelType, imgData);", "INVALID_IMAGE_FORMAT_DESCRIPTOR");
 
 } catch(e) {
     testFailed(e.description);

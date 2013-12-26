@@ -46,6 +46,11 @@ try {
     var webCLContext = wtu.createContext();
     var canvas = document.getElementById("inputCanvas");
 
+    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_ONLY, canvas);", "WEBCL_EXTENSION_NOT_ENABLED");
+    if (!wtu.enableExtension(webcl, "WEBCL_html_sharing")) {
+        throw { description : "Failed to enable extension : WEBCL_html_sharing. Exitting..."};
+    }
+
     shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_ONLY, canvas);", "WebCLBuffer");
     shouldBeType("webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, canvas);", "WebCLBuffer");
     shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_WRITE, canvas);", "WebCLBuffer");
@@ -53,6 +58,18 @@ try {
     // Testing for exceptions.
     shouldThrowExceptionName("webCLContext.createBuffer(invalid_CLenum, canvas);", "INVALID_VALUE");
     shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, invalid_canvas);", "INVALID_HOST_PTR");
+
+    var webCLPlatform = wtu.getPlatform();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
+    var maxMemAllocSize = 0;
+    for (i = 0; i < webCLDevices.length; i++) {
+        if (maxMemAllocSize < webCLDevices[i].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE))
+             maxMemAllocSize = webCLDevices[i].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE);
+    }
+    maxMemAllocSize *= Float32Array.BYTES_PER_ELEMENT;
+    var canvasContext = document.getElementById("inputCanvas").getContext("2d");
+    var canvasHuge = canvasContext.createImageData(maxMemAllocSize + 1, maxMemAllocSize + 1);
+    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, canvasHuge);", "INVALID_IMAGE_SIZE");
 
 } catch(e) {
     testFailed(e.description);

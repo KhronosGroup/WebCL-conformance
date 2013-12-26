@@ -58,6 +58,12 @@ try {
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     var bufferOffset = 0;
 
+    var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, true, bufferOffset, imgData)", "WEBCL_EXTENSION_NOT_ENABLED");
+    if (!wtu.enableExtension(webcl, "WEBCL_html_sharing")) {
+        throw { description : "Failed to enable extension : WEBCL_html_sharing. Exitting..." };
+    }
+
     // MEM_READ_ONLY Buffers.
     var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferRead, true, bufferOffset, imgData)");
@@ -74,18 +80,37 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, false, bufferOffset, imgData)");
 
     // Testing for exception.
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(invalid_object, true, bufferOffset, imgData)", "INVALID_MEM_OBJECT");
+    var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    wtu.release(releasedBuffer);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(releasedBuffer, true, bufferOffset, imgData)", "INVALID_MEM_OBJECT");
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, invalid_imageData)", "INVALID_HOST_PTR");
 
-    // Testing for invalid value of bufferOffset.
     var bufferOffsetInvalid = DATA_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffsetInvalid, imgData)", "INVALID_VALUE");
 
-    // Testing for invalid value of image data.
-    var imgDataInvalid = canvasContext.createImageData(-10, -10);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, imgDataInvalid)", "INVALID_VALUE");
+    var bufferSizeSmall = imgData.data.length - 1;
+    var webCLBufferSmall = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferSmall, true, bufferOffset, imgData)", "INVALID_VALUE");
 
-    // FIXME :: Need to add test cases passing event parameters.
+    var webCLContextNew = wtu.createContext();
+    var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
+    var webCLBufferNew = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferNew, true, bufferOffset, imgData)", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, imgData)", "INVALID_CONTEXT");
+
+    var webCLEvent = wtu.createEvent(webCLContext);
+    var webCLEventNew = wtu.createEvent(webCLContextNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, imgData, [webCLEventNew], webCLEvent)", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, imgData, [webCLEvent], webCLEventNew)", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, imgData, [], webCLEventNew)", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, imgData, [], webCLEvent)", "INVALID_CONTEXT");
+
+    var releasedEvent = wtu.createEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, imgData, [releasedEvent], webCLEvent)", "INVALID_EVENT_WAIT_LIST");
+
+    wtu.setStatus(webCLEvent, -1);
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, imgData, [webCLEvent], webCLEventNew)", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
 } catch (e) {
     testFailed(e.description);

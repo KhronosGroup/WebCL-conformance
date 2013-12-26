@@ -63,7 +63,7 @@ try {
     shouldBeType("webcl.createContext({platform:null, devices:null, deviceType:null});", "WebCLContext");
 
     // Testing for Exception.
-    shouldThrowExceptionName("webcl.createContext({platform:invalid_object});", "INVALID_PLATFORM");
+    shouldThrowExceptionName("webcl.createContext({platform:new Object()});", "INVALID_PLATFORM");
     shouldThrowExceptionName("webcl.createContext({deviceType:invalid_CLenum});", "INVALID_DEVICE");
     shouldThrowExceptionName("webcl.createContext({devices:[1, 2]});", "INVALID_DEVICE");
 

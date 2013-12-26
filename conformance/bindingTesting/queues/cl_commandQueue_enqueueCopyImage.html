@@ -80,14 +80,14 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageRead, dstImageWrite, srcOriginInvalid, dstOrigin, region);", "INVALID_VALUE");
     srcOriginInvalid = [imageWidth + 1, imageHeight + 1];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageRead, dstImageWrite, srcOriginInvalid, dstOrigin, region);", "INVALID_VALUE");
-    srcOriginInvalid = [0]; 
+    srcOriginInvalid = [0];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageRead, dstImageWrite, srcOriginInvalid, dstOrigin, region);", "INVALID_VALUE");
 
     var dstOriginInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageRead, dstImageWrite, srcOrigin, dstOriginInvalid, region);", "INVALID_VALUE");
     dstOriginInvalid = [imageWidth + 1, imageHeight + 1];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageRead, dstImageWrite, srcOrigin, dstOriginInvalid, region);", "INVALID_VALUE");
-    dstOriginInvalid = [0]; 
+    dstOriginInvalid = [0];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageRead, dstImageWrite, srcOrigin, dstOriginInvalid, region);", "INVALID_VALUE");
 
     // Testing for values of rectangular region being written.
@@ -95,12 +95,16 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, regionInvalid);", "INVALID_VALUE");
     regionInvalid = [imageWidth + 1, imageHeight + 1];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, regionInvalid);", "INVALID_VALUE");
-    regionInvalid = [imageWidth]; 
+    regionInvalid = [imageWidth];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, regionInvalid);", "INVALID_VALUE");
 
     // Testing for Exceptions.
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(invalid_object, dstImageReadWrite, srcOrigin, dstOrigin, region);", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, invalid_object, srcOrigin, dstOrigin, region);", "INVALID_MEM_OBJECT");
+    var releasedImage = wtu.createImage(webCLContext, webcl.MEM_WRITE_ONLY, webCLImageDescriptorReadWrite);
+    wtu.release(releasedImage);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(releasedImage, dstImageReadWrite, srcOrigin, dstOrigin, region);", "INVALID_MEM_OBJECT");
+    releasedImage = wtu.createImage(webCLContext, webcl.MEM_WRITE_ONLY, webCLImageDescriptorReadWrite);
+    wtu.release(releasedImage);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, releasedImage, srcOrigin, dstOrigin, region);", "INVALID_MEM_OBJECT");
 
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, srcImageReadWrite, srcOrigin, srcOrigin, region);", "MEM_COPY_OVERLAP");
 
@@ -122,13 +126,14 @@ try {
 
     var webCLEvent = wtu.createEvent(webCLContext);
     var webCLEventNew = wtu.createEvent(webCLContextNew);
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLEvent], null);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLEventNew], null);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLEvent], webCLEventNew);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLEventNew], webCLEvent);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [], webCLEvent);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [], webCLEventNew);", "INVALID_CONTEXT");
 
-    wtu.release(webCLEventNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLEventNew], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+    var releasedEvent = wtu.createEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
 
     // FIXME To add test cases to verify : MEM_OBJECT_ALLOCATION_FAILURE & INVALID_IMAGE_SIZE.
 

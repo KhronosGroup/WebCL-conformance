@@ -38,14 +38,11 @@
 <script>
 try {
     debug("WebCLCommandQueue enqueueWriteImage with HTMLVideoElement test case.");
-    debug("( WebCLImage image, CLboolean blockingWrite, sequence<CLuint> origin, sequence<CLuint> region, HTMLVideoElement srcVideo, optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event)\n");
-
+    debug("(WebCLImage image, CLboolean blockingWrite, HTMLVideoElement srcVideo, optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event)\n");
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var origin = [0, 0];
-    var region = [320, 240];
 
     var video = document.createElement('video');
     video.src = "../../../resources/red-green.mp4";
@@ -53,23 +50,40 @@ try {
     video.width = "320";
     video.height = "240";
 
+    var webCLImage = webCLContext.createImage(webcl.MEM_READ_ONLY, video);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImage, true, video);", "WEBCL_EXTENSION_NOT_ENABLED");
+    if (!wtu.enableExtension(webcl, "WEBCL_html_video")) {
+        throw { description : "Failed to enable extension : WEBCL_html_video. Exitting..."};
+    }
+
     var webCLImageRead = webCLContext.createImage(webcl.MEM_READ_ONLY, video);
-    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, origin, region, video);");
-    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, origin, region, video);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video);");
 
     // Testing for exceptions.
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(invalid_object, true, origin, region, video);", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, origin, region, invalid_video);", "INVALID_HOST_PTR");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, invalid_video);", "INVALID_HOST_PTR");
 
-    // Testing for invalid value of origin.
-    var originInvalid = [];
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, originInvalid, region, video);", "INVALID_VALUE");
+    var releasedImage = webCLContext.createImage(webcl.MEM_READ_ONLY, video);
+    wtu.release(releasedImage);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(releasedImage, true, video);", "INVALID_MEM_OBJECT");
 
-    // Testing for invalid value of region.
-    var regionInvalid = [];
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, origin, regionInvalid, video);", "INVALID_VALUE");
+    var webCLContextNew = wtu.createContext();
+    var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
+    var webCLImageNew = webCLContextNew.createImage(webcl.MEM_READ_ONLY, video);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteImage(webCLImageRead, true, video);", "INVALID_CONTEXT");
 
-    // FIXME :: Need to add test cases passing event parameters.
+    var webCLEvent = wtu.createEvent(webCLContext);
+    var webCLEventNew = wtu.createEvent(webCLContextNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video, [webCLEventNew], webCLEvent);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteImage(webCLImageRead, true, video, [webCLEvent], webCLEventNew);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video, [], webCLEventNew);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteImage(webCLImageRead, true, video, [], webCLEvent);", "INVALID_CONTEXT");
+
+    var releasedEvent = wtu.createEvent(webCLContext);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+
+    // FIXME To add test case to verify exception : INVALID_IMAGE_SIZE & INVALID_MEM_OBJECT.
 
 } catch (e) {
     testFailed(e.description);

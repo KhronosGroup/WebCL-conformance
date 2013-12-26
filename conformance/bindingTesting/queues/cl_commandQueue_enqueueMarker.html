@@ -48,7 +48,9 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueMarker(webCLEvent);");
 
     // Testing for Exception.
-    shouldThrowExceptionName("webCLCommandQueue.enqueueMarker(invalid_object);", "INVALID_VALUE");
+    var releasedEvent = webCLEvent;
+    wtu.release(webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueMarker(releasedEvent);", "INVALID_VALUE");
 
 } catch (e) {
     testFailed(e.description);
