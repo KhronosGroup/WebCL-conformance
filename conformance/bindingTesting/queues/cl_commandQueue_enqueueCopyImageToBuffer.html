@@ -115,14 +115,13 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageNew, webCLBufferNew, origin, region, dstOffset);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset);", "INVALID_CONTEXT");
 
-    var webCLEvent = wtu.createEvent(webCLContext);
-    var webCLEventNew = wtu.createEvent(webCLContextNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLEventNew], webCLEvent);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLEvent], webCLEventNew);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [], webCLEventNew);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [], webCLEvent);", "INVALID_CONTEXT");
+    var webCLEvent = wtu.createEvent();
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
+    var webCLUserEventNew = wtu.createUserEvent(webCLContextNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLUserEventNew], webCLEvent);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLUserEvent], webCLEvent);", "INVALID_CONTEXT");
 
-    var releasedEvent = wtu.createEvent(webCLContext);
+    var releasedEvent = wtu.createUserEvent(webCLContext);
     wtu.release(releasedEvent);
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
 

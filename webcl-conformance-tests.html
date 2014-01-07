@@ -222,6 +222,12 @@ function start() {
     a.target = "_blank";
     var node = reporter.localDoc.createTextNode(url);
     a.appendChild(node);
+    a.onclick = function() {
+        autoScroll = false;
+        reporter.runTest(url);
+        Results.style.display = "block";
+        return false;
+    };
     div.appendChild(a);
     li.setAttribute('class', 'testpage');
     li.appendChild(div);
@@ -291,7 +297,20 @@ function start() {
     return this.testIndex;
   };
 
-  Page.prototype.finishPage = function(success) {
+  Page.prototype.finishPage = function(success, skipped, isFolder) {
+    if (isFolder) {
+        var frameElement = document.getElementById("frames");
+        while (frameElement.hasChildNodes()) {
+        if (frameElement.tagName == "IFRAME")
+            break;
+        else
+            frameElement = frameElement.childNodes[0];
+        }
+        var frameConsole = frameElement.contentDocument.getElementById("console");
+        while (frameConsole.hasChildNodes()) {
+            frameConsole.removeChild(frameConsole.childNodes[0]);
+        }
+    }
     document.getElementById('platformDevices').style.display = 'block';
     if(this.totalSkipped) {
       var msg = '  SKIPPED';
@@ -397,7 +416,7 @@ function start() {
     var firstTestIndex = this.firstTestIndex();
     var count = this.numChildren();
     log("run tests: " + firstTestIndex + " to " + (firstTestIndex + count - 1))
-    testHarness.runTests({start: firstTestIndex, count: count});
+    testHarness.runTests({start: firstTestIndex, count: count, isFolder: true});
   };
 
   Folder.prototype.getSubFolder = function(name) {
@@ -515,7 +534,7 @@ function start() {
   Reporter.prototype.runTest = function(url) {
     var page = this.pagesByURL[url];
     document.getElementById('platformDevices').style.display = 'none';
-    testHarness.runTests({start: page.firstTestIndex(), count: 1});
+    testHarness.runTests({start: page.firstTestIndex(), count: 1, isFolder: false});
   };
 
   Reporter.prototype.getFolder = function(url) {
@@ -540,10 +559,10 @@ function start() {
     page.addResult(msg, success, skipped);
   };
 
-  Reporter.prototype.finishPage = function(url, success) {
+  Reporter.prototype.finishPage = function(url, success, skipped, isFolder) {
     var page = this.pagesByURL[url];
     document.getElementById('platformDevices').style.display = 'block';
-    page.finishPage(success);
+    page.finishPage(success, skipped, isFolder);
   };
 
   Reporter.prototype.displayFinalResults = function(msg, success) {
@@ -660,7 +679,7 @@ function start() {
     }
   };
 
-  Reporter.prototype.reportFunc = function(type, url, msg, success, skipped) {
+  Reporter.prototype.reportFunc = function(type, url, msg, success, skipped, isFolder) {
     switch (type) {
       case reportType.ADD_PAGE:
         return this.addPage(msg);
@@ -671,7 +690,7 @@ function start() {
       case reportType.TEST_RESULT:
         return this.addResult(url, msg, success, skipped);
       case reportType.FINISH_PAGE:
-        return this.finishPage(url, success);
+        return this.finishPage(url, success, skipped, isFolder);
       case reportType.FINISHED_ALL_TESTS:
         return this.displayFinalResults(msg, success);
       default:
@@ -788,8 +807,8 @@ function start() {
   var testHarness = new WebCLTestHarnessModule.TestHarness(
       iframes,
       '00_test_list.txt',
-      function(type, url, msg, success, skipped) {
-        return reporter.reportFunc(type, url, msg, success, skipped);
+      function(type, url, msg, success, skipped, isFolder) {
+        return reporter.reportFunc(type, url, msg, success, skipped, isFolder);
       },
       OPTIONS);
   reporter.addEventListener("ready", function() {

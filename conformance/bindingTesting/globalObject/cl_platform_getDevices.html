@@ -46,8 +46,8 @@ try {
     shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_CPU);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
     shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_GPU);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
     shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ACCELERATOR);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
-    shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_DEFAULT);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
-    shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ALL);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
+    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_DEFAULT);", "WebCLDevice");
+    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ALL);", "WebCLDevice");
 
     // Testing for Exceptions.
     shouldThrowExceptionName("webCLPlatform.getDevices(invalid_CLenum);", "INVALID_VALUE");

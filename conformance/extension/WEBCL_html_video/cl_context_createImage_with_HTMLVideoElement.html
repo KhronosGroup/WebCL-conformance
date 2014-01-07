@@ -49,19 +49,18 @@ try {
     video.width = "320";
     video.height = "240";
 
-    var webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, video.width, video.height);
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptor, video);", "WEBCL_EXTENSION_NOT_ENABLED");
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, video);", "WEBCL_EXTENSION_NOT_ENABLED");
     if (!wtu.enableExtension(webcl, "WEBCL_html_video")) {
         throw { description : "Failed to enable extension : WEBCL_html_video. Exitting..."};
     }
 
-    shouldBeType("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptor, video);", "WebCLImage");
+    shouldBeType("webCLContext.createImage(webcl.MEM_READ_ONLY, video);", "WebCLImage");
 
     // Testing for exceptions.
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_WRITE_ONLY, webCLImageDescriptor, video);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptor, video);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createImage(invalid_CLenum, webCLImageDescriptor, video);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptor, invalid_video);", "INVALID_HOST_PTR");
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_WRITE_ONLY, video);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, video);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLContext.createImage(invalid_CLenum, video);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, invalid_video);", "INVALID_HOST_PTR");
 
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
@@ -71,22 +70,14 @@ try {
     videoInvalidWidth.src = "../../../resources/red-green.mp4";
     videoInvalidWidth.setAttribute('type', "video/mp4");
     videoInvalidWidth.width = deviceImageMaxWidth + 1;
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptor, videoInvalidWidth);", "INVALID_IMAGE_SIZE");
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, videoInvalidWidth);", "INVALID_IMAGE_SIZE");
 
     var deviceImageMaxHeight = webCLDevices[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT);
     var videoInvalidHeight = document.createElement('video');
     videoInvalidHeight.src = "../../../resources/red-green.mp4";
     videoInvalidHeight.setAttribute('type', "video/mp4");
     videoInvalidHeight.height = deviceImageMaxHeight + 1;
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptor, videoInvalidHeight);", "INVALID_IMAGE_SIZE");
-
-    var webCLImageDescriptorObjectInvalidChannelOrder = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, video.width, video.height);
-    webCLImageDescriptorObjectInvalidChannelOrder.channelOrder = invalid_CLenum;
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptor, webCLImageDescriptorObjectInvalidChannelOrder);", "INVALID_IMAGE_FORMAT_DESCRIPTOR");
-
-    var webCLImageDescriptorObjectInvalidChannelType = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, video.width, video.height);
-    webCLImageDescriptorObjectInvalidChannelType.channelType = invalid_CLenum;
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptor, webCLImageDescriptorObjectInvalidChannelType);", "INVALID_IMAGE_FORMAT_DESCRIPTOR");
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, videoInvalidHeight);", "INVALID_IMAGE_SIZE");
 
 } catch(e) {
     testFailed(e.description);

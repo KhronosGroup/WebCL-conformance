@@ -477,6 +477,7 @@ TestHarness.prototype.runTests = function(opt_options) {
   var options = opt_options || { };
   options.start = options.start || 0;
   options.count = options.count || this.files.length;
+  options.isFolder = options.isFolder || false;
 
   this.idleIFrames = this.iframes.slice(0);
   this.runningTests = {};
@@ -484,6 +485,7 @@ TestHarness.prototype.runTests = function(opt_options) {
   for (var ii = 0; ii < options.count; ++ii) {
     testsToRun.push(ii + options.start);
   }
+  this.isFolder = options.isFolder;
   this.numTestsRemaining = options.count;
   this.testsToRun = testsToRun;
   this.startNextTest();
@@ -561,7 +563,7 @@ TestHarness.prototype.notifyFinished = function(url) {
   var test = this.getTest(url);
   log(url + ": finished");
   this.dequeTest(test);
-  this.reportFunc(TestHarness.reportType.FINISH_PAGE, url, url, true);
+  this.reportFunc(TestHarness.reportType.FINISH_PAGE, url, url, true, null, this.isFolder);
   this.startNextTest();
 };
 

@@ -41,7 +41,7 @@ try {
     var wtu = WebCLTestUtils;
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
-    var minFPCapability = (webcl.FP_INF_NAN | webcl.FP_ROUND_TO_NEAREST);
+    var minFPCapability = (webcl.FP_ROUND_TO_NEAREST || webcl.FP_ROUND_TO_ZERO);
     var minExecCapability = webcl.EXEC_KERNEL;
 
     debug("Test ran for " + webCLDevices.length + " devices.");
@@ -69,19 +69,41 @@ try {
                 break;
         }
 
+        shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_NAME)", "'string'");
+
+        shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_VENDOR)", "'string'");
+
+        shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_VENDOR_ID)", "'string'");
+
+        shouldBe("typeof " + "webCLDevice.getInfo(webcl.DRIVER_VERSION)", "'string'");
+
+        shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_EXTENSIONS)", "'string'");
+
         shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_MAX_WORK_ITEM_DIMENSIONS)", "3");
 
         shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_MAX_WORK_GROUP_SIZE)", "1");
 
-        shouldBeDefined("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_CHAR)");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_CHAR)", "1");
 
-        shouldBeDefined("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_SHORT)");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_SHORT)", "1");
 
-        shouldBeDefined("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_INT)");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_INT)", "1");
 
-        shouldBeDefined("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_LONG)");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_LONG)", "1");
 
-        shouldBeDefined("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT)");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT)", "1");
+
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_NATIVE_VECTOR_WIDTH_CHAR)", "1");
+
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_NATIVE_VECTOR_WIDTH_SHORT)", "1");
+
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_NATIVE_VECTOR_WIDTH_INT)", "1");
+
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_NATIVE_VECTOR_WIDTH_LONG)", "1");
+
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_NATIVE_VECTOR_WIDTH_FLOAT)", "1");
+
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_MAX_CLOCK_FREQUENCY)", "0");
 
         if (webCLDevice.getInfo(webcl.DEVICE_ADDRESS_BITS) === 64 || webCLDevice.getInfo(webcl.DEVICE_ADDRESS_BITS) === 32)
             testPassed("webCLDevice.getInfo(webcl.DEVICE_ADDRESS_BITS) is either 32 or 64 bits.");
@@ -102,11 +124,17 @@ try {
 
         shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT)", "2048");
 
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_IMAGE3D_MAX_WIDTH)", "0");
+
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_IMAGE3D_MAX_HEIGHT)", "0");
+
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_IMAGE3D_MAX_DEPTH)", "0");
+
         shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_MAX_SAMPLERS)", "8");
 
         shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_MAX_PARAMETER_SIZE)", "256");
 
-        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_MAX_CONSTANT_BUFFER_SIZE)", "1000");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_MAX_CONSTANT_BUFFER_SIZE)", "1024");
 
         shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_MAX_CONSTANT_ARGS)", "4");
 
@@ -115,24 +143,25 @@ try {
         else
             testFailed("webCLDevice.getInfo(webcl.DEVICE_LOCAL_MEM_TYPE) is neither LOCAL nor GLOBAL.");
 
-        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_LOCAL_MEM_SIZE)", "1000");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_LOCAL_MEM_SIZE)", "1024");
 
         shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_HOST_UNIFIED_MEMORY)", "'boolean'");
 
         shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_ENDIAN_LITTLE)", "'boolean'");
 
-        shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_AVAILABLE)", "'boolean'");
+        shouldBeTrue("webCLDevice.getInfo(webcl.DEVICE_AVAILABLE)");
 
-        if (webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === 2 || webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === 1)
-            testPassed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is either QUEUE_PROFILING_ENABLE or QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE.");
+        if (webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === 2 || webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === 1
+                || webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === null)
+            testPassed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is either QUEUE_PROFILING_ENABLE or QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE or null.");
         else
-            testFailed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is neither QUEUE_PROFILING_ENABLE nor QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE.");
+            testFailed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is neither QUEUE_PROFILING_ENABLE nor QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE nor null.");
 
-        shouldBeEqualToString("webCLDevice.getInfo(webcl.DEVICE_PROFILE)", "WEBCL_PROFILE");
+        shouldContainString("webCLDevice.getInfo(webcl.DEVICE_PROFILE)", "WEBCL_PROFILE");
 
-        shouldBeEqualToString("webCLDevice.getInfo(webcl.DEVICE_VERSION)", "WebCL 1.0");
+        shouldContainString("webCLDevice.getInfo(webcl.DEVICE_VERSION)", "WebCL 1.0");
 
-        shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_OPENCL_C_VERSION)", "'string'");
+        shouldContainString("webCLDevice.getInfo(webcl.DEVICE_OPENCL_C_VERSION)", "WebCL C 1.0");
 
         shouldBeType("webCLDevice.getInfo(webcl.DEVICE_MAX_WORK_ITEM_SIZES)", Int32Array);
 
@@ -140,25 +169,29 @@ try {
 
         shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_MAX_COMPUTE_UNITS)", "1");
 
-        shouldBeDefined("webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_SIZE)");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_SIZE)", "1024 * 1024");
 
-        shouldBeDefined("webCLDevice.getInfo(webcl.DEVICE_MEM_BASE_ADDR_ALIGN)");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_MEM_BASE_ADDR_ALIGN)", "512");
 
         shouldBe("webCLDevice.getInfo(webcl.DEVICE_SINGLE_FP_CONFIG) & minFPCapability", "minFPCapability");
 
-        shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_COMPILER_AVAILABLE)", "'boolean'");
+        shouldBeTrue("webCLDevice.getInfo(webcl.DEVICE_COMPILER_AVAILABLE)");
 
         shouldBe("webCLDevice.getInfo(webcl.DEVICE_EXECUTION_CAPABILITIES) & minExecCapability", "minExecCapability");
 
-        shouldBeNonZero("webCLDevice.getInfo(webcl.DEVICE_PROFILING_TIMER_RESOLUTION)");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_PROFILING_TIMER_RESOLUTION)", "0");
 
         shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_ERROR_CORRECTION_SUPPORT)", "'boolean'");
 
-        shouldBeDefined("webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_CACHELINE_SIZE)");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_CACHELINE_SIZE)", "0");
 
-        shouldBeDefined("webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_CACHE_SIZE)");
+        shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_CACHE_SIZE)", "0");
 
-        shouldBeDefined("webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_CACHE_TYPE)");
+        if (webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_CACHE_TYPE) === 0 || webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_CACHE_TYPE) === 1
+            || webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_CACHE_TYPE) === 2)
+            testPassed("webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_CACHE_TYPE) is either NONE or READ_ONLY_CACHE or READ_WRITE_CACHE.");
+        else
+            testFailed("webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_CACHE_TYPE) is none of these : NONE or READ_ONLY_CACHE or READ_WRITE_CACHE.");
 
         // Testing for Exception.
 

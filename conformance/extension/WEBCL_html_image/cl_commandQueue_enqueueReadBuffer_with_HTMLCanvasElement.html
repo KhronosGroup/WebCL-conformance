@@ -48,43 +48,43 @@ try {
     var canvas = document.getElementById("inputCanvas");
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     var bufferOffset = 0;
-    DATA_SIZE = 180000;
-    var numBytes = DATA_SIZE;
+    var bufferSize = canvas.width * canvas.height * 4;
+    var numBytes = bufferSize;
 
-    var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBuffer, true, bufferOffset, numBytes, canvas);", "WEBCL_EXTENSION_NOT_ENABLED");
     if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
         throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
     }
 
     // MEM_READ_ONLY Buffers.
-    var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
+    var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, true, bufferOffset, numBytes, canvas)");
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, false, bufferOffset, numBytes, canvas)");
 
     // MEM_WRITE_ONLY Buffers.
-    var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
+    var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferWrite, true, bufferOffset, numBytes, canvas)");
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferWrite, false, bufferOffset, numBytes, canvas)");
 
     // MEM_READ_WRITE Buffers.
-    var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, canvas)");
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numBytes, canvas)");
 
     // Testing for exceptions.
-    var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+    var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
     wtu.release(releasedBuffer);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(releasedBuffer, true, bufferOffset, numBytes, canvas)", "INVALID_MEM_OBJECT");
 
-    var bufferOffsetInvalid = DATA_SIZE + 1;
+    var bufferOffsetInvalid = bufferSize + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffsetInvalid, numBytes, canvas)", "INVALID_VALUE");
-    var numBytesInvalid = DATA_SIZE + 1;
+    var numBytesInvalid = bufferSize + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas)", "INVALID_VALUE");
 
     var webCLContextNew = wtu.createContext();
     var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
-    var webCLBufferNew = wtu.createBuffer(webCLContextNew, webcl.MEM_READ_ONLY, DATA_SIZE);
+    var webCLBufferNew = wtu.createBuffer(webCLContextNew, webcl.MEM_READ_ONLY, bufferSize);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferNew, true, bufferOffset, numBytesInvalid, canvas)", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesInvalid, canvas)", "INVALID_CONTEXT");
 

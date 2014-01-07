@@ -41,8 +41,11 @@ try {
     var wtu = WebCLTestUtils;
     var webCLPlatform = wtu.getPlatform();
 
-    shouldBeEqualToString("webCLPlatform.getInfo(webcl.PLATFORM_PROFILE)", "WEBCL_PROFILE");
-    shouldBeEqualToString("webCLPlatform.getInfo(webcl.PLATFORM_VERSION)", "WebCL 1.0");
+    shouldContainString("webCLPlatform.getInfo(webcl.PLATFORM_PROFILE)", "WEBCL_PROFILE");
+    shouldContainString("webCLPlatform.getInfo(webcl.PLATFORM_VERSION)", "WebCL 1.0");
+    shouldBe("typeof " + "webCLPlatform.getInfo(webcl.PLATFORM_NAME)", "'string'");
+    shouldBe("typeof " + "webCLPlatform.getInfo(webcl.PLATFORM_VENDOR)", "'string'");
+    shouldBe("typeof " + "webCLPlatform.getInfo(webcl.PLATFORM_EXTENSIONS)", "'string'");
 
     // Testing for exception.
     shouldThrowExceptionName("webCLPlatform.getInfo(invalid_CLenum)", "INVALID_VALUE");

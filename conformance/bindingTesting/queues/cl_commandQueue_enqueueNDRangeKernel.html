@@ -148,14 +148,13 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernelNew, workDim, globalWorkOffset, globalWorkSize, localWorkSize);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize);", "INVALID_CONTEXT");
 
-    var webCLEvent = wtu.createEvent(webCLContext);
-    var webCLEventNew = wtu.createEvent(webCLContextNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLEventNew], webCLEvent);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLEvent], webCLEventNew);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [], webCLEventNew);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [], webCLEvent);", "INVALID_CONTEXT");
+    var webCLEvent = wtu.createEvent();
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
+    var webCLUserEventNew = wtu.createUserEvent(webCLContextNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLUserEventNew], webCLEvent);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLUserEvent], webCLEvent);", "INVALID_CONTEXT");
 
-    var releasedEvent = wtu.createEvent(webCLContext);
+    var releasedEvent = wtu.createUserEvent(webCLContext);
     wtu.release(releasedEvent);
     shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
 

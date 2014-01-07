@@ -1,8 +1,8 @@
 <!--
- Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+ Copyright (C) 2014 Samsung Electronics Corporation. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
- modification, are permitted provided the following condition
+ modification, are permitted provided the following conditions
  are met:
 
  1.  Redistributions of source code must retain the above copyright
@@ -27,7 +27,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-    <title>WebCLEvent setCallback conformance test.</title>
+    <title>WebCLContext createEvent conformance test.</title>
     <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
     <script src="../../../resources/js-test-pre.js"></script>
     <script src="../../../resources/cl_utils.js"></script>
@@ -36,33 +36,12 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-var callback = function()
-{
-    console.log("Inside callback");
-}
 try {
-    debug("WebCLEvent :: setCallback test case.\n");
-    debug("(CLenum commandExecCallbackType, WebCLCallback notify)");
-    var wtu = WebCLTestUtils;
-    var webCLContext = wtu.createContext();
-    var webCLEvent = wtu.createEvent();
+    debug("WebCLContext :: createEvent() test case.");
 
-    shouldBeUndefined("webCLEvent.setCallback(webcl.COMPLETE, callback);");
+    shouldBeType("new WebCLEvent();", "WebCLEvent");
 
-    // Testing for exception.
-    shouldThrowExceptionName("webCLEvent.setCallback(invalid_CLenum, callback);", "INVALID_VALUE");
-
-    /*
-     * Testing for userEvents.
-     */
-
-    var webCLUserEvent = wtu.createUserEvent(webCLContext);
-    shouldBeUndefined("webCLUserEvent.setCallback(webcl.COMPLETE, callback);");
-
-    // Testing for exception.
-    shouldThrowExceptionName("webCLUserEvent.setCallback(invalid_CLenum, callback);", "INVALID_VALUE");
-
-} catch (e) {
+} catch(e) {
     testFailed(e.description);
 }
 successfullyParsed = true;

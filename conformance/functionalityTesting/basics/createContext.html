@@ -104,8 +104,8 @@ try {
     shouldBeTypeOrException("createContext(null, null, webcl.DEVICE_TYPE_CPU)", "WebCLContext", "DEVICE_NOT_FOUND");
     shouldBeTypeOrException("createContext(null, null, webcl.DEVICE_TYPE_GPU)", "WebCLContext", "DEVICE_NOT_FOUND");
     shouldBeTypeOrException("createContext(null, null, webcl.DEVICE_TYPE_ACCELERATOR)", "WebCLContext", "DEVICE_NOT_FOUND");
-    shouldBeTypeOrException("createContext(null, null, webcl.DEVICE_TYPE_ALL)", "WebCLContext", "DEVICE_NOT_FOUND");
-    shouldBeTypeOrException("createContext(null, null, webcl.DEVICE_TYPE_DEFAULT)", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeType("createContext(null, null, webcl.DEVICE_TYPE_ALL)", "WebCLContext");
+    shouldBeType("createContext(null, null, webcl.DEVICE_TYPE_DEFAULT)", "WebCLContext");
 
 } catch(e) {
     testFailed(e.description);

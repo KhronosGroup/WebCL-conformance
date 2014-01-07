@@ -42,15 +42,18 @@ try {
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var webCLEvent = wtu.createEvent(webCLContext);
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
 
-    shouldBeUndefined("webCLEvent.setStatus(webcl.COMPLETE);");
+    shouldBeUndefined("webCLUserEvent.setStatus(webcl.COMPLETE);");
+
+    var webCLUserEventNew = wtu.createUserEvent(webCLContext);
+    shouldBeUndefined("webCLUserEventNew.setStatus(-10);");
 
     // Testing for Exception.
-    shouldThrowExceptionName("webCLEvent.setStatus(invalid_CLenum);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLEvent.setStatus(-10);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLUserEvent.setStatus(webcl.COMPLETE);", "INVALID_OPERATION");
 
-    // FIXME to add test case to verify exception : INVALID_OPERATION.
+    var webCLUserEventNew = wtu.createUserEvent(webCLContext);
+    shouldThrowExceptionName("webCLUserEventNew.setStatus(invalid_CLenum);", "INVALID_VALUE");
 
 } catch(e) {
     testFailed(e.description);

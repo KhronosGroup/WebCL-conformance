@@ -41,19 +41,24 @@ try {
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var webCLEvent = wtu.createEvent(webCLContext);
-    shouldBeTrue("webCLCommandQueue.enqueueWaitForEvents(webCLEvent);");
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
+    var webCLEvent = wtu.createEvent();
+    var srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var dstBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+
+    wtu.enqueueCopyBuffer(webCLCommandQueue, srcBuffer, dstBuffer, 0, 0, BUFFER_SIZE, [], webCLEvent);
+    shouldBeUndefined("webCLCommandQueue.enqueueWaitForEvents([webCLEvent]);");
 
     // Testing for Exceptions.
     var webCLContextNew = wtu.createContext();
     var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
-    var webCLEventNew = wtu.createEvent(webCLContextNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents([webCLEventNew]);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWaitForEvents([webCLEvent]);", "INVALID_CONTEXT");
+    var webCLUserEventNew = wtu.createUserEvent(webCLContextNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents([webCLUserEventNew]);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWaitForEvents([webCLUserEvent]);", "INVALID_CONTEXT");
 
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents();", "INVALID_EVENT_WAIT_LIST");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents([]);", "INVALID_EVENT_WAIT_LIST");
 
-    var releasedEvent = wtu.createEvent(webCLContext);
+    var releasedEvent = wtu.createUserEvent(webCLContext);
     wtu.release(releasedEvent);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents([releasedEvent]);", "INVALID_EVENT_WAIT_LIST");
 

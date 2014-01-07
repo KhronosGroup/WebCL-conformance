@@ -508,6 +508,7 @@ var invalid_CLenum = 9999;
 var invalid_canvas = document.createElement('canvas');
 var invalid_imageData = invalid_canvas.getContext("2d").createImageData(100,100);
 var invalid_image = new Image();
+invalid_image.src = "invalid_path"; 
 var invalid_video = document.createElement('video');
 
 function shouldThrowExceptionName(_a, _e)
@@ -599,4 +600,25 @@ function shouldBeTypeOrException(_a, _type, _e, isArray, quite)
             testPassed(_a + " is an instance of " + _type);
     } else
         testFailed(_a + " is not an instance of " + _type);
+}
+
+function shouldContainString(_a, _b)
+{
+    if (typeof _a != "string" || typeof _b != "string")
+        debug("WARN: shouldBe() expects string arguments");
+
+    var exception;
+    var _av;
+    try {
+        _av = eval(_a);
+    } catch (e) {
+        exception = e;
+    }
+
+    if (exception)
+        testFailed(_a + " should contain " + _b + ". Threw exception " + exception.name);
+    else if (_av.indexOf(_b) != -1)
+        testPassed(_a + " contains string " + _b);
+    else
+        testFailed(_a + " should contain the string " + _b + " (of type " + typeof _b + "). Was " + _av + " (of type " + typeof _av + ").");
 }

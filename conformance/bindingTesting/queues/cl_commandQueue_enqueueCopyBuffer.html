@@ -80,13 +80,12 @@ try {
     var numBytesInvalid = BUFFER_SIZE + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffset, dstOffset, numBytesInvalid)", "INVALID_VALUE");
 
-    // Using same buffer as source and destination.
-    var srcOffset2 = BUFFER_SIZE / 2;
-    var dstOffset2 = 0;
-    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, srcBufferReadWrite, srcOffset2, dstOffset2, numBytes)");
-
     // Overlapping copy.
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(dstBufferReadWrite, dstBufferReadWrite, srcOffset, srcOffset, numBytes)", "MEM_COPY_OVERLAP");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(dstBufferReadWrite, dstBufferReadWrite, 100, 0, 300)", "MEM_COPY_OVERLAP");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(dstBufferReadWrite, dstBufferReadWrite, 0, 100, 101)", "MEM_COPY_OVERLAP");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(dstBufferReadWrite, dstBufferReadWrite, 300, 0, 100)");
+
     var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
     wtu.release(releasedBuffer);
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(releasedBuffer, dstBufferReadWrite, srcOffset, dstOffset, numBytes)", "INVALID_MEM_OBJECT");
@@ -110,14 +109,13 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcSubBuffer, dstBufferReadWrite, srcOffset, dstOffset, numBytes)", "MISALIGNED_SUB_BUFFER_OFFSET");
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstSubBuffer, srcOffset, dstOffset, numBytes)", "MISALIGNED_SUB_BUFFER_OFFSET");
 
-    var webCLEvent = wtu.createEvent(webCLContext);
-    var webCLEventNew = wtu.createEvent(webCLContextNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffset, dstOffset, numBytes, [webCLEventNew], webCLEvent)", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffset, dstOffset, numBytes, [webCLEvent], webCLEventNew)", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffset, dstOffset, numBytes, [], webCLEventNew)", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffset, dstOffset, numBytes, [], webCLEvent)", "INVALID_CONTEXT");
+    var webCLEvent = wtu.createEvent();
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
+    var webCLUserEventNew = wtu.createUserEvent(webCLContextNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffset, dstOffset, numBytes, [webCLUserEventNew], webCLEvent)", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffset, dstOffset, numBytes, [webCLUserEvent], webCLEvent)", "INVALID_CONTEXT");
 
-    var releasedEvent = wtu.createEvent(webCLContext);
+    var releasedEvent = wtu.createUserEvent(webCLContext);
     wtu.release(releasedEvent);
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstBufferReadWrite, srcOffset, dstOffset, numBytes, [releasedEvent], webCLEvent)", "INVALID_EVENT_WAIT_LIST");
 

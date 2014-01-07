@@ -36,6 +36,10 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
+var callback = function()
+{
+    console.log("Inside callback");
+}
 try {
     debug("releaseAll functionality test case.");
 
@@ -50,7 +54,7 @@ try {
     var numberBytes = BUFFER_SIZE;
     var bufferOffset = 0;
     var hostPtr = new Float32Array(BUFFER_SIZE);
-    var webCLContext, webCLCommandQueue, webCLSampler, webCLEvent, kernelSource, webCLProgram, webCLKernel, webCLBuffer, webCLImageDescriptor, webCLImage;
+    var webCLContext, webCLCommandQueue, webCLSampler, webCLEvent, webCLUserEvent, kernelSource, webCLProgram, webCLKernel, webCLBuffer, webCLImageDescriptor, webCLImage;
 
     /*
      *  Testing WebCLContext :: releaseAll
@@ -58,7 +62,8 @@ try {
     webCLContext = wtu.createContext();
     webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_CLAMP, webcl.FILTER_LINEAR);
-    webCLEvent = wtu.createEvent(webCLContext);
+    webCLEvent = wtu.createEvent();
+    webCLUserEvent = wtu.createUserEvent(webCLContext);
 
     kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
@@ -71,7 +76,8 @@ try {
 
     wtu.releaseAll(webCLContext);
     debug("\n\nAfter WebCLContext :: releaseAll :");
-    shouldThrowExceptionName("webCLEvent.setStatus(webcl.COMPLETE);", "INVALID_EVENT");
+    shouldThrowExceptionName("webCLUserEvent.setStatus(webcl.COMPLETE);", "INVALID_EVENT");
+    shouldThrowExceptionName("webCLEvent.setCallback(webcl.COMPLETE, callback);", "INVALID_EVENT");
     shouldThrowExceptionName("webCLKernel.setArg(0, webCLSampler);", "INVALID_SAMPLER");
     shouldThrowExceptionName("webCLKernel.setArg(0, webCLBuffer);", "INVALID_KERNEL");
     shouldThrowExceptionName("webCLProgram.build(webCLDevices);", "INVALID_PROGRAM");
@@ -87,7 +93,8 @@ try {
     var webCLContextNew = wtu.createContext();
     webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_CLAMP, webcl.FILTER_LINEAR);
-    webCLEvent = wtu.createEvent(webCLContext);
+    webCLEvent = wtu.createEvent();
+    webCLUserEvent = wtu.createUserEvent(webCLContext);
 
     kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
@@ -100,7 +107,8 @@ try {
 
     wtu.releaseAll(webcl);
     debug("\n\nAfter WebCL :: releaseAll :");
-    shouldThrowExceptionName("webCLEvent.setStatus(webcl.COMPLETE);", "INVALID_EVENT");
+    shouldThrowExceptionName("webCLUserEvent.setStatus(webcl.COMPLETE);", "INVALID_EVENT");
+    shouldThrowExceptionName("webCLEvent.setCallback(webcl.COMPLETE, callback);", "INVALID_EVENT");
     shouldThrowExceptionName("webCLKernel.setArg(0, webCLSampler);", "INVALID_SAMPLER");
     shouldThrowExceptionName("webCLKernel.setArg(0, webCLBuffer);", "INVALID_KERNEL");
     shouldThrowExceptionName("webCLProgram.build(webCLDevices);", "INVALID_PROGRAM");

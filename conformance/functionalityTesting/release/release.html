@@ -36,6 +36,10 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
+var callback = function()
+{
+    console.log("Inside callback");
+}
 try {
     debug("release functionality test case.");
 
@@ -50,7 +54,7 @@ try {
     var numberBytes = BUFFER_SIZE;
     var bufferOffset = 0;
     var hostPtr = new Float32Array(BUFFER_SIZE);
-    var webCLContext, webCLCommandQueue, webCLSampler, webCLEvent, kernelSource, webCLProgram, webCLKernel, webCLBuffer, webCLImageDescriptor, webCLImage;
+    var webCLContext, webCLCommandQueue, webCLSampler, webCLEvent, webCLUserEvent, kernelSource, webCLProgram, webCLKernel, webCLBuffer, webCLImageDescriptor, webCLImage;
 
     /*
      *  Testing for release of WebCL objects individually.
@@ -58,7 +62,8 @@ try {
     webCLContext = wtu.createContext();
     webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_CLAMP, webcl.FILTER_LINEAR);
-    webCLEvent = wtu.createEvent(webCLContext);
+    webCLEvent = wtu.createEvent();
+    webCLUserEvent = wtu.createUserEvent(webCLContext);
 
     kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
@@ -69,9 +74,13 @@ try {
     webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
     webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
 
+    wtu.release(webCLUserEvent);
+    debug("\nAfter webCLUserEvent :: release :");
+    shouldThrowExceptionName("webCLUserEvent.setStatus(webcl.COMPLETE);", "INVALID_EVENT");
+
     wtu.release(webCLEvent);
     debug("\nAfter webCLEvent :: release :");
-    shouldThrowExceptionName("webCLEvent.setUserEventStatus(webcl.COMPLETE);", "INVALID_EVENT");
+    shouldThrowExceptionName("webCLEvent.setCallback(webcl.COMPLETE, callback);", "INVALID_EVENT");
 
     wtu.release(webCLSampler);
     debug("\nAfter webCLSampler :: release :");

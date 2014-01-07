@@ -44,7 +44,7 @@ try {
     testFailed("Unable to load HTML image element : " + e.name);
 }
 var webCLContext, webCLCommandQueue, webCLBufferRead, webCLBufferWrite, webCLBufferReadWrite, bufferOffset = 0, bufferOffsetInvalid, webCLBuffer;
-var releasedBuffer, imageWidth, imageHeight, bufferSizeSmall, webCLBufferSmall;
+var bufferSize, releasedBuffer, imageWidth, imageHeight, bufferSizeSmall, webCLBufferSmall;
 var webCLContextNew, webCLCommandQueueNew, webCLBufferNew, webCLEvent, webCLEventNew, releasedEvent;
 function execute() {
     try {
@@ -54,36 +54,36 @@ function execute() {
         var wtu = WebCLTestUtils;
         webCLContext = wtu.createContext();
         webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-        DATA_SIZE = 384000;
+        bufferSize = image.width * image.height * 4;
 
-        webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
+        webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, bufferSize);
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, true, bufferOffset, image)", "WEBCL_EXTENSION_NOT_ENABLED");
         if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
             throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
         }
 
         // MEM_READ_ONLY Buffers.
-        webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, DATA_SIZE);
+        webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, bufferSize);
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferRead, true, bufferOffset, image)");
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferRead, false, bufferOffset, image)");
 
         // MEM_WRITE_ONLY Buffers.
-        webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, DATA_SIZE);
+        webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, bufferSize);
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferWrite, true, bufferOffset, image)");
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferWrite, false, bufferOffset, image)");
 
         // MEM_READ_WRITE Buffers.
-        webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+        webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image)");
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, false, bufferOffset, image)");
 
         // Testing for exceptions.
-        releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+        releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
         wtu.release(releasedBuffer);
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(releasedBuffer, true, bufferOffset, image)", "INVALID_MEM_OBJECT");
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, invalid_image)", "INVALID_HOST_PTR");
 
-        bufferOffsetInvalid = DATA_SIZE + 1;
+        bufferOffsetInvalid = bufferSize + 1;
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffsetInvalid, image)", "INVALID_VALUE");
 
         imageWidth = image.width;
@@ -94,7 +94,7 @@ function execute() {
 
         webCLContextNew = wtu.createContext();
         webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
-        webCLBufferNew = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, DATA_SIZE);
+        webCLBufferNew = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferNew, true, bufferOffset, image)", "INVALID_CONTEXT");
         shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image)", "INVALID_CONTEXT");
 

@@ -48,9 +48,11 @@ try {
     wtu.build(webCLProgram, webCLDevices);
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
     var webCLSampler = wtu.createSampler(webCLContext, true, webcl.ADDRESS_MIRRORED_REPEAT, webcl.FILTER_NEAREST);
-    var webCLEvent = wtu.createEvent(webCLContext);
+    var webCLEvent = wtu.createEvent();
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
     var webCLMemoryObject = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
 
+    shouldBeUndefined("webCLUserEvent.release()");
     shouldBeUndefined("webCLEvent.release()");
     shouldBeUndefined("webCLMemoryObject.release()");
     shouldBeUndefined("webCLKernel.release()");

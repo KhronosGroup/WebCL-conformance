@@ -36,21 +36,24 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
+var webCLContext, webCLPlatform, webCLDevices, maxMemAllocSize = 0, imageHugeSize, imageInvalidSize;
+debug("WebCLContext :: createBuffer with HTMLImageElement test case.");
+debug("(CLenum memFlags, ImageData srcPixels)");
+var wtu = WebCLTestUtils;
+webCLContext = wtu.createContext();
+
 try {
     var image = new Image();
+    // Calling before loading the image source.
+    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, image);", "INVALID_HOST_PTR");
+
     image.src = "../../../resources/pebbleHalf.jpg";
     image.onload = execute;
 } catch(e) {
     testFailed("Unable to load HTML image element : " + e.name);
 }
-var webCLContext, webCLPlatform, webCLDevices, maxMemAllocSize = 0, imageHugeSize, imageInvalidSize; 
 function execute() {
     try {
-        debug("WebCLContext :: createBuffer with HTMLImageElement test case.");
-        debug("(CLenum memFlags, ImageData srcPixels)");
-        var wtu = WebCLTestUtils;
-        webCLContext = wtu.createContext();
-
         shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_ONLY, image);", "WEBCL_EXTENSION_NOT_ENABLED");
         if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
             throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..."};

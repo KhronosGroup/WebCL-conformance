@@ -51,6 +51,7 @@ var generateData = function(type, size) {
 var createContext = function(webCLPlatform, webCLDevices, deviceType) {
     var gv = window.top.CLGlobalVariables;
     try {
+        var webCLContext;
         if (arguments.length > 0) {
             webCLContext = eval("webcl.createContext({platform:webCLPlatform, devices:webCLDevices, deviceType:deviceType})");
         } else {
@@ -72,7 +73,7 @@ var createContext = function(webCLPlatform, webCLDevices, deviceType) {
 
 var createProgram = function(webCLContext, kernelSource) {
     try {
-        webCLProgram = eval("webCLContext.createProgram(kernelSource)");
+        var webCLProgram = eval("webCLContext.createProgram(kernelSource)");
         if (webCLProgram instanceof WebCLProgram)
             return webCLProgram;
     } catch(e) {
@@ -84,6 +85,7 @@ var createProgram = function(webCLContext, kernelSource) {
 var createCommandQueue = function(webCLContext, webCLDevice, properties) {
     var gv = window.top.CLGlobalVariables;
     try {
+        var webCLCommandQueue;
         if (arguments.length > 1) {
             webCLCommandQueue = eval("webCLContext.createCommandQueue(webCLDevice, properties)");
         } else {
@@ -103,9 +105,20 @@ var createCommandQueue = function(webCLContext, webCLDevice, properties) {
     }
 }
 
-var createEvent = function(webCLContext) {
+var createUserEvent = function(webCLContext) {
     try {
-        webCLEvent = eval("webCLContext.createUserEvent()");
+        var webCLUserEvent = eval("webCLContext.createUserEvent()");
+        if (webCLUserEvent instanceof WebCLUserEvent)
+            return webCLUserEvent;
+    } catch(e) {
+        e.description = "WebCLContext :: createUserEvent threw exception : " + e.name;
+        throw e;
+    }
+}
+
+var createEvent = function() {
+    try {
+        var webCLEvent = eval("new WebCLEvent()");
         if (webCLEvent instanceof WebCLEvent)
             return webCLEvent;
     } catch(e) {
@@ -116,7 +129,7 @@ var createEvent = function(webCLContext) {
 
 var createKernel = function(webCLProgram, kernelName) {
     try {
-        webCLKernel = eval("webCLProgram.createKernel(kernelName)");
+        var webCLKernel = eval("webCLProgram.createKernel(kernelName)");
         if (webCLKernel instanceof WebCLKernel)
             return webCLKernel;
     } catch (e) {
@@ -127,7 +140,7 @@ var createKernel = function(webCLProgram, kernelName) {
 
 var createSampler = function(webCLContext, normalizedCoords, addressingMode, filterMode) {
     try {
-        webCLSampler = eval("webCLContext.createSampler(normalizedCoords, addressingMode, filterMode)");
+        var webCLSampler = eval("webCLContext.createSampler(normalizedCoords, addressingMode, filterMode)");
         if (webCLSampler instanceof WebCLSampler)
             return webCLSampler;
     } catch (e) {
@@ -142,7 +155,7 @@ var getPlatform = function() {
         if (gv)
             return gv.getInstance().getwebCLPlatform();
         else {
-            webCLPlatforms = eval("webcl.getPlatforms()");
+            var webCLPlatforms = eval("webcl.getPlatforms()");
             if (typeof(webCLPlatforms) == 'object' && webCLPlatforms.length)
                 return webCLPlatforms[0];
         }
@@ -155,6 +168,7 @@ var getPlatform = function() {
 var getDevices = function(webCLPlatform, deviceType) {
     var gv = window.top.CLGlobalVariables;
     try {
+        var webCLDevices;
         if (arguments.length > 1)
             webCLDevices = eval("webCLPlatform.getDevices(deviceType)");
         else {
@@ -164,7 +178,7 @@ var getDevices = function(webCLPlatform, deviceType) {
                 webCLDevices = eval("webCLPlatform.getDevices(webcl.DEVICE_TYPE_DEFAULT)");
         }
         if (typeof(webCLDevices) == 'object' && webCLDevices.length)
-                    return webCLDevices;
+            return webCLDevices;
     } catch(e) {
         e.description = "WebCLPlatform :: getDevices threw exception : " + e.name;
         throw e;
@@ -209,8 +223,8 @@ var readKernel = function(file) {
         xhr.open("GET", file, false);
         xhr.send();
         var source = xhr.responseText.replace(/\r/g, "");
-        if (xhr.status === 200 && xhr.readyState === 4) {
-            if (source.length && source.match(/^__kernel/))
+        if ((xhr.status === 200 || xhr.status === 0) && xhr.readyState === 4) {
+            if (source.length)
                 return source;
         }
         throw { name : "WebCLException", message : "Failed to read Kernel."};
@@ -454,6 +468,7 @@ return {
 createContext:createContext,
 createProgram:createProgram,
 createCommandQueue:createCommandQueue,
+createUserEvent:createUserEvent,
 createEvent:createEvent,
 createKernel:createKernel,
 createSampler:createSampler,

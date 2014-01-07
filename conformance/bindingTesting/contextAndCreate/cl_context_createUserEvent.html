@@ -42,7 +42,7 @@ try {
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
 
-    shouldBeType("webCLContext.createUserEvent();", "WebCLEvent");
+    shouldBeType("webCLContext.createUserEvent();", "WebCLUserEvent");
 
 } catch(e) {
     testFailed(e.description);
