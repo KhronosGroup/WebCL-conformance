@@ -1,7 +1,9 @@
 __kernel void getArg_sample(
-    write_only __global float* input,
-    read_write __global float* output
-    read_only private sampler webCLSampler)
+    __global float* input,
+    __global float* output,
+    constant float* count,
+    read_only image2d_t webCLImage,
+    private sampler_t webCLSampler)
 {
     unsigned int i = get_global_id(0);
     output[i] = input[i];

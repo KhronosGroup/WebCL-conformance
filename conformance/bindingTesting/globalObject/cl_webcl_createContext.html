@@ -38,43 +38,80 @@
 <script>
 try {
     debug("WebCL :: CreateContext test case.");
-    debug("(optional WebCLContextProperties {WebCLPlatform platform, WebCLDevice[]? devices, CLenum deviceType})");
 
     var wtu = WebCLTestUtils;
-    var webCLPlatform = wtu.getPlatform();
-    var webCLDevices = wtu.getDevices(webCLPlatform);
 
+    /*
+     *  Creating context on optional device type.
+     */
+    debug("\n(optional CLenum deviceType = WebCL.DEVICE_TYPE_DEFAULT)");
     shouldBeType("webcl.createContext();", "WebCLContext");
+    shouldBeTypeOrException("webcl.createContext(webcl.DEVICE_TYPE_CPU);", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("webcl.createContext(webcl.DEVICE_TYPE_GPU);", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("webcl.createContext(webcl.DEVICE_TYPE_ACCELERATOR);", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("webcl.createContext(webcl.DEVICE_TYPE_DEFAULT);", "WebCLContext", "DEVICE_NOT_FOUND");
 
-    // Testing for property: webCLPlatform.
-    shouldBeType("webcl.createContext({platform:webCLPlatform});", "WebCLContext");
+    shouldThrowExceptionName("webcl.createContext(invalid_CLenum);", "INVALID_DEVICE_TYPE");
 
-    // Testing for property: webCLDevices.
-    shouldBeType("webcl.createContext({devices:webCLDevices});", "WebCLContext");
+    /*
+     *  Creating context on platform and optional device Type.
+     */
+    debug("\n(WebCLPlatform platform, optional CLenum deviceType = WebCL.DEVICE_TYPE_DEFAULT)");
+    var webCLPlatform = wtu.getPlatform();
+    shouldBeType("webcl.createContext(webCLPlatform);", "WebCLContext");
+    shouldBeTypeOrException("webcl.createContext(webCLPlatform, webcl.DEVICE_TYPE_CPU);", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("webcl.createContext(webCLPlatform, webcl.DEVICE_TYPE_GPU);", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("webcl.createContext(webCLPlatform, webcl.DEVICE_TYPE_ACCELERATOR);", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeType("webcl.createContext(webCLPlatform, webcl.DEVICE_TYPE_DEFAULT);", "WebCLContext");
+    shouldBeType("webcl.createContext(webCLPlatform, webcl.DEVICE_TYPE_ALL);", "WebCLContext");
 
-    // Testing for different types of devices.
-    shouldBeTypeOrException("webcl.createContext({deviceType:webcl.DEVICE_TYPE_CPU});", "WebCLContext", "DEVICE_NOT_FOUND");
-    shouldBeTypeOrException("webcl.createContext({deviceType:webcl.DEVICE_TYPE_GPU});", "WebCLContext", "DEVICE_NOT_FOUND");
-    shouldBeTypeOrException("webcl.createContext({deviceType:webcl.DEVICE_TYPE_ALL});", "WebCLContext", "DEVICE_NOT_FOUND");
-    shouldBeTypeOrException("webcl.createContext({deviceType:webcl.DEVICE_TYPE_DEFAULT});", "WebCLContext", "DEVICE_NOT_FOUND");
-    shouldBeTypeOrException("webcl.createContext({deviceType:webcl.DEVICE_TYPE_ACCELERATOR});", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldThrowExceptionName("webcl.createContext(webCLPlatform, invalid_CLenum);", "INVALID_DEVICE_TYPE");
 
-    // Testing sending null as value in the contextProperties.
-    shouldBeType("webcl.createContext({platform:null, devices:null, deviceType:null});", "WebCLContext");
-
-    // Testing for Exception.
-    shouldThrowExceptionName("webcl.createContext({platform:new Object()});", "INVALID_PLATFORM");
-    shouldThrowExceptionName("webcl.createContext({deviceType:invalid_CLenum});", "INVALID_DEVICE");
-    shouldThrowExceptionName("webcl.createContext({devices:[1, 2]});", "INVALID_DEVICE");
-
-    // Test for devices from different platforms.
-    var webCLPlatforms = webcl.getPlatforms(), webclDevice1, webclDevice2;
-    if (webCLPlatforms.length > 1) {
-        webCLDevice1 = webCLPlatforms[0].getDevices()[0];
-        webCLDevice2 = webCLPlatforms[1].getDevices()[0];
-        shouldThrowExceptionName("webcl.createContext({devices:[webCLDevice1, webCLDevice2]});", "INVALID_DEVICE");
+    /*
+     *  Creating context on WebCLDevice.
+     */
+    debug("\n(WebCLDevice device)");
+    var getAndValidateDevices = function(webCLPlatform, type) {
+        try {
+            var webCLDevice = wtu.getDevices(webCLPlatform, type);
+            return webCLDevice;
+        } catch(e) {
+            if (e.name === "DEVICE_NOT_FOUND")
+                testPassed("For the deviceType : " + type + " DEVICE_NOT_FOUND exception was thrown.");
+            else
+                testFailed("For the deviceType : " + type + " exception : " + e.name + " was thrown while obtaining device from the platform.");
+            return null;
+        }
     }
-    // FIXME :: Need to test DEVICE_NOT_AVAILABLE.
+
+    var webCLDevicesCPU = getAndValidateDevices(webCLPlatform, webcl.DEVICE_TYPE_CPU);
+    if (webCLDevicesCPU)
+        shouldBeTypeOrException("webcl.createContext(webCLDevicesCPU[0]);", "WebCLContext", "DEVICE_NOT_FOUND");
+
+    var webCLDevicesGPU = getAndValidateDevices(webCLPlatform, webcl.DEVICE_TYPE_GPU);
+    if (webCLDevicesGPU)
+        shouldBeTypeOrException("webcl.createContext(webCLDevicesGPU[0]);", "WebCLContext", "DEVICE_NOT_FOUND");
+
+    var webCLDevicesACCELERATOR = getAndValidateDevices(webCLPlatform, webcl.DEVICE_TYPE_ACCELERATOR);
+    if(webCLDevicesACCELERATOR)
+        shouldBeTypeOrException("webcl.createContext(webCLDevicesACCELERATOR[0]);", "WebCLContext", "DEVICE_NOT_FOUND");
+
+    /*
+     *  Creating context on sequence of devices.
+     */
+    debug("\n(sequence<WebCLDevice> devices)");
+    shouldBeTypeOrException("webcl.createContext(webCLDevicesCPU);", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("webcl.createContext(webCLDevicesGPU);", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeTypeOrException("webcl.createContext(webCLDevicesACCELERATOR);", "WebCLContext", "DEVICE_NOT_FOUND");
+    var webCLDevicesDEFAULT = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_DEFAULT);
+    shouldBeType("webcl.createContext(webCLDevicesDEFAULT);", "WebCLContext");
+    var webCLDevicesALL = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
+    shouldBeType("webcl.createContext(webCLDevicesALL);", "WebCLContext");
+
+    shouldThrowExceptionName("webcl.createContext([]);", "INVALID_VALUE");
+
+    // FIXME To add testcases to verify exceptions INVALID_OPERATION, DEVICE_NOT_FOUND, DEVICE_NOT_AVAILABLE, INVALID_PLATFORM, INVALID_DEVICE.
+
 } catch(e) {
     testFailed(e.description);
 }

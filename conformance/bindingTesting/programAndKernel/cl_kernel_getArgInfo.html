@@ -86,15 +86,15 @@ try {
 
     kernelInfo = wtu.getArgInfo(webCLKernelWithLocalArgument, 3);
     if ((kernelInfo.name === "count")
-        && (kernelInfo.typeName === "int")
-        && (kernelInfo.addressQualifier === "constant")
+        && (kernelInfo.typeName === "uint")
+        && (kernelInfo.addressQualifier === "private")
         && (kernelInfo.accessQualifier === "none"))
         testPassed("getArg of index 3 for kernel \"setArgLocal\" was as expected.");
     else
         testFailed("getArg of index 3 for kernel \"setArgLocal\" failed.");
 
     // Testing for exception.
-    shouldBeNull("webCLKernelWithLocalArgument.getArgInfo(4);");
+    shouldThrowExceptionName("webCLKernelWithLocalArgument.getArgInfo(4);", "INVALID_ARG_INDEX");
 
     /*
     *   Testing with kernel getArg.cl
@@ -109,7 +109,7 @@ try {
     if ((kernelInfo.name === "input")
         && (kernelInfo.typeName === "float")
         && (kernelInfo.addressQualifier === "global")
-        && (kernelInfo.accessQualifier === "write_only"))
+        && (kernelInfo.accessQualifier === "none"))
         testPassed("getArg of index 0 for kernel \"getArg_sample\" was as expected.");
     else
         testFailed("getArg of index 0 for kernel \"getArg_sample\" failed.");
@@ -118,22 +118,40 @@ try {
     if ((kernelInfo.name === "output")
         && (kernelInfo.typeName === "float")
         && (kernelInfo.addressQualifier === "global")
-        && (kernelInfo.accessQualifier === "read_write"))
+        && (kernelInfo.accessQualifier === "none"))
         testPassed("getArg of index 1 for kernel \"getArg_sample\" was as expected.");
     else
         testFailed("getArg of index 1 for kernel \"getArg_sample\" failed.");
 
     kernelInfo = wtu.getArgInfo(webCLgetArgSampleKernel, 2);
-    if ((kernelInfo.name === "webCLSampler")
-        && (kernelInfo.typeName === "sampler")
-        && (kernelInfo.addressQualifier === "private")
-        && (kernelInfo.accessQualifier === "read_only"))
+    if ((kernelInfo.name === "count")
+        && (kernelInfo.typeName === "float")
+        && (kernelInfo.addressQualifier === "constant")
+        && (kernelInfo.accessQualifier === "none"))
         testPassed("getArg of index 2 for kernel \"getArg_sample\" was as expected.");
     else
-        testFailed("getArg of index 2 for kernel \"getArg_sample\" failed.");
+       testFailed("getArg of index 2 for kernel \"getArg_sample\" failed.");
+
+    kernelInfo = wtu.getArgInfo(webCLgetArgSampleKernel, 3);
+    if ((kernelInfo.name === "webCLImage")
+        && (kernelInfo.typeName === "image2d_t")
+        && (kernelInfo.addressQualifier === "private")
+        && (kernelInfo.accessQualifier === "read_only"))
+        testPassed("getArg of index 3 for kernel \"getArg_sample\" was as expected.");
+    else
+        testFailed("getArg of index 3 for kernel \"getArg_sample\" failed.");
+
+    kernelInfo = wtu.getArgInfo(webCLgetArgSampleKernel, 4);
+    if ((kernelInfo.name === "webCLSampler")
+        && (kernelInfo.typeName === "sampler_t")
+        && (kernelInfo.addressQualifier === "private")
+        && (kernelInfo.accessQualifier === "none"))
+        testPassed("getArg of index 4 for kernel \"getArg_sample\" was as expected.");
+    else
+        testFailed("getArg of index 4 for kernel \"getArg_sample\" failed.");
 
     // Testing for exception.
-    shouldBeNull("webCLgetArgSampleKernel.getArgInfo(3);");
+    shouldThrowExceptionName("webCLgetArgSampleKernel.getArgInfo(5);", "INVALID_ARG_INDEX");
 
 } catch (e) {
     testFailed(e.description);

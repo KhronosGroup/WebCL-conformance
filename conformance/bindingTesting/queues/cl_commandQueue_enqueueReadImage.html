@@ -69,7 +69,37 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr);");
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, false, origin, region, hostRowPitch, hostPtr);");
 
+    // Testing with events.
+    var webCLEvent = wtu.createEvent();
+    webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, false, origin, region, hostRowPitch, hostPtr, [], webCLEvent);
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, false, origin, region, hostRowPitch, hostPtr, [webCLEvent]);");
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, false, origin, region, hostRowPitch, hostPtr, [webCLUserEvent]);");
+    wtu.setStatus(webCLUserEvent, webcl.COMPLETE);
+
+    webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [], webCLEvent);");
+    webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, false, origin, region, hostRowPitch, hostPtr, [], webCLEvent);");
+
     // Testing for exceptions.
+    var releasedEvent = wtu.createUserEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+
+    webCLUserEvent = wtu.createUserEvent(webCLContext);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLUserEvent]);", "INVALID_EVENT_WAIT_LIST");
+    wtu.setStatus(webCLUserEvent, webcl.COMPLETE);
+    webCLEvent = wtu.createEvent();
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLEvent]);", "INVALID_EVENT_WAIT_LIST");
+
+    webCLUserEvent = wtu.createUserEvent(webCLContext);
+    wtu.setStatus(webCLUserEvent, -1);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLUserEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
+
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, false, origin, region, hostRowPitch, hostPtr, [webCLUserEvent], webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, false, origin, region, hostRowPitch, hostPtr, [webCLUserEvent], webCLEvent);", "INVALID_EVENT");
     var releasedImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorObject);
     wtu.release(releasedImage);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(releasedImage, true, origin, region, hostRowPitch, hostPtr);", "INVALID_MEM_OBJECT");
@@ -78,14 +108,14 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, originInvalid, region, hostRowPitch, hostPtr);", "INVALID_VALUE");
     originInvalid = [imageWidth + 1, imageHeight + 1];
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, originInvalid, region, hostRowPitch, hostPtr);", "INVALID_VALUE");
-    originInvalid = [0]; 
+    originInvalid = [0];
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, originInvalid, region, hostRowPitch, hostPtr);", "INVALID_VALUE");
 
     var regionInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, regionInvalid, hostRowPitch, hostPtr);", "INVALID_VALUE");
     regionInvalid = [imageWidth + 1, imageHeight + 1];
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, regionInvalid, hostRowPitch, hostPtr);", "INVALID_VALUE");
-    regionInvalid = [imageWidth]; 
+    regionInvalid = [imageWidth];
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, regionInvalid, hostRowPitch, hostPtr);", "INVALID_VALUE");
 
     var hostRowPitchValid = imageWidth * 2;
@@ -104,15 +134,15 @@ try {
     var webCLEvent = wtu.createEvent();
     var webCLUserEvent = wtu.createUserEvent(webCLContext);
     var webCLUserEventNew = wtu.createUserEvent(webCLContextNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLUserEventNew], webCLEvent);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLUserEvent], webCLEvent);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLUserEventNew]);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLUserEvent]);", "INVALID_CONTEXT");
 
-    var releasedEvent = wtu.createUserEvent(webCLContext);
-    wtu.release(releasedEvent);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
-
-    wtu.setStatus(webCLUserEvent, -1);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLUserEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [], webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLEvent]);", "INVALID_CONTEXT");
+    var webCLEventNew = wtu.createEvent();
+    wtu.enqueueReadImage(webCLCommandQueueNew, webCLImageNew, true, origin, region, hostRowPitch, hostPtr, [], webCLEventNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr, [webCLEventNew]);", "INVALID_CONTEXT");
 
     // FIXME Need to add test case for INVALID_IMAGE_SIZE.
 

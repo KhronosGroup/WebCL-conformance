@@ -41,13 +41,9 @@ try {
     var wtu = WebCLTestUtils;
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
-    var webCLContext = wtu.createContext(webCLPlatform, webCLDevices);
+    var webCLContext = wtu.createContext(webCLDevices);
 
     shouldBe("webCLContext.getInfo(webcl.CONTEXT_DEVICES)", "webCLDevices");
-    shouldBeType("webCLContext.getInfo(webcl.CONTEXT_PROPERTIES)", WebCLContextProperties);
-    shouldBe("webCLContext.getInfo(webcl.CONTEXT_PROPERTIES).platform", "webCLPlatform", true);
-    shouldBe("webCLContext.getInfo(webcl.CONTEXT_PROPERTIES).devices", "webCLDevices", true);
-    shouldBe("webCLContext.getInfo(webcl.CONTEXT_PROPERTIES).deviceType", "0", true);
     shouldBe("typeof " + "webCLContext.getInfo(webcl.CONTEXT_NUM_DEVICES)", "'number'");
 
     // Testing for Exception.

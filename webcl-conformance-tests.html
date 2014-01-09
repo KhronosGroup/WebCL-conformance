@@ -43,7 +43,7 @@
 
   #testlist {
     position:fixed;
-    top:310px;
+    top:355px;
     left:0;
     right:0;
     bottom:0px;
@@ -56,7 +56,6 @@
     top:0;
     left:0;
     width:100%;
-    height:310px;
     overflow:auto;
   }
 
@@ -871,12 +870,23 @@ function initCL() {
     var option = document.createElement("option");
     var platforms = document.getElementById("platforms");
     webCLPlatforms = webcl.getPlatforms();
-    for (var i = 0; i < webCLPlatforms.length ; i++) {
-        platforms.options[platforms.options.length] = new Option("Platform" + (i + 1), i);
+
+    if (webCLPlatforms.length == 1) {
+        platforms.options[platforms.options.length] = new Option("Platform" + webCLPlatforms.length, webCLPlatforms.length - 1, true, true);
+        displayDevices();
+        var defautDevice = webCLPlatforms[0].getDevices(webcl.DEFAULT_TYPE);
+        var defaultDeviceType = getDeviceType(defautDevice[0]);
+        document.getElementById(defaultDeviceType).checked = true;
+        document.getElementById("platforms").disabled = true;
+        document.getElementById("lblGPU").innerHTML = document.getElementById("lblGPU").innerHTML + "(default)";
+        getTestCases();
+    } else {
+        for (var i = 0; i < webCLPlatforms.length ; i++) {
+            platforms.options[platforms.options.length] = new Option("Platform" + (i + 1), i);
+        }
     }
-    platforms[0].selected;
+
     var webCLGlobalObject = CLGlobalVariables.getInstance();
-    webCLGlobalObject.setwebCLDevices(null);
 }
 
 var getDeviceType = function(webCLDevices) {
@@ -894,7 +904,6 @@ var getDeviceType = function(webCLDevices) {
 
 function displayDevices() {
     // Fetch the selected platform.
-    document.getElementById("devicesSpan").style.display = 'block';
     var finalResultText = document.getElementById("fullresults");
     while (finalResultText.hasChildNodes()) {
         finalResultText.removeChild(finalResultText.childNodes[0]);
@@ -909,6 +918,7 @@ function displayDevices() {
     webCLGlobalObject.setwebCLPlatform(platform);
 
     // Fetch available devices for selected platform and populate.
+    document.getElementById("devicesDiv").style.display = 'block';
     var devices = document.getElementById("devices");
     webCLDevices = platform.getDevices(webcl.DEVICE_TYPE_ALL);
     while (devices.hasChildNodes()) {
@@ -916,16 +926,20 @@ function displayDevices() {
     }
 
     if (webCLDevices != null) {
+        devices.innerHTML = devices.innerHTML + '<span  id="devicesSpan">Select device(s):</span>&nbsp;&nbsp;';
         for (var j = 0; j < webCLDevices.length ; j++) {
+            var deviceType = getDeviceType(webCLDevices[j]);
             var checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.value = j;
+            checkbox.id = deviceType;
             devices.appendChild(checkbox);
             var label = document.createElement('label');
-            label.appendChild(document.createTextNode((j+1) + ". Device " + getDeviceType(webCLDevices[j])));
+            label.appendChild(document.createTextNode((j+1) + "." + deviceType));
+            label.id="lbl" + deviceType;
             devices.appendChild(label);
-            devices.appendChild(document.createElement("br"));
         }
+        devices.innerHTML = devices.innerHTML + '&nbsp;&nbsp;<span><input id="submit" type="button" name="submit" value="submit" onClick="getTestCases(); return 0;" disabled=true></input></span>';
     } else {
         console.error("Failed in fetching devices.");
         return 0;
@@ -995,13 +1009,9 @@ function getTestCases() {
             </select>
         </div>
 
-        <div id="devicesDiv">
-            <span style="display: none;" id="devicesSpan">Select device(s):<form name="devices" id="devices" disabled=true onClick="displaySubmit(); return 0;" ></span>
-            </form>
-        </div>
-
-        <div id="submitDiv">
-            <span><input id="submit" type="button" name="submit" value="submit" onClick="getTestCases(); return 0;" disabled=true></input></span>
+        <div id="devicesDiv" style="display: none;">
+                <form name="devices" id="devices" disabled=true onClick="displaySubmit(); return 0;" >
+                </form>
         </div>
     </div>
 

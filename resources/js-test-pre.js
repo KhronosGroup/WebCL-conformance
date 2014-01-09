@@ -508,7 +508,7 @@ var invalid_CLenum = 9999;
 var invalid_canvas = document.createElement('canvas');
 var invalid_imageData = invalid_canvas.getContext("2d").createImageData(100,100);
 var invalid_image = new Image();
-invalid_image.src = "invalid_path"; 
+invalid_image.src = "http://www.khronos.org/registry/webcl/resources/WebCL_logo.png";
 var invalid_video = document.createElement('video');
 
 function shouldThrowExceptionName(_a, _e)

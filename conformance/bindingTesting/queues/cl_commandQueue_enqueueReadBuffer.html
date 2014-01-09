@@ -63,7 +63,38 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr)");
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr)");
 
+    // Testing with events.
+    var webCLEvent = wtu.createEvent();
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [], webCLEvent);
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [webCLEvent]);");
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [webCLUserEvent]);");
+    wtu.setStatus(webCLUserEvent, webcl.COMPLETE);
+
+    webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [], webCLEvent);");
+    webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [], webCLEvent);");
+
     // Testing for exceptions.
+    var releasedEvent = wtu.createUserEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+
+    webCLUserEvent = wtu.createUserEvent(webCLContext);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLUserEvent]);", "INVALID_EVENT_WAIT_LIST");
+    wtu.setStatus(webCLUserEvent, webcl.COMPLETE);
+    webCLEvent = wtu.createEvent();
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLEvent]);", "INVALID_EVENT_WAIT_LIST");
+
+    webCLUserEvent = wtu.createUserEvent(webCLContext);
+    wtu.setStatus(webCLUserEvent, -1);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLUserEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
+
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [webCLUserEvent], webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [webCLUserEvent], webCLEvent);", "INVALID_EVENT");
+
     var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
     wtu.release(releasedBuffer);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(releasedBuffer, true, bufferOffset, numberBytes, hostPtr);", "INVALID_MEM_OBJECT");
@@ -73,7 +104,7 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytesInvalid, hostPtr);", "INVALID_VALUE");
     numberBytesInvalid = hostPtr.BYTES_PER_ELEMENT - 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytesInvalid, hostPtr);", "INVALID_VALUE");
-    var hostPtrInvalid = new Float32Array(BUFFER_SIZE - 1);
+    var hostPtrInvalid = new Float32Array(numberBytes/Float32Array.BYTES_PER_ELEMENT - 1);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtrInvalid);", "INVALID_VALUE");
 
     var webCLContextNew = wtu.createContext();
@@ -82,18 +113,17 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferNew, true, bufferOffset, numberBytes, hostPtr);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr);", "INVALID_CONTEXT");
 
-    var webCLEvent = wtu.createEvent();
     var webCLUserEvent = wtu.createUserEvent(webCLContext);
     var webCLUserEventNew = wtu.createUserEvent(webCLContextNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLUserEventNew], webCLEvent);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLUserEvent], webCLEvent);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLUserEventNew]);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLUserEvent]);", "INVALID_CONTEXT");
 
-    var releasedEvent = wtu.createUserEvent(webCLContext);
-    wtu.release(releasedEvent);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
-
-    wtu.setStatus(webCLUserEvent, -1);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLUserEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [], webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLEvent]);", "INVALID_CONTEXT");
+    var webCLEventNew = wtu.createEvent();
+    wtu.enqueueReadBuffer(webCLCommandQueueNew, webCLBufferNew, false, bufferOffset, numberBytes, hostPtr, [], webCLEventNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLEventNew]);", "INVALID_CONTEXT");
 
 } catch(e) {
     testFailed(e.description);

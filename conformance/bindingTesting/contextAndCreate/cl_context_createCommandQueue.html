@@ -54,15 +54,18 @@ try {
         shouldBeType("webCLContext.createCommandQueue(webCLDevices[" + i + "], webcl.QUEUE_PROFILING_ENABLE);", "WebCLCommandQueue");
     }
     // Testing for Exceptions.
-    var webCLDevicesCPU = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_CPU);
-    var webCLContextCPU = wtu.createContext(webCLPlatform, webCLDevicesCPU);
+    var devices = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
+    if (devices.length > 1) {
+        var webCLDevice1 = devices[0];
+        var webCLContext1 = wtu.createContext(webCLDevice1);
 
-    var webCLDevicesGPU = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_GPU);
-    var webCLContextGPU = wtu.createContext(webCLPlatform, webCLDevicesGPU);
-    shouldThrowExceptionName("webCLContextCPU.createCommandQueue(webCLDevicesGPU[0]);", "INVALID_DEVICE");
-    shouldThrowExceptionName("webCLContextGPU.createCommandQueue(webCLDevicesCPU[0]);", "INVALID_DEVICE");
+        var webCLDevice2 = devices[1];
+        var webCLContext2 = wtu.createContext(webCLDevice2);
+        shouldThrowExceptionName("webCLContext1.createCommandQueue(webCLDevice2);", "INVALID_DEVICE");
+        shouldThrowExceptionName("webCLContext2.createCommandQueue(webCLDevice1);", "INVALID_DEVICE");
+    }
+
     shouldThrowExceptionName("webCLContext.createCommandQueue(webCLDevices[0], invalid_CLenum);", "INVALID_VALUE");
-
     // FIXME To add test case throwing exception : INVALID_QUEUE_PROPERTIES
 
 } catch(e) {

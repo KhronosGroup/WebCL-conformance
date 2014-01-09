@@ -1,23 +1,58 @@
-__kernel void kernelVectorEight(
-    char8 inputChar,
-    uchar8 inputUChar,
-    short8 inputShort,
-    ushort8 inputUShort,
-    int8 inputInt,
-    uint8 inputUInt,
-    long8 inputLong,
-    ulong8 inputULong,
-    float8 inputFloat,
-    __global float8* output) 
+__kernel void kernelChar(
+   char8 input,
+   __global char8* output)
 {
-    output[0] = convert_float8(inputChar);
-    output[1] = convert_float8(inputUChar);
-    output[2] = convert_float8(inputShort);
-    output[3] = convert_float8(inputUShort);
-    output[4] = convert_float8(inputInt);
-    output[5] = convert_float8(inputUInt);
-    output[6] = convert_float8(inputLong);
-    output[7] = convert_float8(inputULong);
-    output[8] = convert_float8(inputFloat);
+   output[0] = input;
+}
+__kernel void kernelUChar(
+   uchar8 input,
+   __global uchar8* output)
+{
+   output[0] = input;
 }
 
+__kernel void kernelShort(
+   short8 input,
+   __global short8* output)
+{
+   output[0] = input;
+}
+__kernel void kernelUShort(
+   ushort8 input,
+   __global ushort8* output)
+{
+   output[0] = input;
+}
+
+__kernel void kernelInt(
+   int8 input,
+   __global int8* output)
+{
+   output[0] = input;
+}
+__kernel void kernelUInt(
+   uint8 input,
+   __global uint8* output)
+{
+   output[0] = input;
+}
+
+__kernel void kernelLong(
+   long8 input,
+   __global long8* output)
+{
+   output[0] = input;
+}
+__kernel void kernelULong(
+   ulong8 input,
+   __global ulong8* output)
+{
+   output[0] = input;
+}
+
+__kernel void kernelFloat(
+   float8 input,
+   __global float8* output)
+{
+   output[0] = input;
+}

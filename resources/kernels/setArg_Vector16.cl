@@ -1,23 +1,58 @@
-__kernel void kernelVectorSixteen(
-    char16 inputChar,
-    uchar16 inputUChar,
-    short16 inputShort,
-    ushort16 inputUShort,
-    int16 inputInt,
-    uint16 inputUInt,
-    long16 inputLong,
-    ulong16 inputULong,
-    float16 inputFloat,
-    __global float16* output)
+__kernel void kernelChar(
+   char16 input,
+   __global char16* output)
 {
-    output[0] = convert_float16(inputChar);
-    output[1] = convert_float16(inputUChar);
-    output[2] = convert_float16(inputShort);
-    output[3] = convert_float16(inputUShort);
-    output[4] = convert_float16(inputInt);
-    output[5] = convert_float16(inputUInt);
-    output[6] = convert_float16(inputLong);
-    output[7] = convert_float16(inputULong);
-    output[8] = convert_float16(inputFloat);
+   output[0] = input;
+}
+__kernel void kernelUChar(
+   uchar16 input,
+   __global uchar16* output)
+{
+   output[0] = input;
 }
 
+__kernel void kernelShort(
+   short16 input,
+   __global short16* output)
+{
+   output[0] = input;
+}
+__kernel void kernelUShort(
+   ushort16 input,
+   __global ushort16* output)
+{
+   output[0] = input;
+}
+
+__kernel void kernelInt(
+   int16 input,
+   __global int16* output)
+{
+   output[0] = input;
+}
+__kernel void kernelUInt(
+   uint16 input,
+   __global uint16* output)
+{
+   output[0] = input;
+}
+
+__kernel void kernelLong(
+   long16 input,
+   __global long16* output)
+{
+   output[0] = input;
+}
+__kernel void kernelULong(
+   ulong16 input,
+   __global ulong16* output)
+{
+   output[0] = input;
+}
+
+__kernel void kernelFloat(
+   float16 input,
+   __global float16* output)
+{
+   output[0] = input;
+}

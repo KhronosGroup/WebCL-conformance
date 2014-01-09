@@ -35,6 +35,48 @@ var RECT_AREA = RECT_WIDTH * RECT_HEIGHT;
 var BUFFER_RECT_SIZE = RECT_AREA * Float32Array.BYTES_PER_ELEMENT;
 var WIDTH_STEP = RECT_WIDTH * Float32Array.BYTES_PER_ELEMENT;
 
+function loadDefault() {
+    var wtu = WebCLTestUtils;
+    var webCLPlatform = wtu.getPlatform();
+    var webCLDevices = wtu.getDevices(webCLPlatform);
+    var webCLDevice = webCLDevices[0];
+
+    var deviceType = webCLDevice.getInfo(webcl.DEVICE_TYPE);
+    var type = "";
+    switch(deviceType) {
+        case webcl.DEVICE_TYPE_GPU :
+            type = "GPU"
+            break;
+        case webcl.DEVICE_TYPE_CPU :
+            type = "CPU";
+            break;
+        case webcl.DEVICE_TYPE_ACCELERATOR :
+            type = "ACCELERATOR";
+            break;
+        default:
+            type = "Not Supported";
+            break;
+     }
+
+     printDefautMessage("1", type);
+}
+
+if(typeof window.top.CLGlobalVariables == "undefined") {
+    if(window.addEventListener)
+        window.addEventListener('load', loadDefault, false);
+    else
+        window.attachEvent('onload', loadDefault);
+}
+
+function printDefautMessage(platform, device)
+{
+    var iDiv = document.createElement('div');
+    iDiv.id = 'message';
+    iDiv.setAttribute("style","position: fixed;top: 2%;right: 2%;padding: 10px;font-family: monospace;background: #CCC;border: 1px solid black;");
+    document.getElementsByTagName('body')[0].appendChild(iDiv);
+    iDiv.innerHTML = "Platform : " + platform + " Device : " + device;
+}
+
 var WebCLTestUtils = (function() {
 
 var generateData = function(type, size) {
@@ -48,21 +90,28 @@ var generateData = function(type, size) {
     return data;
 };
 
-var createContext = function(webCLPlatform, webCLDevices, deviceType) {
+var createContext = function(param1, param2, param3) {
     var gv = window.top.CLGlobalVariables;
+    if (arguments.length > 3)
+        throw {description: "Could not create context, as the number of arguments were more than expected."};
     try {
         var webCLContext;
-        if (arguments.length > 0) {
-            webCLContext = eval("webcl.createContext({platform:webCLPlatform, devices:webCLDevices, deviceType:deviceType})");
-        } else {
-            if (gv) {
-                var selectedPlatform = gv.getInstance().getwebCLPlatform();
-                var selectedDevices = gv.getInstance().getwebCLDevices();
-                webCLContext = eval("webcl.createContext({platform:selectedPlatform, devices:selectedDevices, deviceType:null})");
-            } else {
-                webCLContext = eval("webcl.createContext()");
-            }
-        }
+        if (param3 != undefined)
+            webCLContext = eval("webcl.createContext(param1, param2, param3);");
+        else if (param2 != undefined)
+            webCLContext = eval("webcl.createContext(param1, param2);");
+        else if (param1 != undefined) {
+            if (param1 instanceof WebGLRenderingContext) {
+                var selectedDevices = gv ? gv.getInstance().getwebCLDevices() :
+                    webcl.getPlatforms()[0].getDevices(webcl.DEVICE_TYPE_DEFAULT);
+                webCLContext = eval("webcl.createContext(param1, selectedDevices)");
+            } else
+                webCLContext = eval("webcl.createContext(param1);");
+        } else if (gv) {
+            var selectedDevices = gv.getInstance().getwebCLDevices();
+            webCLContext = eval("webcl.createContext(selectedDevices)");
+        } else
+            webCLContext = eval("webcl.createContext()");
         if (webCLContext instanceof WebCLContext)
             return webCLContext;
     } catch(e) {
@@ -207,10 +256,15 @@ var build = function(webCLProgram, webCLDevices, options, callback)
     }
 }
 
-var enqueueNDRangeKernel = function(webCLCommandQueue, webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize)
+var enqueueNDRangeKernel = function(webCLCommandQueue, webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, eventWaitList, webCLEvent)
 {
     try {
-        webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, eventWaitList, webCLEvent);
+        else if ((typeof(eventWaitList) != 'undefined'))
+            webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, eventWaitList);
+        else
+            webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueNDRangeKernel threw exception : " + e.name;
         throw e;
@@ -236,10 +290,11 @@ var readKernel = function(file) {
 
 var createBuffer = function(webCLContext, flag, bufferSize, data) {
     try {
+        var webCLBuffer;
         if (arguments.length > 3)
-            var webCLBuffer = eval("webCLContext.createBuffer(flag, bufferSize, data);");
+            webCLBuffer = eval("webCLContext.createBuffer(flag, bufferSize, data);");
         else
-            var webCLBuffer = eval("webCLContext.createBuffer(flag, bufferSize);");
+            webCLBuffer = eval("webCLContext.createBuffer(flag, bufferSize);");
         if (webCLBuffer instanceof WebCLBuffer)
             return webCLBuffer;
     } catch (e) {
@@ -279,7 +334,7 @@ var setArg = function(webCLKernel, index, value) {
 
 var createSubBuffer = function(webCLBuffer, flag, origin, size) {
     try {
-        webCLSubBuffer = webCLBuffer.createSubBuffer(flag, origin, size);
+        var webCLSubBuffer = webCLBuffer.createSubBuffer(flag, origin, size);
         return webCLSubBuffer;
     } catch(e) {
         e.description = "WebCLBuffer :: createSubBuffer threw exception : " + e.name;
@@ -289,6 +344,7 @@ var createSubBuffer = function(webCLBuffer, flag, origin, size) {
 
 var createImage = function(webCLContext, flag, imageDescriptor, data) {
     try {
+        var webCLImage;
         if (arguments.length > 3)
             webCLImage = eval("webCLContext.createImage(flag, imageDescriptor, data);");
         else
@@ -301,99 +357,154 @@ var createImage = function(webCLContext, flag, imageDescriptor, data) {
     }
 }
 
-var enqueueCopyBuffer = function(webCLCommandQueue, srcBuffer, dstBuffer, srcOffset, dstOffset, numBytes) {
+var enqueueCopyBuffer = function(webCLCommandQueue, srcBuffer, dstBuffer, srcOffset, dstOffset, numBytes, eventWaitList, webCLEvent) {
     try {
-        webCLCommandQueue.enqueueCopyBuffer(srcBuffer, dstBuffer, srcOffset, dstOffset, numBytes);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueCopyBuffer(srcBuffer, dstBuffer, srcOffset, dstOffset, numBytes, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLCommandQueue.enqueueCopyBuffer(srcBuffer, dstBuffer, srcOffset, dstOffset, numBytes, eventWaitList);
+        else
+            webCLCommandQueue.enqueueCopyBuffer(srcBuffer, dstBuffer, srcOffset, dstOffset, numBytes);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueCopyBuffer threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueReadBuffer = function(webCLCommandQueue, buffer, blockingRead, bufferOffset, numBytes, dst) {
+var enqueueReadBuffer = function(webCLCommandQueue, buffer, blockingRead, bufferOffset, numBytes, dst, eventWaitList, webCLEvent) {
     try {
-        webCLCommandQueue.enqueueReadBuffer(buffer, blockingRead, bufferOffset, numBytes, dst);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueReadBuffer(buffer, blockingRead, bufferOffset, numBytes, dst, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLCommandQueue.enqueueReadBuffer(buffer, blockingRead, bufferOffset, numBytes, dst, eventWaitList);
+        else
+            webCLCommandQueue.enqueueReadBuffer(buffer, blockingRead, bufferOffset, numBytes, dst);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueReadBuffer threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueWriteBuffer = function(webCLCommandQueue, webCLBuffer, blockingWrite, bufferOffset, numBytes, hostPtr) {
+var enqueueWriteBuffer = function(webCLCommandQueue, webCLBuffer, blockingWrite, bufferOffset, numBytes, hostPtr, eventWaitList, webCLEvent) {
     try {
-        webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, blockingWrite, bufferOffset, numBytes, hostPtr);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, blockingWrite, bufferOffset, numBytes, hostPtr, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, blockingWrite, bufferOffset, numBytes, hostPtr, eventWaitList);
+        else
+            webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, blockingWrite, bufferOffset, numBytes, hostPtr);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueWriteBuffer threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueCopyBufferRect = function(webCLCommandQueue, srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch) {
+var enqueueCopyBufferRect = function(webCLCommandQueue, srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch, eventWaitList, webCLEvent) {
     try {
-        webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch, eventWaitList);
+        else
+            webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
     } catch (e) {
         e.description = "WebCLCommandQueue :: enqueueCopyBufferRect threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueReadBufferRect = function(webCLCommandQueue, buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr) {
+var enqueueReadBufferRect = function(webCLCommandQueue, buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList, webCLEvent) {
     try {
-        webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList);
+        else
+            webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueReadBufferRect threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueWriteBufferRect = function(webCLCommandQueue, buffer, blockingWrite, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr) {
+var enqueueWriteBufferRect = function(webCLCommandQueue, buffer, blockingWrite, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList, webCLEvent) {
     try {
-        webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingWrite, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingWrite, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingWrite, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList);
+        else
+            webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingWrite, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueWriteBufferRect threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueCopyImage = function(webCLCommandQueue, srcImage, dstImage, srcOrigin, dstOrigin, region) {
+var enqueueCopyImage = function(webCLCommandQueue, srcImage, dstImage, srcOrigin, dstOrigin, region, eventWaitList, webCLEvent) {
     try {
-        webCLCommandQueue.enqueueCopyImage(srcImage, dstImage, srcOrigin, dstOrigin, region);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueCopyImage(srcImage, dstImage, srcOrigin, dstOrigin, region, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLCommandQueue.enqueueCopyImage(srcImage, dstImage, srcOrigin, dstOrigin, region, eventWaitList);
+        else
+            webCLCommandQueue.enqueueCopyImage(srcImage, dstImage, srcOrigin, dstOrigin, region);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueCopyImage threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueReadImage = function(webCLCommandQueue, image, blockingRead, origin, region, hostRowPitch, dst) {
+var enqueueReadImage = function(webCLCommandQueue, image, blockingRead, origin, region, hostRowPitch, dst, eventWaitList, webCLEvent) {
     try {
-        webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, hostRowPitch, dst);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, hostRowPitch, dst, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, hostRowPitch, dst, eventWaitList);
+        else
+            webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, hostRowPitch, dst);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueReadImage threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueWriteImage = function(webCLCommandQueue, image, blockingWrite, origin, region, hostRowPitch, hostPtr) {
+var enqueueWriteImage = function(webCLCommandQueue, image, blockingWrite, origin, region, hostRowPitch, hostPtr, eventWaitList, webCLEvent) {
     try {
-        webCLCommandQueue.enqueueWriteImage(image, blockingWrite, origin, region, hostRowPitch, hostPtr);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, origin, region, hostRowPitch, hostPtr, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, origin, region, hostRowPitch, hostPtr, eventWaitList);
+        else
+            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, origin, region, hostRowPitch, hostPtr);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueWriteImage threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueCopyBufferToImage = function(webCLCommandQueue, srcBuffer, dstImage, srcOffset, dstOrigin, dstRegion) {
+var enqueueCopyBufferToImage = function(webCLCommandQueue, srcBuffer, dstImage, srcOffset, dstOrigin, dstRegion, eventWaitList, webCLEvent) {
     try {
-        webCLCommandQueue.enqueueCopyBufferToImage(srcBuffer, dstImage, srcOffset, dstOrigin, dstRegion);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueCopyBufferToImage(srcBuffer, dstImage, srcOffset, dstOrigin, dstRegion, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLCommandQueue.enqueueCopyBufferToImage(srcBuffer, dstImage, srcOffset, dstOrigin, dstRegion, eventWaitList);
+        else
+            webCLCommandQueue.enqueueCopyBufferToImage(srcBuffer, dstImage, srcOffset, dstOrigin, dstRegion);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueCopyBufferToImage threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueCopyImageToBuffer = function(webCLCommandQueue, srcImage, dstBuffer, srcOrigin, srcRegion, dstOffset) {
+var enqueueCopyImageToBuffer = function(webCLCommandQueue, srcImage, dstBuffer, srcOrigin, srcRegion, dstOffset, eventWaitList, webCLEvent) {
     try {
-        webCLCommandQueue.enqueueCopyImageToBuffer(srcImage, dstBuffer, srcOrigin, srcRegion, dstOffset);
+        if (typeof(webCLEvent) != 'undefined')
+            webCLCommandQueue.enqueueCopyImageToBuffer(srcImage, dstBuffer, srcOrigin, srcRegion, dstOffset, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLCommandQueue.enqueueCopyImageToBuffer(srcImage, dstBuffer, srcOrigin, srcRegion, dstOffset, eventWaitList);
+        else
+            webCLCommandQueue.enqueueCopyImageToBuffer(srcImage, dstBuffer, srcOrigin, srcRegion, dstOffset);
     } catch (e) {
         e.description = "WebCLCommandQueue :: enqueueCopyImageToBuffer threw exception : " + e.name;
         throw e;

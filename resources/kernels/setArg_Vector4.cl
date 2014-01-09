@@ -1,23 +1,58 @@
-__kernel void kernelVectorFour(
-    char4 inputChar,
-    uchar4 inputUChar,
-    short4 inputShort,
-    ushort4 inputUShort,
-    int4 inputInt,
-    uint4 inputUInt,
-    long4 inputLong,
-    ulong4 inputULong,
-    float4 inputFloat,
-    __global float4* output) 
+__kernel void kernelChar(
+   char4 input,
+   __global char4* output)
 {
-    output[0] = convert_float4(inputChar);
-    output[1] = convert_float4(inputUChar);
-    output[2] = convert_float4(inputShort);
-    output[3] = convert_float4(inputUShort);
-    output[4] = convert_float4(inputInt);
-    output[5] = convert_float4(inputUInt);
-    output[6] = convert_float4(inputLong);
-    output[7] = convert_float4(inputULong);
-    output[8] = convert_float4(inputFloat);
+   output[0] = input;
+}
+__kernel void kernelUChar(
+   uchar4 input,
+   __global uchar4* output)
+{
+   output[0] = input;
 }
 
+__kernel void kernelShort(
+   short4 input,
+   __global short4* output)
+{
+   output[0] = input;
+}
+__kernel void kernelUShort(
+   ushort4 input,
+   __global ushort4* output)
+{
+   output[0] = input;
+}
+
+__kernel void kernelInt(
+   int4 input,
+   __global int4* output)
+{
+   output[0] = input;
+}
+__kernel void kernelUInt(
+   uint4 input,
+   __global uint4* output)
+{
+   output[0] = input;
+}
+
+__kernel void kernelLong(
+   long4 input,
+   __global long4* output)
+{
+   output[0] = input;
+}
+__kernel void kernelULong(
+   ulong4 input,
+   __global ulong4* output)
+{
+   output[0] = input;
+}
+
+__kernel void kernelFloat(
+   float4 input,
+   __global float4* output)
+{
+   output[0] = input;
+}

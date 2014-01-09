@@ -36,26 +36,68 @@
 <div id="console"></div>
 <body>
 <script>
-var kernel_arg_types = [Int8Array, Uint8Array, Int16Array, Uint16Array, Int32Array, Uint32Array, Int32Array, Uint32Array, Float32Array];
 var kernel_arg_values = [
-    [[65], [72], [128], [128], [256], [256], [0, 5000], [0, 1898989], [676767.69]], //Normal Values
-    ['D', 'D', [128], [128], [256], [256], [0, 5000], [0, 1898989], [676767.69]], //Normal Values with Char as Letter.
-    [[127], [255], [32767], [65535], [2147483647], [4294967295], [2147483647, 4294967295], [4294967295, 4294967295], [340282346638528859811704183484516925440]], //Valid Max values
-    [[128], [256], [32768], [65536], [2147483648], [4294967296], [2147483648, 4294967295], [4294967297, 4294967295], [340282346638528859811704183484516925441]], // Max + [1].
-    [[-128], [0], [-32768], [0], [-2147483648], [0], [-2147483648, 4294967295], [0, 0], [0]], // Min Value
-    [[-129], [-1], [-32769], [-1], [-2147483649], [-1], [-2147483649, 4294967295], [0, -1], [0]], // Min Value [-1]
+    [65, 127, 128, -128, -129], // Char
+    [72, 255, 256, 0, -1], // UChar
+    [128, 32767, 32768, -32768, -32769], // Short
+    [128, 65535, 65536, 0, -1], // UShort
+    [256, 2147483647, 2147483648, -2147483648, -2147483649], // Int
+    [256, 4294967295, 4294967296, 0, -1], // UInt
+    [[0, 5000], [50, 10], [2147483647, 2147483647], [2147483648, 2147483648], [-2147483648, -2147483648], [-2147483649, -2147483649]], // Long
+    [[0, 1898989], [90, 10], [4294967295, 4294967295], [4294967296, 4294967296], [0, 0], [-1, -1]], // ULong
+    [676767.69, 340282346638528859811704183484516925440, 340282300000000000000000000000000000010, 0, -1] // Float
 ];
 
 var kernel_arg_expected_values = [
-    [65, 72, 128, 128, 256, 256, 5000, 1898989, 676767.69],
-    [68, 68, 128, 128, 256, 256, 5000, 1898989, 676767.69],
-    [127, 255, 32767, 65535, 2147483647, 4294967295, 2147483647, 4294967296, 340282346638528859811704183484516925440],
-    [-128, 0, -32768, 0, -2147483648, 0, -2147483648, 0, 340282346638528859811704183484516925441],
-    [-128, 0, -32768, 0, -2147483648, 0, 0, 0, 0],
-    [127, 255, 32767, 65535, 2147483648, 4294967296, -1, -1, 0], // Min Value -1
+    [65, 127, -128, -128, 127],
+    [72, 255, 0, 0, 255],
+    [128, 32767, -32768, -32768, 32767],
+    [128, 65535, 0, 0, 65535],
+    [256, 2147483647, -2147483648, -2147483648, 2147483647],
+    [256, 4294967295, 0, 0, 4294967295],
+    [[0, 5000], [50, 10], [2147483647, 2147483647], [-2147483648, -2147483648], [-2147483648, -2147483648], [2147483647, 2147483647]],
+    [[0, 1898989], [90, 10], [4294967295, 4294967295], [0, 0], [0, 0], [4294967295, 4294967295]],
+    [676767.69, 340282346638528859811704183484516925440, 340282300000000000000000000000000000000, 0, -1],
 ];
 
-var count = 9;
+/* Generic function to run a "kernel" which copies the input values "inputArray" into a output buffer.
+   Later verify the values read from the output buffer into a "resultArray" against "expectedArray". */
+var runAndTest = function(commandqueue, kernel, inputArray, resultArray, expectedArray)
+{
+    try {
+        var kernelName = kernel.getInfo(webcl.KERNEL_FUNCTION_NAME);
+        if (inputArray.length != resultArray.length || expectedArray.length != resultArray.length) {
+            testFailed("WebCLKernel setArg() basic test for kernel[" + kernelName + "] failed due to Invalid Input. ");
+            return;
+        }
+
+        var input = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, inputArray.BYTES_PER_ELEMENT * inputArray.length, inputArray);
+        var output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, inputArray.BYTES_PER_ELEMENT * resultArray.length);
+        wtu.setArg(kernel, 0, input);
+        wtu.setArg(kernel, 1, output);
+        wtu.setArg(kernel, 2, new Uint32Array([inputArray.length]));
+
+        var globalWorkSize = [1024];
+        wtu.enqueueNDRangeKernel(commandqueue, kernel, globalWorkSize.length, [], globalWorkSize, []);
+        wtu.enqueueReadBuffer(commandqueue, output, true, 0, resultArray.BYTES_PER_ELEMENT * resultArray.length, resultArray);
+
+        var flag = true, resultString = "";
+        for (y = 0; y < results.length; y++) {
+            resultString = resultString + results[y] + ", ";
+            if (results[y].toPrecision(2) != expectedArray[y].toPrecision(2)) {
+                flag = false;
+                break;
+            }
+        }
+        if (flag && y == expectedArray.length && y == inputArray.length)
+            testPassed("Test passed for kernel [" + kernelName + "]. Got expected value : " + resultString);
+        else
+            testFailed("Test failed. Expected value : " + expectedArray + " Obtained value: " + resultString);
+    } catch (e) {
+        testFailed("WebCLKernel setArg() basic test throws exception: " + e.description);
+    }
+}
+
 var webCLPlatform, webCLDevices, webCLContext, webCLCommandQueue, webCLProgram, webCLKernel;
 try {
     debug("WebCLKernel setArg() basic type testing.");
@@ -66,49 +108,78 @@ try {
     webCLContext = wtu.createContext();
     webCLCommandQueue = wtu.createCommandQueue(webCLContext);
 
-    var kernelSource = wtu.readKernel("../../../resources/kernels/setArg_basic.cl");
+    var kernelSource = wtu.readKernel("../../../resources/kernels/setArg_basic_functionality.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     wtu.build(webCLProgram, webCLDevices);
 
-    webCLKernel = webCLProgram.createKernel("kernelAllDatatypes");
+    webCLKernel = webCLProgram.createKernel("kernelChar");
+    var inputArray = new Int8Array(kernel_arg_values[0]);
+    var results = new Int8Array(kernel_arg_values[0].length);
+    runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[0]);
 
-    var output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, Float32Array.BYTES_PER_ELEMENT * count);
-    var globalWorkSize = [1];
-    for (i = 0; i < kernel_arg_values.length; i++) {
-        var j, kernel_arg_value = kernel_arg_values[i];
-        try {
-            // Populate data into Typed arrays and set it as kernel arguments.
-            for (j = 0; j < kernel_arg_types.length; j++) {
-                var input = eval("new kernel_arg_types[j](kernel_arg_value[j]);");
-                webCLKernel.setArg(j, input);
-            }
-            webCLKernel.setArg(j, output);
+    webCLKernel = webCLProgram.createKernel("kernelUChar");
+    inputArray = new Uint8Array(kernel_arg_values[1]);
+    results = new Uint8Array(kernel_arg_values[1].length);
+    runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[1]);
 
-            webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, globalWorkSize.length, [], globalWorkSize, []);
+    webCLKernel = webCLProgram.createKernel("kernelShort");
+    inputArray = new Int16Array(kernel_arg_values[2]);
+    results = new Int16Array(kernel_arg_values[2].length);
+    runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[2]);
 
-            var results = new Float32Array(count);
-            webCLCommandQueue.enqueueReadBuffer(output, true, 0, Float32Array.BYTES_PER_ELEMENT * count, results);
+    webCLKernel = webCLProgram.createKernel("kernelUShort");
+    inputArray = new Uint16Array(kernel_arg_values[3]);
+    results = new Uint16Array(kernel_arg_values[3].length);
+    runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[3]);
 
-            var z, flag = true, resultString = "";
-            for (y = 0; y < kernel_arg_types.length; y++) {
-                resultString = resultString + results[y] + ", ";
-                if (results[y].toFixed(2) != kernel_arg_expected_values[i][y].toFixed(2)) {
-                    flag = false;
-                    break;
-                }
-            }
-            if (flag && y == kernel_arg_value.length)
-                testPassed("Test passed. Got expected value : " + kernel_arg_expected_values[i]);
-            else
-                testFailed("Test failed. Expected value : " + kernel_arg_expected_values[i] + " Obtained value: " + resultString);
-        } catch (e) {
-            testFailed("WebCLKernel setArg() basic type throws exception: " + e.message);
-            continue;
-        }
+    webCLKernel = webCLProgram.createKernel("kernelInt");
+    inputArray = new Int32Array(kernel_arg_values[4]);
+    results = new Int32Array(kernel_arg_values[4].length);
+    runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[4]);
+
+    webCLKernel = webCLProgram.createKernel("kernelUInt");
+    inputArray = new Uint32Array(kernel_arg_values[5]);
+    results = new Uint32Array(kernel_arg_values[5].length);
+    runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[5]);
+
+    // Since Int64Aray is not supoprted by WebKit need to use 2 Int32 elements.
+    // So copy the input into a Int32Array of length * 2 size and pass it as input.
+    var x, y, values = kernel_arg_values[6];
+    var input = new Int32Array(values.length * 2);
+    var expectedValues = new Array();
+    for (x = 0, y = 0; x < values.length; x++) {
+        expectedValues.push(kernel_arg_expected_values[6][x][0]);
+        expectedValues.push(kernel_arg_expected_values[6][x][1]);
+        input[y++] = values[x][0];
+        input[y++] = values[x][1];
     }
+    results = new Int32Array(values.length * 2);
+    webCLKernel = webCLProgram.createKernel("kernelLong");
+    runAndTest(webCLCommandQueue, webCLKernel, input, results, expectedValues);
+
+    values = kernel_arg_values[7];
+    input = new Uint32Array(values.length * 2);
+    expectedValues = new Array();
+    for (x = 0, y = 0; x < values.length; x++) {
+        expectedValues.push(kernel_arg_expected_values[7][x][0]);
+        expectedValues.push(kernel_arg_expected_values[7][x][1]);
+        input[y++] = values[x][0];
+        input[y++] = values[x][1];
+    }
+    results = new Uint32Array(values.length * 2);
+
+    webCLKernel = webCLProgram.createKernel("kernelULong");
+    runAndTest(webCLCommandQueue, webCLKernel, input, results, expectedValues);
+
+    webCLKernel = webCLProgram.createKernel("kernelFloat");
+    inputArray = new Float32Array(kernel_arg_values[8]);
+    results = new Float32Array(kernel_arg_values[8].length);
+    runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[8]);
+
 } catch (e) {
     testFailed("WebCLKernel setArg() basic type throws exception: " + e.message);
 }
+
 successfullyParsed = true;
 </script>
 <script src="../../../resources/js-test-post.js"></script>

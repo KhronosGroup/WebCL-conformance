@@ -36,7 +36,7 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-var callback = function(event)
+var callback = function()
 {
     console.log("inside callback");
 }
@@ -47,22 +47,43 @@ try {
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var webCLContextNew = wtu.createContext();
-    var webCLEvent = wtu.createEvent(webCLContext);
-    var webCLEvent1 = wtu.createEvent(webCLContext);
-    var webCLEventNew = wtu.createEvent(webCLContextNew);
+    var webCLEvent = wtu.createEvent();
 
-    shouldBeUndefined("webcl.waitForEvents([webCLEvent, webCLEvent1]);");
-    shouldBeUndefined("webcl.waitForEvents([webCLEvent, webCLEvent1], callback);");
+    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+    var srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var dstBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var srcOffset = 0, dstOffset = 0;
+    var numBytes = BUFFER_SIZE;
+
+    wtu.enqueueCopyBuffer(webCLCommandQueue, srcBuffer, dstBuffer, srcOffset, dstOffset, numBytes, [], webCLEvent);
+    webCLCommandQueue.flush();
+
+    shouldBeUndefined("webcl.waitForEvents([webCLEvent]);");
+    shouldBeUndefined("webcl.waitForEvents([webCLEvent], callback);");
+
+    /*
+     *  Testcases with webCLUserEvent.
+     */
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
+    var webCLUserEventNew = wtu.createUserEvent(webCLContextNew);
+    var hostPtr = new Float32Array(SIZE);
+    webCLCommandQueue.enqueueReadBuffer(dstBuffer, true, dstOffset, numBytes, hostPtr, [], webCLUserEvent);
+    webCLCommandQueue.flush();
+
+    shouldBeUndefined("webcl.waitForEvents([webCLUserEvent]);");
+    shouldBeUndefined("webcl.waitForEvents([webCLUserEvent], callback);");
 
     // Testing for exceptions.
-    shouldThrowExceptionName("webcl.waitForEvents();", "INVALID_VALUE");
+    shouldThrowExceptionName("webcl.waitForEvents(null);", "INVALID_VALUE");
     shouldThrowExceptionName("webcl.waitForEvents([]);", "INVALID_VALUE");
-    shouldThrowExceptionName("webcl.waitForEvents([webCLEvent, webCLEventNew]);", "INVALID_CONTEXT");
-    wtu.release(webCLEvent1);
-    shouldThrowExceptionName("webcl.waitForEvents([webCLEvent, webCLEvent1]);", "INVALID_EVENT");
+    shouldThrowExceptionName("webcl.waitForEvents([webCLUserEvent, webCLUserEventNew]);", "INVALID_CONTEXT");
 
-    wtu.setStatus(webCLEvent, -1);
-    shouldThrowExceptionName("webcl.waitForEvents([webCLEvent]);", "INVALID_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
+    var releasedEvent = wtu.createUserEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webcl.waitForEvents([webCLUserEvent, releasedEvent]);", "INVALID_EVENT");
+
+    wtu.setStatus(webCLUserEvent, -1);
+    shouldThrowExceptionName("webcl.waitForEvents([webCLUserEvent]);", "INVALID_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
 } catch(e) {
     testFailed(e.description);

@@ -77,6 +77,26 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferRead, origin, region, dstOffset);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageWrite, webCLBufferRead, origin, region, dstOffset);");
 
+    // Testing with events.
+    var webCLEvent = wtu.createEvent();
+    wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [], webCLEvent);
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLEvent]);");
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLUserEvent]);");
+    wtu.setStatus(webCLUserEvent, webcl.COMPLETE);
+
+    webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [], webCLEvent);");
+
+    // Testing for exceptions.
+    var releasedEvent = wtu.createUserEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLUserEvent], webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLUserEvent], webCLEvent);", "INVALID_EVENT");
+
     // Testing for Exceptions.
     var releasedImage = wtu.createImage(webCLContext, webcl.MEM_WRITE_ONLY, webCLImageDescriptorReadWrite);
     wtu.release(releasedImage);
@@ -121,9 +141,12 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLUserEventNew], webCLEvent);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLUserEvent], webCLEvent);", "INVALID_CONTEXT");
 
-    var releasedEvent = wtu.createUserEvent(webCLContext);
-    wtu.release(releasedEvent);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueCopyImageToBuffer(webCLCommandQueue, webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [], webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLEvent]);", "INVALID_CONTEXT");
+    var webCLEventNew = wtu.createEvent();
+    wtu.enqueueCopyImageToBuffer(webCLCommandQueueNew, webCLImageNew, webCLBufferNew, origin, region, dstOffset, [], webCLEventNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset, [webCLEventNew]);", "INVALID_CONTEXT");
 
 } catch (e) {
     testFailed(e.description);

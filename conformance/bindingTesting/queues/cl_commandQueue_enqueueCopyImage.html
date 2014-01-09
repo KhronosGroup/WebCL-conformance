@@ -75,6 +75,26 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImageRead, dstImageRead, srcOrigin, dstOrigin, region);")
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImageWrite, dstImageRead, srcOrigin, dstOrigin, region);");
 
+    // Testing with events.
+    var webCLEvent = wtu.createEvent();
+    wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [], webCLEvent);
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLEvent]);");
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLUserEvent]);");
+    wtu.setStatus(webCLUserEvent, webcl.COMPLETE);
+
+    webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [], webCLEvent);");
+
+    // Testing for exceptions.
+    var releasedEvent = wtu.createUserEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLUserEvent], webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLUserEvent], webCLEvent);", "INVALID_EVENT");
+
     // Testing for values of Image Offsets.
     var srcOriginInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageRead, dstImageWrite, srcOriginInvalid, dstOrigin, region);", "INVALID_VALUE");
@@ -106,7 +126,6 @@ try {
     wtu.release(releasedImage);
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, releasedImage, srcOrigin, dstOrigin, region);", "INVALID_MEM_OBJECT");
 
-
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, srcImageReadWrite, [0, 0], [10, 10], [9, 9]);");
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, srcImageReadWrite, [100,100], [1, 1], [100, 100]);", "MEM_COPY_OVERLAP");
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, srcImageReadWrite, [100,100], [1, 1], [100, 100]);", "MEM_COPY_OVERLAP");
@@ -133,9 +152,12 @@ try {
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLUserEvent], webCLEvent);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLUserEventNew], webCLEvent);", "INVALID_CONTEXT");
 
-    var releasedEvent = wtu.createUserEvent(webCLContext);
-    wtu.release(releasedEvent);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [], webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLEvent]);", "INVALID_CONTEXT");
+    var webCLEventNew = wtu.createEvent();
+    wtu.enqueueCopyImage(webCLCommandQueueNew, srcImageNew, dstImageNew, srcOrigin, dstOrigin, region, [], webCLEventNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLEventNew]);", "INVALID_CONTEXT");
 
     // FIXME To add test cases to verify : MEM_OBJECT_ALLOCATION_FAILURE & INVALID_IMAGE_SIZE.
 

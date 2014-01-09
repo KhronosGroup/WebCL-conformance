@@ -102,13 +102,13 @@ try {
     try {
         webCLdeviceCPU = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_CPU)[0];
         webCLdeviceGPU = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_GPU)[0];
-        webCLContextALL = wtu.createContext(webCLPlatform, [webCLdeviceCPU, webCLdeviceGPU]);
+        webCLContextALL = wtu.createContext([webCLdeviceCPU, webCLdeviceGPU]);
 
         webCLProgramALL = wtu.createProgram(webCLContextALL, kernelSource);
         wtu.build(webCLProgramALL, [webCLdeviceCPU]);
         webCLKernelCPU = wtu.createKernel(webCLProgramALL, "square");
 
-        webCLCommandQueueGPU = wtu.createCommandQueue(webCLContext, webCLdeviceGPU);
+        webCLCommandQueueGPU = wtu.createCommandQueue(webCLContextALL, webCLdeviceGPU);
         shouldThrowExceptionName("webCLCommandQueueGPU.enqueueNDRangeKernel(webCLKernelCPU, workDim, [], globalWorkSize, []);", "INVALID_PROGRAM_EXECUTABLE");
     } catch (e) {
         testFailed("WebCLCommandQueue :: enqueueNDRangeKernel() test for INVALID_PROGRAM_EXECUTABLE threw : " + e.message);

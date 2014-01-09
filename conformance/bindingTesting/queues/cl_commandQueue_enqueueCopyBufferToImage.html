@@ -77,6 +77,26 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageRead, srcOffset, origin, region);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferWrite, webCLImageRead, srcOffset, origin, region);");
 
+    // Testing with events.
+    var webCLEvent = wtu.createEvent();
+    wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [], webCLEvent);
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [webCLEvent]);");
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [webCLUserEvent]);");
+    wtu.setStatus(webCLUserEvent, webcl.COMPLETE);
+
+    webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [], webCLEvent);");
+
+    // Testing for exceptions.
+    var releasedEvent = wtu.createUserEvent(webCLContext);
+    wtu.release(releasedEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [webCLUserEvent], webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [webCLUserEvent], webCLEvent);", "INVALID_EVENT");
+
     // Testing for Exceptions.
     var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
     wtu.release(releasedBuffer);
@@ -121,9 +141,12 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [webCLUserEventNew], webCLEvent);", "INVALID_CONTEXT");
     shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [webCLUserEvent], webCLEvent);", "INVALID_CONTEXT");
 
-    var releasedEvent = wtu.createUserEvent(webCLContext);
-    wtu.release(releasedEvent);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [], webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [webCLEvent]);", "INVALID_CONTEXT");
+    var webCLEventNew = wtu.createEvent();
+    wtu.enqueueCopyBufferToImage(webCLCommandQueueNew, webCLBufferNew, webCLImageNew, srcOffset, origin, region, [], webCLEventNew);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [webCLEventNew]);", "INVALID_CONTEXT");
 
     // FIXME To add test cases to verify for INVALID_IMAGE_SIZE & MEM_OBJECT_ALLOCATION_FAILURE.
 

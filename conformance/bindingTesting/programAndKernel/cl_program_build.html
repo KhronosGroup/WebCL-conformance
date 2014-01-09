@@ -57,7 +57,7 @@ try {
     var createContextAndProgram = function (webCLPlatform, type) {
         try {
             webCLDevice = wtu.getDevices(webCLPlatform, type);
-            webCLContext = wtu.createContext(webCLPlatform, webCLDevice);
+            webCLContext = wtu.createContext(webCLDevice);
             webCLProgram = wtu.createProgram(webCLContext, kernelSource);
             return webCLDevice;
         } catch (e) {
@@ -127,6 +127,11 @@ try {
 
     // Testing for Exceptions.
 
+    // Testing for exception "INVALID_OPERATION".
+    wtu.build(webCLProgram, webCLDevice);
+    wtu.createKernel(webCLProgram, "square");
+    shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "INVALID_OPERATION");
+
     // Testing for exception "BUILD_PROGRAM_FAILURE".
     kernelSource = wtu.readKernel("../../../resources/kernels/nbody_simulation_bad.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
@@ -139,18 +144,15 @@ try {
     shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "INVALID_OPERATION");
 
     // Testing for exception "INVALID_DEVICE".
-    var webCLDevicesCPU = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_CPU);
-    webCLContext = wtu.createContext(webCLPlatform, webCLDevicesCPU);
-    kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
-    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    var webCLDevicesNew = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_GPU);
-    shouldThrowExceptionName("webCLProgram.build(webCLDevicesNew[0]);", "INVALID_DEVICE");
-
-    // Testing for exception "INVALID_OPERATION".
-    wtu.build(webCLProgram, webCLDevicesCPU);
-    wtu.createKernel(webCLProgram, "square");
-    shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "INVALID_OPERATION");
-
+    var devices = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
+    if (devices.length > 1) {
+        var webCLDevice1 = devices[0];
+        var webCLContext1 = wtu.createContext(webCLDevice1);
+        kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
+        var webCLProgram1 = wtu.createProgram(webCLContext1, kernelSource);
+        var webCLDevice2 = devices[1];
+        shouldThrowExceptionName("webCLProgram1.build([webCLDevice2]);", "INVALID_DEVICE");
+    }
 } catch (e) {
     testFailed(e.description);
 }
