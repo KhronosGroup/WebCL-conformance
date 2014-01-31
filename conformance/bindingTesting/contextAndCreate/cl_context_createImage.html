@@ -47,15 +47,13 @@ try {
     var imageWidth = 100;
     var imageHeight = 100;
 
-    var hostPtr = new Float32Array(SIZE);
-    count = SIZE;
-    for (var i = 0; i < count; i++) {
-        hostPtr[i] = Math.random();
-    }
-
     var webCLImageDescriptorRead = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
     var webCLImageDescriptorWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_WRITE_ONLY, imageWidth, imageHeight);
     var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
+
+    var arrayType = wtu.getArrayTypeForChanneltype(webCLImageDescriptorRead.channelType);
+    var hostPtr = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptorRead.channelOrder))");
+    hostPtr = wtu.generateRandomNumberInRange(hostPtr, 0, 255, hostPtr.length);
 
     // Testing for MEM_READ_ONLY images.
     shouldBeType("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptorRead)", WebCLImage);
@@ -122,8 +120,7 @@ try {
 
     //Testing for INVALID_HOST_POINTER.
     var webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
-    webCLImageDescriptor.rowPitch = imageWidth * Float32Array.BYTES_PER_ELEMENT;
-    var invalidHostPointer = new Float32Array(((webCLImageDescriptor.rowPitch * webCLImageDescriptor.height) / Float32Array.BYTES_PER_ELEMENT) - 1);
+    var invalidHostPointer = eval("new " + arrayType + "((webCLImageDescriptor.width * webCLImageDescriptor.height) - 1)");
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptor, invalidHostPointer);", "INVALID_HOST_PTR");
 
     // FIXME :: To add test case to verify exception: IMAGE_FORMAT_NOT_SUPPORTED

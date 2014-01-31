@@ -584,6 +584,52 @@ var enqueueMarker = function(webCLCommandQueue, webCLEvent) {
     }
 }
 
+var getBytesForChannelOrder = function(channelOrder) {
+    switch (channelOrder) {
+        case webcl.R:
+        case webcl.A:
+        case webcl.INTENSITY:
+        case webcl.LUMINANCE:
+            return 1;
+        case webcl.RG:
+        case webcl.RA:
+        case webcl.Rx:
+            return 2;
+        case webcl.RGB:
+        case webcl.RGx:
+            return 3;
+        case webcl.RGBA:
+        case webcl.BGRA:
+        case webcl.ARGB:
+        case webcl.RGBx:
+            return 4;
+    }
+}
+
+var getArrayTypeForChanneltype = function(channelType) {
+    switch (channelType) {
+        case webcl.SNORM_INT8:
+        case webcl.UNORM_INT8:
+        case webcl.SIGNED_INT8:
+        case webcl.UNSIGNED_INT8:
+            return "Uint8Array";
+        case webcl.SNORM_INT16:
+        case webcl.UNORM_INT16:
+        case webcl.SIGNED_INT16:
+        case webcl.UNSIGNED_INT16:
+        case webcl.HALF_FLOAT:
+            return "Uint16Array";
+        case webcl.SIGNED_INT32:
+        case webcl.UNSIGNED_INT32:
+        case webcl.FLOAT:
+            return "Uint32Array";
+        case webcl.UNORM_SHORT_565:
+        case webcl.UNORM_SHORT_555:
+        case webcl.UNORM_INT_101010:
+            throw {description: "getArrayTypeForChanneltype threw exception as " + channelType + " is not supported"};
+    }
+}
+
 return {
 createContext:createContext,
 createProgram:createProgram,
@@ -625,6 +671,8 @@ setStatus:setStatus,
 getArgInfo:getArgInfo,
 enableExtension:enableExtension,
 enqueueMarker:enqueueMarker,
+getBytesForChannelOrder:getBytesForChannelOrder,
+getArrayTypeForChanneltype:getArrayTypeForChanneltype,
 none:false
 };
 }());

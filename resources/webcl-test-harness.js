@@ -444,7 +444,8 @@ TestHarness.reportType = {
   START_PAGE: 3,
   TEST_RESULT: 4,
   FINISH_PAGE: 5,
-  FINISHED_ALL_TESTS: 6
+  FINISHED_ALL_TESTS: 6,
+  GET_PAGE: 7
 };
 
 TestHarness.prototype.addFiles_ = function(success, files) {
@@ -565,6 +566,11 @@ TestHarness.prototype.notifyFinished = function(url) {
   this.dequeTest(test);
   this.reportFunc(TestHarness.reportType.FINISH_PAGE, url, url, true, null, this.isFolder);
   this.startNextTest();
+};
+
+TestHarness.prototype.getPage = function(url) {
+    url = FilterURL(url);
+    return this.reportFunc(TestHarness.reportType.GET_PAGE, url);
 };
 
 TestHarness.prototype.timeout = function(test) {

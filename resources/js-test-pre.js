@@ -85,6 +85,12 @@ function reportTestResultsToHarness(success, msg) {
   }
 }
 
+function getTestCaseCount() {
+    if (window.parent.webclTestHarness) {
+        return window.parent.webclTestHarness.getPage(window.location.pathname);
+    }
+}
+
 function notifyFinishedToHarness() {
   if (window.parent.webclTestHarness) {
     window.parent.webclTestHarness.notifyFinished(window.location.pathname);
@@ -122,13 +128,15 @@ function escapeHTML(text)
 function testPassed(msg)
 {
     reportTestResultsToHarness(true, msg);
-    debug('<span><span class="pass">PASS</span> ' + escapeHTML(msg) + '</span>');
+    var tid = getTestCaseCount();
+    debug(tid + " : " + '<span><span class="pass">PASS</span> ' + escapeHTML(msg) + '</span>');
 }
 
 function testFailed(msg)
 {
     reportTestResultsToHarness(false, msg);
-    debug('<span><span class="fail">FAIL</span> ' + escapeHTML(msg) + '</span>');
+    var tid = getTestCaseCount();
+    debug(tid + " : " + '<span><span class="fail">FAIL</span> ' + escapeHTML(msg) + '</span>');
 }
 
 function areArraysEqual(_a, _b)

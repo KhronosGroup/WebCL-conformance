@@ -256,8 +256,9 @@ function start() {
       // don't report success.
       return;
     } else {
-      var result = "failed";
+      var result = this.totalTests + " : failed";
       var css = "fail";
+      this.testFailures.push(this.totalTests);
     }
 
     var divChildren = this.elem.getElementsByTagName('DIV')[0].children;
@@ -284,6 +285,7 @@ function start() {
     this.totalSuccessful = 0;
     this.totalTimeouts = 0;
     this.totalSkipped = 0;
+    this.testFailures = [];
     // remove previous results.
     while (this.resultElem.hasChildNodes()) {
       this.resultElem.removeChild(this.resultElem.childNodes[0]);
@@ -610,7 +612,8 @@ function start() {
             if (!(page.totalTests == 0 && page.totalTimeouts == 0) &&
                 pageTotalFail > 0)
             {
-            tx += url + ": " + pageTotalFail + " tests failed";
+            tx += url + ": " + pageTotalFail + " tests failed. \t And they are : ";
+            tx += page.testFailures + ".";
             if (page.totalTimeouts)
                 tx += " (" + page.totalTimeouts + " timed out)";
             tx += "\n";
@@ -621,21 +624,51 @@ function start() {
       }
       tx += "\n";
       tx += "-------------------\n\n";
-      tx += "Complete Test Results (total / pass / fail / timeout / skipped):\n\n";
+      tx += "Complete Test Results :\n\n";
+      var r = document.getElementById("testResultsAsText");
+      while (r.firstChild) r.removeChild(r.firstChild);
+      r.appendChild(document.createTextNode(tx));
+
+      var resultTable = document.createElement("table");
+      resultTable.setAttribute("border", "1");
+        var row = resultTable.insertRow(-1);
+            var cell1 = row.insertCell(0);
+            cell1.innerHTML = "URL";
+            var cell2 = row.insertCell(1);
+            cell2.innerHTML = "pass";
+            var cell3 = row.insertCell(2);
+            cell3.innerHTML = "fail";
+            var cell4 = row.insertCell(3);
+            cell4.innerHTML = "timeout";
+            var cell5 = row.insertCell(4);
+            cell5.innerHTML = "skipped";
+            var cell6 = row.insertCell(5);
+            cell6.innerHTML = "total";
       for (var url in this.pagesByURL) {
         var page = this.pagesByURL[url];
-        var pageTotalFail = page.totalTests - page.totalSuccessful - page.totalSkipped;
         if (!(page.totalTests == 0 && page.totalTimeouts == 0)) {
-          tx += url + ": " + page.totalTests + " / " +
-              page.totalSuccessful + " / " + pageTotalFail + " / " + page.totalTimeouts + " / " + page.totalSkipped + "\n";
+            var row = resultTable.insertRow(-1);
+            var cell1 = row.insertCell(0);
+            cell1.innerHTML = url;
+            var cell2 = row.insertCell(1);
+            cell2.innerHTML = page.totalSuccessful;
+            var cell3 = row.insertCell(2);
+            var pageTotalFail = page.totalTests - page.totalSuccessful - page.totalSkipped;
+            cell3.innerHTML = pageTotalFail;
+            var cell4 = row.insertCell(3);
+            cell4.innerHTML = page.totalTimeouts;
+            var cell5 = row.insertCell(4);
+            cell5.innerHTML = page.totalSkipped;
+            var cell6 = row.insertCell(5);
+            cell6.innerHTML = page.totalTests;
         }
       }
+      r.appendChild(resultTable);
+      var tx = "";
       tx += "\n";
       tx += "-------------------\n\n";
       tx += "Generated on: " + (new Date()).toString() + "\n";
 
-      var r = document.getElementById("testResultsAsText");
-      while (r.firstChild) r.removeChild(r.firstChild);
       r.appendChild(document.createTextNode(tx));
       document.getElementById("showTextSummary").style.visibility = "visible";
 
@@ -692,6 +725,8 @@ function start() {
         return this.finishPage(url, success, skipped, isFolder);
       case reportType.FINISHED_ALL_TESTS:
         return this.displayFinalResults(msg, success);
+      case reportType.GET_PAGE:
+        return this.pagesByURL[url].totalTests;
       default:
         throw 'unhandled';
         break;
@@ -936,7 +971,7 @@ function displayDevices() {
             label.id="lbl" + deviceType;
             devices.appendChild(label);
         }
-        devices.innerHTML = devices.innerHTML + '&nbsp;&nbsp;<span><input id="submit" type="button" name="submit" value="submit" onClick="getTestCases(); return 0;" disabled=true></input></span>';
+        devices.innerHTML = devices.innerHTML;
     } else {
         console.error("Failed in fetching devices.");
         return 0;
@@ -944,7 +979,7 @@ function displayDevices() {
 }
 function displaySubmit() {
     var inputElements = document.getElementsByTagName("input");
-    for (var i = 0; i < inputElements.length; i++)
+    for (var i = 0; i < inputElements.length; i++) {
         // Enabling "submit" button if atleast one of the devices is selected.
         if (inputElements[i].type == "checkbox" && inputElements[i].checked) {
                 document.getElementById("submit").disabled = false;
@@ -953,6 +988,7 @@ function displaySubmit() {
             document.getElementById("submit").disabled = true;
             console.error("No device is selected.");
         }
+    }
 }
 
 function getTestCases() {
@@ -979,9 +1015,18 @@ function getTestCases() {
         return 0;
     }
 
+    var strictModeCheckBox = document.getElementById("strictModeCheckBox");
+    var webCLGlobalObject = CLGlobalVariables.getInstance();
+    if (strictModeCheckBox.checked) {
+        webCLGlobalObject.setStrictFlag(true);
+    } else {
+        webCLGlobalObject.setStrictFlag(false);
+    }
+
     // Display test cases.
     document.getElementById("runTestsButton").disable = false;
     document.getElementById("testResultsHTML").disbale = false;
+    document.getElementById("submit").disabled = true;
     start();
 }
 
@@ -1010,10 +1055,18 @@ function getTestCases() {
             </select>
         </div>
 
+        <div id="strictMode" style="float: right;padding-right: 25px;">
+            <input type="checkbox" value="strictModeCheckBox" id="strictModeCheckBox" onclick="displaySubmit();"> Enable Strict-Mode</input>
+        </div>
+
         <div id="devicesDiv" style="display: none;">
                 <form name="devices" id="devices" disabled=true onClick="displaySubmit(); return 0;" >
                 </form>
         </div>
+
+        <span>
+            <input id="submit" type="button" name="submit" value="submit" onClick="getTestCases(); return 0;" disabled=true></input>
+        </span>
     </div>
 
 <table border="2">

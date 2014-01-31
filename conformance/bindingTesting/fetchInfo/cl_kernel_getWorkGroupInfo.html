@@ -54,7 +54,7 @@ try {
     shouldBe("typeof " + "webCLKernel.getWorkGroupInfo(webCLDevice, webcl.KERNEL_LOCAL_MEM_SIZE);", "'number'");
     shouldBe("typeof " + "webCLKernel.getWorkGroupInfo(webCLDevice, webcl.KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE);", "'number'");
     shouldBe("typeof " + "webCLKernel.getWorkGroupInfo(webCLDevice, webcl.KERNEL_PRIVATE_MEM_SIZE);", "'number'");
-    shouldBeType("webCLKernel.getWorkGroupInfo(webCLDevice, webcl.KERNEL_COMPILE_WORK_GROUP_SIZE);", Array);
+    shouldBeType("webCLKernel.getWorkGroupInfo(webCLDevice, webcl.KERNEL_COMPILE_WORK_GROUP_SIZE);", "Array");
 
     kernelSource = wtu.readKernel("../../../resources/kernels/square_with_attribute.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);

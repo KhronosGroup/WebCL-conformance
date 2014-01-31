@@ -157,10 +157,12 @@ try {
     debug("INVALID_ARG_VALUE::");
     shouldThrowExceptionName("webCLSquareKernel.setArg(0, new Int32Array([10]));", "INVALID_ARG_VALUE");
     shouldThrowExceptionName("webCLKernelVector4.setArg(0, new Int32Array([10, 90, 89, 78, 67]));", "INVALID_ARG_VALUE");
-    shouldThrowExceptionName("webCLKernelVector2.setArg(0, new Int32Array([10, 90, 89]));", "INVALID_ARG_VALUE");
     shouldThrowExceptionName("webCLLocalKernel.setArg(2, new Uint32Array ([1000, 35]));", "INVALID_ARG_VALUE");
     shouldThrowExceptionName("webCLLocalKernel.setArg(2, new Int32Array ([1000]));", "INVALID_ARG_VALUE");
     shouldThrowExceptionName("webCLKernel.setArg(0, [10.90]);", "INVALID_ARG_VALUE");
+
+    shouldThrowExceptionName("webCLKernelVector2.setArg(0, new Int32Array([10, 90, 89]));", "INVALID_ARG_SIZE");
+    shouldThrowExceptionName("webCLLocalKernel.setArg(2, new Uint32Array(0));", "INVALID_ARG_SIZE");
 
     wtu.release(webCLBuffer);
     shouldThrowExceptionName("webCLSquareKernel.setArg(1, webCLBuffer);", "INVALID_MEM_OBJECT");

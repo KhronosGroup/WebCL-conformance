@@ -52,27 +52,28 @@ try {
     var height = 16;
     var region = [width, height];
     var dstOffset = 0;
-    var BUFFER_SIZE = width * height * Float32Array.BYTES_PER_ELEMENT;
 
     var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, width, height);
+    var bufferSize = width * height * wtu.getBytesForChannelOrder(webCLImageDescriptorReadWrite.channelOrder) *
+            eval(wtu.getArrayTypeForChanneltype(webCLImageDescriptorReadWrite.channelType) + ".BYTES_PER_ELEMENT");
     var webCLImageRead = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
     var webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
     var webCLImageWrite = wtu.createImage(webCLContext, webcl.MEM_WRITE_ONLY, webCLImageDescriptorReadWrite);
 
     // Testing for MEM_WRITE_ONLY Buffer.
-    var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
+    var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageRead, webCLBufferWrite, origin, region, dstOffset);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferWrite, origin, region, dstOffset);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageWrite, webCLBufferWrite, origin, region, dstOffset);");
 
     // Testing for MEM_READ_WRITE Buffer.
-    var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageRead, webCLBufferReadWrite, origin, region, dstOffset);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffset);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageWrite, webCLBufferReadWrite, origin, region, dstOffset);");
 
     // Testing for MEM_READ_ONLY Buffer.
-    var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageRead, webCLBufferRead, origin, region, dstOffset);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferRead, origin, region, dstOffset);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageWrite, webCLBufferRead, origin, region, dstOffset);");
@@ -101,7 +102,7 @@ try {
     var releasedImage = wtu.createImage(webCLContext, webcl.MEM_WRITE_ONLY, webCLImageDescriptorReadWrite);
     wtu.release(releasedImage);
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(releasedImage, webCLBufferReadWrite, origin, region, dstOffset);", "INVALID_MEM_OBJECT");
-    var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, bufferSize);
     wtu.release(releasedBuffer);
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, releasedBuffer, origin, region, dstOffset);", "INVALID_MEM_OBJECT");
 
@@ -122,7 +123,7 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, regionInvalid, dstOffset);", "INVALID_VALUE");
 
     // Testing for values of destination Offset.
-    var dstOffsetInvalid = BUFFER_SIZE;
+    var dstOffsetInvalid = bufferSize;
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImageToBuffer(webCLImageReadWrite, webCLBufferReadWrite, origin, region, dstOffsetInvalid);", "INVALID_VALUE");
 
     // Testing for exception "INVALID_CONTEXT"
@@ -132,14 +133,14 @@ try {
         var webCLDevice1 = devices[0];
         var webCLContext1 = wtu.createContext(webCLDevice1);
         var webCLCommandQueue1 = wtu.createCommandQueue(webCLContext1, webCLDevice1);
-        var webCLBuffer1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+        var webCLBuffer1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_WRITE, bufferSize);
         var webCLImageDescriptor1 = wtu.getSupportedImageFormats(webCLContext1, webcl.MEM_READ_WRITE, width, height);
         var webCLImage1 = wtu.createImage(webCLContext1, webcl.MEM_READ_WRITE, webCLImageDescriptor1);
 
         var webCLDevice2 = devices[1];
         var webCLContext2 = wtu.createContext(webCLDevice2);
         var webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2, webCLDevice2);
-        var webCLBuffer2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+        var webCLBuffer2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_WRITE, bufferSize);
         var webCLImageDescriptor2 = wtu.getSupportedImageFormats(webCLContext2, webcl.MEM_READ_WRITE, width, height);
         var webCLImage2 = wtu.createImage(webCLContext2, webcl.MEM_READ_WRITE, webCLImageDescriptor2);
 

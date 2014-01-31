@@ -71,6 +71,10 @@ var CLGlobalVariables = (function() {
             throw { name : "WebCLException", message : "CLGlobalVariables ::setwebCLDevices() failed."};
         },
 
+        setStrictFlag : function (value) {
+            this.m_isStrict = value;
+        },
+
         getwebCLPlatform : function() {
             return this.webCLPlatform;
         },

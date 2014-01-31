@@ -52,12 +52,14 @@ try {
     var region = [imageWidth, imageHeight];
     var hostRowPitch = 0;
     var imageArea = imageWidth * imageHeight;
-    var data = new Float32Array(imageArea);
-    var result = new Float32Array(imageArea);
-    data = wtu.generateRandomFloat(data, imageArea);
 
-    var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
-    var webCLImageWithHostPtr = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite, data);
+    var webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
+    var arrayType = wtu.getArrayTypeForChanneltype(webCLImageDescriptor.channelType);
+    var data = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptor.channelOrder))");
+    data = wtu.generateRandomNumberInRange(data, 0, 255, data.length);
+    var result = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptor.channelOrder))");
+
+    var webCLImageWithHostPtr = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor, data);
     wtu.enqueueReadImage(webCLCommandQueue, webCLImageWithHostPtr, true, origin, region, hostRowPitch, result);
     wtu.verifyResult(data, result, imageArea, "Validation of data filled by ArrayBufferView on creation of a image with area : " + imageWidth + " * " + imageHeight);
 } catch(e) {

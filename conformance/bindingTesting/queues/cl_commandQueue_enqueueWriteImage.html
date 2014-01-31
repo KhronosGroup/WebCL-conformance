@@ -49,25 +49,30 @@ try {
     var origin = [0, 0];
     var region = [imageWidth, imageHeight];
     var hostRowPitch = 0;
-    var hostPtr = new Float32Array(imageWidth * imageHeight);
-    for (var i = 0; i < imageWidth * imageHeight; i++) {
-        hostPtr[i] = Math.random();
-    }
 
     // MEM_READ_ONLY images.
     var webCLImageDescriptorObject  = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
+    var arrayType = wtu.getArrayTypeForChanneltype(webCLImageDescriptorObject.channelType);
+    var hostPtr = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptorObject.channelOrder))");
+    hostPtr = wtu.generateRandomNumberInRange(hostPtr, 0, 255, hostPtr.length);
     var webCLImageRead = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorObject);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, origin, region, hostRowPitch, hostPtr);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, origin, region, hostRowPitch, hostPtr);");
 
     // MEM_WRITE_ONLY images.
     webCLImageDescriptorObject = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_WRITE_ONLY, imageWidth, imageHeight);
+    arrayType = wtu.getArrayTypeForChanneltype(webCLImageDescriptorObject.channelType);
+    hostPtr = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptorObject.channelOrder))");
+    hostPtr = wtu.generateRandomNumberInRange(hostPtr, 0, 255, hostPtr.length);
     var webCLImageWrite = wtu.createImage(webCLContext, webcl.MEM_WRITE_ONLY, webCLImageDescriptorObject);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageWrite, true, origin, region, hostRowPitch, hostPtr);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageWrite, false, origin, region, hostRowPitch, hostPtr);");
 
     // MEM_READ_WRITE images.
     webCLImageDescriptorObject = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
+    arrayType = wtu.getArrayTypeForChanneltype(webCLImageDescriptorObject.channelType);
+    hostPtr = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptorObject.channelOrder))");
+    hostPtr = wtu.generateRandomNumberInRange(hostPtr, 0, 255, hostPtr.length);
     var webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorObject);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, false, origin, region, hostRowPitch, hostPtr);");

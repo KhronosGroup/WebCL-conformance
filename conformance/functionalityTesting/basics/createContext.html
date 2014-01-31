@@ -45,7 +45,14 @@ try {
 
     var createContext = function(param1, param2) {
         try {
-            webCLContext = wtu.createContext(param1, param2);
+            // 'createContext' is not called through WTU to avoid usage of globally selected platform and device(s).
+            if (param2 != undefined)
+                webCLContext = webcl.createContext(param1, param2);
+            else if (param1 != undefined)
+                webCLContext = webcl.createContext(param1);
+            else
+                webCLContext = webcl.createContext();
+
             contextDevices = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
 
             if (param1 == undefined) {
@@ -58,7 +65,8 @@ try {
                 if (param1 == webcl.DEVICE_TYPE_DEFAULT)
                     return webCLContext;
                 if (contextDevices[0].getInfo(webcl.DEVICE_TYPE) !== param1) {
-                    console.log("Falied in validating createContext on devieType. Expected: " + param1 + ". Obtained : " + contextDevices[0].getInfo(webcl.DEVICE_TYPE));
+                    console.log("Falied in validating createContext on devieType. " +
+                    "Expected: " + param1 + ". Obtained : " + contextDevices[0].getInfo(webcl.DEVICE_TYPE));
                     return null;
                 }
             } else if (param1 instanceof Array) {
@@ -76,12 +84,14 @@ try {
                 if (contextDevices[0].getInfo(webcl.DEVICE_PLATFORM) === param1) {
                     if (param2) {
                         if (contextDevices[0].getInfo(webcl.DEVICE_TYPE) !== param2) {
-                            console.log("Failed in validating deviceType used to create WebCLContext. Expected : " + param2 + ". Obtained : " + contextDevices[0].getInfo(webcl.DEVICE_TYPE));
+                            console.log("Failed in validating deviceType used to create WebCLContext." +
+                            "Expected : " + param2 + ". Obtained : " + contextDevices[0].getInfo(webcl.DEVICE_TYPE));
                             return null;
                         }
                     }
                 } else {
-                    console.log("Failed in validating platform used to create WebCLContext.  Expected : " + param1 + ". Obtained : " + contextDevices[i].getInfo(webcl.DEVICE_PLATFORM));
+                    console.log("Failed in validating platform used to create WebCLContext." +
+                    "Expected : " + param1 + ". Obtained : " + contextDevices[i].getInfo(webcl.DEVICE_PLATFORM));
                     return null;
                 }
             }
