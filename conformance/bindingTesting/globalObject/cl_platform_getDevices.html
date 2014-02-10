@@ -50,7 +50,7 @@ try {
     shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ALL);", "WebCLDevice");
 
     // Testing for Exceptions.
-    shouldThrowExceptionName("webCLPlatform.getDevices(invalid_CLenum);", "INVALID_VALUE");
+    shouldThrowExceptionName("webCLPlatform.getDevices(invalid_CLenum);", "INVALID_DEVICE_TYPE");
 
 } catch(e) {
     testFailed(e.description);

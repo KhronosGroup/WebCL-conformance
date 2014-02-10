@@ -38,7 +38,7 @@
 <script>
 try {
     debug("WebCLContext createImage test case.");
-    debug("(CLenum memFlags, WebCLImageDescriptor descriptor, optional ArrayBufferView hostPtr)\n");
+    debug("(CLenum memFlags, WebCLImageDescriptor descriptor, optional ArrayBufferView hostPtr = null)\n");
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
@@ -101,6 +101,14 @@ try {
     invalidImageHeight = imageHeightMax + 1;
     webCLImageDescriptorInvalidImageHeight = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, invalidImageHeight);
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorInvalidImageHeight);", "INVALID_IMAGE_SIZE");
+
+    var webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
+    webCLImageDescriptor.rowPitch = 10;
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptor);", "INVALID_IMAGE_SIZE");
+
+    var webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
+    webCLImageDescriptor.rowPitch = (imageWidth * hostPtr.BYTES_PER_ELEMENT) - 1;
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptor, hostPtr);", "INVALID_IMAGE_SIZE");
 
     // Testing for invalid value of channelOrder.
     var webCLImageDescriptorObjectInvalidChannelOrder = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);

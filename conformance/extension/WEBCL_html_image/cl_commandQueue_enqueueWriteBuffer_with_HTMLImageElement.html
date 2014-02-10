@@ -45,7 +45,8 @@ try {
 }
 var webCLContext, webCLCommandQueue, webCLBufferRead, webCLBufferWrite, webCLBufferReadWrite, bufferOffset = 0, bufferOffsetInvalid, webCLBuffer;
 var bufferSize, releasedBuffer, imageWidth, imageHeight, bufferSizeSmall, webCLBufferSmall;
-var webCLContextNew, webCLCommandQueueNew, webCLBufferNew, webCLEvent, webCLEventNew, releasedEvent;
+var webCLPlatform, devices, webCLDevice1, webCLDevice2, webCLContext1, webCLContext2, webCLCommandQueue1, webCLCommandQueue2, webCLBuffer1, webCLBuffer2;
+var releasedEvent, webCLUserEvent, webCLUserEvent1, webCLUserEvent2, webCLEvent1, webCLEvent2;
 function execute() {
     try {
         debug("WebCLCommandQueue :: enqueueWriteBuffer() with HTMLImageElement test case.");
@@ -92,25 +93,45 @@ function execute() {
         webCLBufferSmall = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSizeSmall);
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferSmall, true, bufferOffset, image)", "INVALID_VALUE");
 
-        webCLContextNew = wtu.createContext();
-        webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
-        webCLBufferNew = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
-        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferNew, true, bufferOffset, image)", "INVALID_CONTEXT");
-        shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image)", "INVALID_CONTEXT");
+        // Testing for exception "INVALID_CONTEXT"
+        webCLPlatform = wtu.getPlatform();
+        devices = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
+        if (devices.length > 1) {
+            webCLDevice1 = devices[0];
+            webCLContext1 = wtu.createContext(webCLDevice1);
+            webCLCommandQueue1 = wtu.createCommandQueue(webCLContext1, webCLDevice1);
+            webCLBuffer1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_WRITE, bufferSize);
 
-        webCLEvent = wtu.createEvent(webCLContext);
-        webCLEventNew = wtu.createEvent(webCLContextNew);
-        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, [webCLEventNew], webCLEvent)", "INVALID_CONTEXT");
-        shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, [webCLEvent], webCLEventNew)", "INVALID_CONTEXT");
-        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, [], webCLEventNew)", "INVALID_CONTEXT");
-        shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, [], webCLEvent)", "INVALID_CONTEXT");
+            webCLDevice2 = devices[1];
+            webCLContext2 = wtu.createContext(webCLDevice2);
+            webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2, webCLDevice2);
+            webCLBuffer2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_WRITE, bufferSize);
 
-        releasedEvent = wtu.createEvent(webCLContext);
+            shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteBuffer(webCLBuffer2, true, bufferOffset, image)", "INVALID_CONTEXT");
+            shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteBuffer(webCLBuffer1, true, bufferOffset, image)", "INVALID_CONTEXT");
+
+            webCLUserEvent1 = wtu.createUserEvent(webCLContext1);
+            webCLUserEvent2 = wtu.createUserEvent(webCLContext2);
+            shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteBuffer(webCLBuffer1, true, bufferOffset, image, [webCLUserEvent2])", "INVALID_CONTEXT");
+            shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteBuffer(webCLBuffer2, true, bufferOffset, image, [webCLUserEvent1])", "INVALID_CONTEXT");
+            wtu.setStatus(webCLUserEvent1, webcl.COMPLETE);
+            wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
+
+            webCLEvent1 = wtu.createEvent();
+            webCLCommandQueue1.enqueueWriteBuffer(webCLBuffer1, true, bufferOffset, image, [], webCLEvent1);
+            shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteBuffer(webCLBuffer2, true, bufferOffset, image, [webCLEvent1])", "INVALID_CONTEXT");
+            webCLEvent2 = wtu.createEvent();
+            webCLCommandQueue2.enqueueWriteBuffer(webCLBuffer2, true, bufferOffset, image, [], webCLEvent2);
+            shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteBuffer(webCLBuffer1, true, bufferOffset, image, [webCLEvent2])", "INVALID_CONTEXT");
+        }
+
+        releasedEvent = wtu.createUserEvent(webCLContext);
         wtu.release(releasedEvent);
-        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, [releasedEvent], webCLEvent)", "INVALID_EVENT_WAIT_LIST");
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, [releasedEvent])", "INVALID_EVENT_WAIT_LIST");
 
-        wtu.setStatus(webCLEvent, -1);
-        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, [webCLEvent], webCLEventNew)", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
+        webCLUserEvent = wtu.createUserEvent(webCLContext);
+        wtu.setStatus(webCLUserEvent, -1);
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, [webCLUserEvent])", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
     } catch (e) {
         testFailed(e.description);

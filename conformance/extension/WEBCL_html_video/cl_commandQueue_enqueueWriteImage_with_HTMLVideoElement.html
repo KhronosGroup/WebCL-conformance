@@ -67,20 +67,39 @@ try {
     wtu.release(releasedImage);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(releasedImage, true, video);", "INVALID_MEM_OBJECT");
 
-    var webCLContextNew = wtu.createContext();
-    var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
-    var webCLImageNew = webCLContextNew.createImage(webcl.MEM_READ_ONLY, video);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteImage(webCLImageRead, true, video);", "INVALID_CONTEXT");
+    // Testing for exception "INVALID_CONTEXT"
+    var webCLPlatform = wtu.getPlatform();
+    var devices = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
+    if (devices.length > 1) {
+        var webCLDevice1 = devices[0];
+        var webCLContext1 = wtu.createContext(webCLDevice1);
+        var webCLCommandQueue1 = wtu.createCommandQueue(webCLContext1, webCLDevice1);
+        var webCLImage1 = webCLContext1.createImage(webcl.MEM_READ_ONLY, video);
 
-    var webCLEvent = wtu.createEvent(webCLContext);
-    var webCLEventNew = wtu.createEvent(webCLContextNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video, [webCLEventNew], webCLEvent);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteImage(webCLImageRead, true, video, [webCLEvent], webCLEventNew);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video, [], webCLEventNew);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueWriteImage(webCLImageRead, true, video, [], webCLEvent);", "INVALID_CONTEXT");
+        var webCLDevice2 = devices[1];
+        var webCLContext2 = wtu.createContext(webCLDevice2);
+        var webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2, webCLDevice2);
+        var webCLImage2 = webCLContext2.createImage(webcl.MEM_READ_ONLY, video);
 
-    var releasedEvent = wtu.createEvent(webCLContext);
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteImage(webCLImage2, true, video);", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteImage(webCLImage1, true, video);", "INVALID_CONTEXT");
+
+        var webCLUserEvent1 = wtu.createUserEvent(webCLContext1);
+        var webCLUserEvent2 = wtu.createUserEvent(webCLContext2);
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteImage(webCLImage1, true, video, [webCLUserEvent2]);", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteImage(webCLImage2, true, video, [webCLUserEvent1]);", "INVALID_CONTEXT");
+        wtu.setStatus(webCLUserEvent1, webcl.COMPLETE);
+        wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
+
+        var webCLEvent1 = wtu.createEvent();
+        webCLCommandQueue1.enqueueWriteImage(webCLImage1, true, video, [], webCLEvent1);
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteImage(webCLImage2, true, video, [webCLEvent1]);", "INVALID_CONTEXT");
+        var webCLEvent2 = wtu.createEvent();
+        webCLCommandQueue2.enqueueWriteImage(webCLImage2, true, video, [], webCLEvent2);
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteImage(webCLImage1, true, video, [webCLEvent2]);", "INVALID_CONTEXT");
+    }
+
+    var releasedEvent = wtu.createUserEvent(webCLContext);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
 
     // FIXME To add test case to verify exception : INVALID_IMAGE_SIZE & INVALID_MEM_OBJECT.

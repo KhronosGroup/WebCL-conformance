@@ -163,7 +163,7 @@ try {
 
         shouldContainString("webCLDevice.getInfo(webcl.DEVICE_OPENCL_C_VERSION)", "WebCL C 1.0");
 
-        shouldBeType("webCLDevice.getInfo(webcl.DEVICE_MAX_WORK_ITEM_SIZES)", Int32Array);
+        shouldBeType("webCLDevice.getInfo(webcl.DEVICE_MAX_WORK_ITEM_SIZES)", Array);
 
         shouldBe("webCLDevice.getInfo(webcl.DEVICE_PLATFORM)", "webCLPlatform");
 

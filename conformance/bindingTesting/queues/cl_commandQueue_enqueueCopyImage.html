@@ -130,36 +130,45 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, srcImageReadWrite, [100,100], [1, 1], [100, 100]);", "MEM_COPY_OVERLAP");
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, srcImageReadWrite, [100,100], [1, 1], [100, 100]);", "MEM_COPY_OVERLAP");
 
-    var webCLContextNew = wtu.createContext();
-    var webCLCommandQueueNew = wtu.createCommandQueue(webCLContextNew);
-    var srcImageNew = wtu.createImage(webCLContextNew, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
-    var dstImageNew = wtu.createImage(webCLContextNew, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageNew, dstImageReadWrite, srcOrigin, dstOrigin, region);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageNew, srcOrigin, dstOrigin, region);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageNew, dstImageNew, srcOrigin, dstOrigin, region);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region);", "INVALID_CONTEXT");
+    // Testing for exception "INVALID_CONTEXT"
+    var webCLPlatform = wtu.getPlatform();
+    var devices = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
+    if (devices.length > 1) {
+        var webCLDevice1 = devices[0];
+        var webCLContext1 = wtu.createContext(webCLDevice1);
+        var webCLCommandQueue1 = wtu.createCommandQueue(webCLContext1, webCLDevice1);
+        var webCLImageDescriptor1 = wtu.getSupportedImageFormats(webCLContext1, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
+        var srcImage1 = wtu.createImage(webCLContext1, webcl.MEM_READ_WRITE, webCLImageDescriptor1);
+        var dstImage1 = wtu.createImage(webCLContext1, webcl.MEM_READ_WRITE, webCLImageDescriptor1);
 
-    var webCLImageDescriptors = webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE);
-    var imageDescriptorFormat1 = {width:imageWidth, height:imageHeight, channelOrder:webCLImageDescriptors[1].channelOrder, channelType:webCLImageDescriptors[1].channelType};
-    var imageDescriptorFormat2 = {width:imageWidth, height:imageHeight, channelOrder:webCLImageDescriptors[2].channelOrder, channelType:webCLImageDescriptors[2].channelType};
-    var imageFormat1 = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, imageDescriptorFormat1);
-    var imageFormat2 = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, imageDescriptorFormat2);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(imageFormat1, imageFormat2, srcOrigin, dstOrigin, region);", "IMAGE_FORMAT_MISMATCH");
+        var webCLDevice2 = devices[1];
+        var webCLContext2 = wtu.createContext(webCLDevice2);
+        var webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2, webCLDevice2);
+        var webCLImageDescriptor2 = wtu.getSupportedImageFormats(webCLContext2, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
+        var srcImage2 = wtu.createImage(webCLContext2, webcl.MEM_READ_WRITE, webCLImageDescriptor2);
+        var dstImage2 = wtu.createImage(webCLContext2, webcl.MEM_READ_WRITE, webCLImageDescriptor2);
 
-    var webCLEvent = wtu.createEvent();
-    var webCLUserEvent = wtu.createUserEvent(webCLContext);
-    var webCLUserEventNew = wtu.createUserEvent(webCLContextNew);
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLUserEvent], webCLEvent);", "INVALID_CONTEXT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLUserEventNew], webCLEvent);", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueCopyImage(srcImage1, srcImage2, srcOrigin, dstOrigin, region)", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueCopyImage(srcImage2, srcImage1, srcOrigin, dstOrigin, region)", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueCopyImage(srcImage2, dstImage2, srcOrigin, dstOrigin, region)", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueCopyImage(srcImage2, srcImage1, srcOrigin, dstOrigin, region)", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueCopyImage(srcImage1, srcImage2, srcOrigin, dstOrigin, region)", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueCopyImage(srcImage1, dstImage1, srcOrigin, dstOrigin, region)", "INVALID_CONTEXT");
 
-    webCLEvent = wtu.createEvent();
-    wtu.enqueueCopyImage(webCLCommandQueue, srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [], webCLEvent);
-    shouldThrowExceptionName("webCLCommandQueueNew.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLEvent]);", "INVALID_CONTEXT");
-    var webCLEventNew = wtu.createEvent();
-    wtu.enqueueCopyImage(webCLCommandQueueNew, srcImageNew, dstImageNew, srcOrigin, dstOrigin, region, [], webCLEventNew);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyImage(srcImageReadWrite, dstImageReadWrite, srcOrigin, dstOrigin, region, [webCLEventNew]);", "INVALID_CONTEXT");
+        var webCLUserEvent1 = wtu.createUserEvent(webCLContext1);
+        var webCLUserEvent2 = wtu.createUserEvent(webCLContext2);
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueCopyImage(srcImage1, dstImage1, srcOrigin, dstOrigin, region, [webCLUserEvent2])", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueCopyImage(srcImage2, dstImage2, srcOrigin, dstOrigin, region, [webCLUserEvent1])", "INVALID_CONTEXT");
+        wtu.setStatus(webCLUserEvent1, webcl.COMPLETE);
+        wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
 
-    // FIXME To add test cases to verify : MEM_OBJECT_ALLOCATION_FAILURE & INVALID_IMAGE_SIZE.
+        var webCLEvent1 = wtu.createEvent();
+        wtu.enqueueCopyImage(webCLCommandQueue1, srcImage1, dstImage1, srcOrigin, dstOrigin, region, [], webCLEvent1);
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueCopyImage(srcImage2, dstImage2, srcOrigin, dstOrigin, region, [webCLEvent1])", "INVALID_CONTEXT");
+        var webCLEvent2 = wtu.createEvent();
+        wtu.enqueueCopyImage(webCLCommandQueue2, srcImage2, dstImage2, srcOrigin, dstOrigin, region, [], webCLEvent2);
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueCopyImage(srcImage1, dstImage1, srcOrigin, dstOrigin, region, [webCLEvent2])", "INVALID_CONTEXT");
+    }
 
 } catch (e) {
     testFailed(e.description);

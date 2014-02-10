@@ -838,7 +838,8 @@ function start() {
   button.onclick = function() {
     autoScroll = true;
     reporter.postTestStartToServer();
-    testHarness.runTests();
+    testHarness.runTests({isFolder: true});
+    Results.style.display = "block";
   };
   var textbutton = document.getElementById("showTextSummary");
   textbutton.onclick = function() {
@@ -904,10 +905,6 @@ var getDeviceType = function(webCLDevices) {
 
 function displayDevices() {
     // Fetch the selected platform.
-    var finalResultText = document.getElementById("fullresults");
-    while (finalResultText.hasChildNodes()) {
-        finalResultText.removeChild(finalResultText.childNodes[0]);
-    }
     var results = document.getElementById("results");
     for (var i = 0; i < results.childElementCount; i++) {
         results.childNodes[i].style.display = "none";
@@ -960,6 +957,10 @@ function displaySubmit() {
 
 function getTestCases() {
     // Fetch selected device(s) and verify.
+    var finalResultText = document.getElementById("fullresults");
+    while (finalResultText.hasChildNodes()) {
+        finalResultText.removeChild(finalResultText.childNodes[0]);
+    }
     var webCLGlobalObject = CLGlobalVariables.getInstance();
     var selectedPlatform = webCLGlobalObject.getwebCLPlatform();
 

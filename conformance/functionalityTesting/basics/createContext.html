@@ -132,6 +132,27 @@ try {
     var webCLDevicesALL = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
     shouldBeType("createContext(webCLDevicesALL)", "WebCLContext");
 
+    /*
+     *  Creating context with at least one available valid device type.
+     */
+
+    var flag = false, webCLContextOnDeviceType;
+    var deviceTypeArray = [webcl.DEVICE_TYPE_GPU, webcl.DEVICE_TYPE_CPU, webcl.DEVICE_TYPE_ACCELERATOR];
+    for (var i = 0; i < deviceTypeArray.length; i++) {
+        try {
+            webCLContextOnDeviceType = webcl.createContext(deviceTypeArray[i]);
+        } catch(e) {
+            console.log("Exception thrown for device type : " + deviceTypeArray[i] + " : "  + e.name);
+        }
+        if (webCLContextOnDeviceType instanceof WebCLContext) {
+            flag = true;
+            testPassed("createContext for " + deviceTypeArray[i] + ".");
+            break;
+        }
+    }
+    if (!flag)
+        testFailed("Failed to create context on any of device {GPU, CPU, ACCELERATOR};");
+
 } catch(e) {
     testFailed(e.description);
 }

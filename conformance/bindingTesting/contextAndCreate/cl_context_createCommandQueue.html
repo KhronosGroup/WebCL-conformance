@@ -66,8 +66,6 @@ try {
     }
 
     shouldThrowExceptionName("webCLContext.createCommandQueue(webCLDevices[0], invalid_CLenum);", "INVALID_VALUE");
-    // FIXME To add test case throwing exception : INVALID_QUEUE_PROPERTIES
-
 } catch(e) {
     testFailed(e.description);
 }

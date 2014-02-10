@@ -575,6 +575,15 @@ var enableExtension = function(object, extensionName) {
     }
 }
 
+var enqueueMarker = function(webCLCommandQueue, webCLEvent) {
+    try {
+        return webCLCommandQueue.enqueueMarker(webCLEvent);
+    } catch(e) {
+        e.description = "webCLCommandQueue :: enqueueMarker threw exception : " + e.name;
+        throw e;
+    }
+}
+
 return {
 createContext:createContext,
 createProgram:createProgram,
@@ -615,6 +624,7 @@ getSupportedExtensions:getSupportedExtensions,
 setStatus:setStatus,
 getArgInfo:getArgInfo,
 enableExtension:enableExtension,
+enqueueMarker:enqueueMarker,
 none:false
 };
 }());
