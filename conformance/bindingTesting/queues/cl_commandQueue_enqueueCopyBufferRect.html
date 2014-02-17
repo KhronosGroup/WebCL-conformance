@@ -55,7 +55,7 @@ try {
     var dstSlicePitch = 0;
     var srcOrigin = [0, 0, 0];
     var dstOrigin = [0, 0, 0];
-    var region = [16 * 4, 8, 2]; /* Read as 4 rows of 16 int32 elements each with 2 slice.*/
+    var region = [16 * 4, 8, 2]; /* Read as 8 rows of 16 int32 elements each with 2 slice.*/
 
     // Testing with destination buffer as MEM_READ_WRITE memory object.
     var dstBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE_IN_BYTES);
@@ -136,11 +136,13 @@ try {
     // Testing for values of rectangular region.
     var regionValid = [16 * 4, 8, 1] /* copy only one slice of 8 rows with 16 int32 values each */
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, regionValid, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);");
+    regionInvalid = [0, 0, 0];
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, regionInvalid, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
     var regionInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, regionInvalid, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
-    regionInvalid = [RECT_WIDTH];
+    regionInvalid = [1];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, regionInvalid, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
-    regionInvalid = [RECT_WIDTH, RECT_HEIGHT];
+    regionInvalid = [1, 1];
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, regionInvalid, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");
     regionInvalid = [20 * 4, 8, 2]; /* Read a region of 20 * 8 * 2 int32 values */
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, regionInvalid, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);", "INVALID_VALUE");

@@ -118,6 +118,19 @@ try {
     webCLImageDescriptorObjectInvalidChannelType.channelType = invalid_CLenum;
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorObjectInvalidChannelType);", "INVALID_IMAGE_FORMAT_DESCRIPTOR");
 
+    // Testing for values of rowPitch.
+    var webCLImageDescriptorValidRowPitch = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
+    var elementsPerPixel = wtu.getBytesForChannelOrder(webCLImageDescriptorValidRowPitch.channelOrder);
+    var bytesPerElement = eval(wtu.getArrayTypeForChanneltype(webCLImageDescriptorValidRowPitch.channelType) + ".BYTES_PER_ELEMENT");
+    webCLImageDescriptorValidRowPitch.rowPitch = imageWidth * elementsPerPixel * bytesPerElement;
+    shouldBeType("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorValidRowPitch, hostPtr)", WebCLImage);
+
+    var webCLImageDescriptorInvalidRowPitch = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
+    var elementsPerPixel = wtu.getBytesForChannelOrder(webCLImageDescriptorInvalidRowPitch.channelOrder);
+    var bytesPerElement = eval(wtu.getArrayTypeForChanneltype(webCLImageDescriptorInvalidRowPitch.channelType) + ".BYTES_PER_ELEMENT");
+    webCLImageDescriptorInvalidRowPitch.rowPitch = (imageWidth - 1) * elementsPerPixel * bytesPerElement;
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorInvalidRowPitch, hostPtr);", "INVALID_IMAGE_SIZE");
+
     //Testing for INVALID_HOST_POINTER.
     var webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
     var invalidHostPointer = eval("new " + arrayType + "((webCLImageDescriptor.width * webCLImageDescriptor.height) - 1)");

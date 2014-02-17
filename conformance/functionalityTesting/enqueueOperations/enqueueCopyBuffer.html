@@ -44,38 +44,29 @@ try {
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var srcBuffer, destBuffer;
-    var correct;
-    var count = SIZE;
-    var data = new Int32Array(SIZE);
-    var result = new Int32Array(SIZE);
+    var srcBuffer, dstBuffer, srcOffset, destOffset, partialCopySize;
+    var bufferSize = SIZE * Int32Array.BYTES_PER_ELEMENT;
+    var result, data = new Int32Array(SIZE);
+
+    // Populate data into srcBuffer.
+    data = wtu.generateRandomInt(data, SIZE);
+    srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
+    wtu.enqueueWriteBuffer(webCLCommandQueue, srcBuffer, true, 0, bufferSize, data);
 
     /*
     *   Testing for partial size enqueueCopyBuffer.
-    *   Copies int values from source to destination buffer.
+    *   Copies whole source buffer to destination buffer.
     */
-
     try {
-        var loopCountIndex = 0, loopCount = 20;
-        var srcOffset = 10, destOffset = 5;
-        data = wtu.generateRandomInt(data, loopCount);
+        srcOffset = 0;
+        destOffset = 0;
+        dstBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
 
-        srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-        wtu.enqueueWriteBuffer(webCLCommandQueue, srcBuffer, true, 0, BUFFER_SIZE, data);
-        destBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-        wtu.enqueueCopyBuffer(webCLCommandQueue, srcBuffer, destBuffer, (srcOffset * Int32Array.BYTES_PER_ELEMENT), (destOffset * Int32Array.BYTES_PER_ELEMENT), (loopCount * Int32Array.BYTES_PER_ELEMENT));
-        wtu.enqueueReadBuffer(webCLCommandQueue, destBuffer, true, 0, BUFFER_SIZE, result);
+        wtu.enqueueCopyBuffer(webCLCommandQueue, srcBuffer, dstBuffer, srcOffset, destOffset, bufferSize);
 
-        correct = 0;
-        for (i = srcOffset, j = destOffset; loopCountIndex < loopCount; i++, j++, loopCountIndex++) {
-            if (data[i] == result[j])
-                correct++;
-        }
-        console.log("Computed " + correct + "/" + loopCount + " correct values for partial size enqueueCopyBuffer.");
-        if (correct == loopCount)
-            testPassed("Test passed for all " + loopCount + " values for partial size enqueueCopyBuffer.");
-        else
-            testFailed("Test failed for  partial size enqueueCopyBuffer. Computed " + correct + " / " + loopCount + " correct values.");
+        var result = new Int32Array(SIZE);
+        wtu.enqueueReadBuffer(webCLCommandQueue, dstBuffer, true, 0, bufferSize, result);
+        wtu.verifyResult(data, result, bufferSize, "enqueueCopyBuffer for copying whole source buffer into target.");
 
     } catch(e) {
         testFailed(e.description);
@@ -83,19 +74,40 @@ try {
 
     /*
     *   Testing for complete buffer size enqueueCopyBuffer.
-    *   Copies int values from source to destination buffer.
+    *   Copies 100 values from source to end of destination buffer.
     */
-
     try {
-        data = wtu.generateRandomInt(data, count);
+        partialCopySize = 100 * Int32Array.BYTES_PER_ELEMENT;
+        srcOffset = 0;
+        destOffset = bufferSize - partialCopySize;
+        dstBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
 
-        srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-        wtu.enqueueWriteBuffer(webCLCommandQueue, srcBuffer, true, 0, BUFFER_SIZE, data);
-        destBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-        wtu.enqueueCopyBuffer(webCLCommandQueue, srcBuffer, destBuffer, 0, 0, BUFFER_SIZE);
-        wtu.enqueueReadBuffer(webCLCommandQueue, destBuffer, true, 0, BUFFER_SIZE, result);
+        wtu.enqueueCopyBuffer(webCLCommandQueue, srcBuffer, dstBuffer, srcOffset, destOffset, partialCopySize);
 
-        wtu.verifyResult(data, result, count, "enqueueCopyBuffer for copying complete buffer (of size BUFFER_SIZE) values with 0 offset");
+        var result = new Int32Array(100);
+        wtu.enqueueReadBuffer(webCLCommandQueue, dstBuffer, true, destOffset, partialCopySize, result);
+        wtu.verifyResult(data, result, 100, "enqueueCopyBuffer for copying 100 values from source to end of destination buffer.");
+
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+    /*
+    *   Testing for complete buffer size enqueueCopyBuffer.
+    *   Copies 100 values from end of source to destination buffer.
+    */
+    try {
+        partialCopySize = 100 * Int32Array.BYTES_PER_ELEMENT;
+        srcOffset = bufferSize - partialCopySize;
+        destOffset = 0;
+        dstBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
+
+        wtu.enqueueCopyBuffer(webCLCommandQueue, srcBuffer, dstBuffer, srcOffset, destOffset, partialCopySize);
+
+        var result = new Int32Array(100);
+        wtu.enqueueReadBuffer(webCLCommandQueue, dstBuffer, true, destOffset, partialCopySize, result);
+        var aData = new Int32Array(data.buffer, srcOffset, 100);
+        wtu.verifyResult(aData, result, 100, "enqueueCopyBuffer for copying last 100 values from source to destination buffer.");
 
     } catch(e) {
         testFailed(e.description);

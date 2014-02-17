@@ -36,7 +36,8 @@
 <div id="description"></div>
 <div id="console"></div>
 <div style="position:absolute; left:0px; top:0px; visibility:hidden" id="x">
-    <canvas id="inputCanvas" />
+    <canvas id="inputCanvas" width = 200 height = 100/>
+    <canvas id="invalidCanvas" width = 0 height = 0/>
 </div>
 <script>
 try {
@@ -48,6 +49,7 @@ try {
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     var origin = [0, 0];
     var canvas = document.getElementById("inputCanvas");
+    var invalid_canvas = document.getElementById("invalidCanvas");
 
     var imageWidth = 100;
     var imageHeight = 100;
@@ -59,6 +61,10 @@ try {
     if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
         throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
     }
+
+    webCLContext.releaseAll();
+    webCLContext = wtu.createContext();
+    webCLCommandQueue = wtu.createCommandQueue(webCLContext);
 
     // Testing with image as MEM_READ_ONLY memory object.
     var webCLImageRead = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);

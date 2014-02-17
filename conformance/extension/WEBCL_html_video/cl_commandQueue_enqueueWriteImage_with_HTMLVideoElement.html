@@ -50,20 +50,20 @@ try {
     video.width = "320";
     video.height = "240";
 
-    var webCLImage = webCLContext.createImage(webcl.MEM_READ_ONLY, video);
+    var webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, video);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImage, true, video);", "WEBCL_EXTENSION_NOT_ENABLED");
     if (!wtu.enableExtension(webcl, "WEBCL_html_video")) {
         throw { description : "Failed to enable extension : WEBCL_html_video. Exitting..."};
     }
 
-    var webCLImageRead = webCLContext.createImage(webcl.MEM_READ_ONLY, video);
+    var webCLImageRead = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, video);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video);");
 
     // Testing for exceptions.
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, invalid_video);", "INVALID_HOST_PTR");
 
-    var releasedImage = webCLContext.createImage(webcl.MEM_READ_ONLY, video);
+    var releasedImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, video);
     wtu.release(releasedImage);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(releasedImage, true, video);", "INVALID_MEM_OBJECT");
 
@@ -74,12 +74,12 @@ try {
         var webCLDevice1 = devices[0];
         var webCLContext1 = wtu.createContext(webCLDevice1);
         var webCLCommandQueue1 = wtu.createCommandQueue(webCLContext1, webCLDevice1);
-        var webCLImage1 = webCLContext1.createImage(webcl.MEM_READ_ONLY, video);
+        var webCLImage1 = wtu.createImage(webCLContext1, webcl.MEM_READ_ONLY, video);
 
         var webCLDevice2 = devices[1];
         var webCLContext2 = wtu.createContext(webCLDevice2);
         var webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2, webCLDevice2);
-        var webCLImage2 = webCLContext2.createImage(webcl.MEM_READ_ONLY, video);
+        var webCLImage2 = wtu.createImage(webCLContext2, webcl.MEM_READ_ONLY, video);
 
         shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteImage(webCLImage2, true, video);", "INVALID_CONTEXT");
         shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteImage(webCLImage1, true, video);", "INVALID_CONTEXT");

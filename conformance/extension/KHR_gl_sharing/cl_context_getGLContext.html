@@ -1,8 +1,8 @@
 <!--
- Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+ Copyright (C) 2014 Samsung Electronics Corporation. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
- modification, are permitted provided the following conditions
+ modification, are permitted provided the following condition
  are met:
 
  1.  Redistributions of source code must retain the above copyright
@@ -27,7 +27,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-    <title>WebCLPlatform getDevices conformance test.</title>
+    <title>WebCLContext getGLContext conformance test.</title>
     <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
     <script src="../../../resources/js-test-pre.js"></script>
     <script src="../../../resources/cl_utils.js"></script>
@@ -35,26 +35,26 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
+<div style="position:absolute; left:0px; top:0px; visibility:hidden" id="x">
+    <canvas id="inputCanvas" />
+</div>
 <script>
 try {
-    debug("WebCLPlatform :: getDevices test case.");
-    debug("(optional CLenum deviceType)");
+    debug("WebCLContext :: getGLContext test case.");
 
     var wtu = WebCLTestUtils;
-    var webCLPlatform = wtu.getPlatform();
+    var canvas = document.getElementById("inputCanvas");
+    var glContext = canvas.getContext("experimental-webgl");
 
-    shouldBeArrayOfType("webCLPlatform.getDevices();", "WebCLDevice");
-    shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_CPU);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
-    shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_GPU);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
-    shouldBeTypeOrException("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ACCELERATOR);", "WebCLDevice", "DEVICE_NOT_FOUND", true);
-    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_DEFAULT);", "WebCLDevice");
-    shouldBeArrayOfType("webCLPlatform.getDevices(webcl.DEVICE_TYPE_ALL);", "WebCLDevice");
+    if (!wtu.enableExtension(webcl, "KHR_gl_sharing")) {
+        throw { description : "Failed to enable extension : KHR_gl_sharing. Exitting..."};
+    }
 
-    // Testing for equivalence [Specification : Omitting the device type is equivalent to specifying DEVICE_TYPE_ALL.]
-    shouldBe("webCLPlatform.getDevices();", "webCLPlatform.getDevices(webcl.DEVICE_TYPE_ALL);");
+    var webCLGLContext = wtu.createContext(glContext);
+    shouldBeType("webCLGLContext.getGLContext();", "WebGLRenderingContext");
 
-    // Testing for Exceptions.
-    shouldThrowExceptionName("webCLPlatform.getDevices(invalid_CLenum);", "INVALID_DEVICE_TYPE");
+    var webCLContext = wtu.createContext();
+    shouldThrowExceptionName("webCLContext.getGLContext();", "INVALID_CONTEXT");
 
 } catch(e) {
     testFailed(e.description);

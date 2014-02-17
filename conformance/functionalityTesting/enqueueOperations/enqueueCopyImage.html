@@ -43,23 +43,23 @@ try {
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var correct, partialCopySize = 10;
-    var count = SIZE;
+    var partialCopySize;
     var data, result;
     var dstImage, srcOrigin, dstOrigin, copySrcOrigin, copyDstOrigin, region, copyRegion;
-    var imageWidth = 20, imageHeight = 20;
-    var imageArea = imageWidth * imageHeight * 4;
 
+    var imageWidth = 20, imageHeight = 20;
+    var webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
+    var arrayType = wtu.getArrayTypeForChanneltype(webCLImageDescriptor.channelType);
+    var elementsPerPixel = wtu.getBytesForChannelOrder(webCLImageDescriptor.channelOrder);
+    var imageSizeInBytes = imageWidth * imageHeight * elementsPerPixel;
+
+    // Create input buffer and populate with int8 values.
+    data = eval("new " + arrayType + "(imageSizeInBytes)");
+    data = wtu.generateRandomInt(data, imageSizeInBytes);
+    var srcImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor, data);
     srcOrigin = [0, 0];
     dstOrigin = [0, 0];
     region = [imageWidth, imageHeight];
-    var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
-    webCLImageDescriptorReadWrite.channelOrder = webcl.RGBA;
-    webCLImageDescriptorReadWrite.channelType = webcl.UNSIGNED_INT8;
-    var srcImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
-    data = new Uint8Array(imageArea);
-    data = wtu.generateRandomInt(data, imageArea);
-    wtu.enqueueWriteImage(webCLCommandQueue, srcImage, true, srcOrigin, region, 0, data);
 
     /*
     *   Testing for copyImage with WebCLImages.
@@ -70,14 +70,14 @@ try {
         copyDstOrigin = [0, 0];
         copyRegion = [imageWidth, imageHeight];
 
-        result = new Uint8Array(imageArea);
-        dstImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+        result = eval("new " + arrayType + "(imageSizeInBytes)");
+        dstImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
 
         wtu.enqueueCopyImage(webCLCommandQueue, srcImage, dstImage, copySrcOrigin, copyDstOrigin, copyRegion);
 
         // Verify reading the dstImage -> result Array and check against input data array.
         wtu.enqueueReadImage(webCLCommandQueue, dstImage, true, dstOrigin, region, 0, result);
-        wtu.verifyResult(data, result, imageArea, "Test case for copying whole Image into destination image.");
+        wtu.verifyResult(data, result, imageSizeInBytes, "Test case for copying whole Image into destination image.");
     } catch(e) {
         testFailed(e.description);
     }
@@ -86,19 +86,18 @@ try {
     *   Copies First 10 pixels of a source image to destination image.
     */
     try  {
-        partialCopySize = 10 * 4;
+        partialCopySize = 10 * elementsPerPixel;
         copySrcOrigin = [0, 0];
         copyDstOrigin = [0, 0];
         copyRegion = [10, 1];
 
-        result = new Uint8Array(imageArea);
-        dstImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+        result = eval("new " + arrayType + "(imageSizeInBytes)");
+        dstImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
 
         wtu.enqueueCopyImage(webCLCommandQueue, srcImage, dstImage, copySrcOrigin, copyDstOrigin, copyRegion);
 
         // Verify reading the dstImage -> result Array and check against input data array.
         wtu.enqueueReadImage(webCLCommandQueue, dstImage, true, dstOrigin, region, 0, result);
-        correct = 0;
         wtu.verifyResult(data, result, partialCopySize, "Test case for copying first 10 pixels from srcImage into destination image.");
 
     } catch(e) {
@@ -109,21 +108,20 @@ try {
     *   Copies Last 20 pixels of a source image to destination image.
     */
     try  {
-        partialCopySize = 20 * 4;
+        partialCopySize = 20 * elementsPerPixel;
         copySrcOrigin = [0, 19];
         copyDstOrigin = [0, 0];
         copyRegion = [20, 1];
 
-        result = new Uint8Array(imageArea);
-        dstImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+        result = eval("new " + arrayType + "(imageSizeInBytes)");
+        dstImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
 
         wtu.enqueueCopyImage(webCLCommandQueue, srcImage, dstImage, copySrcOrigin, copyDstOrigin, copyRegion);
 
         // Verify reading the dstImage -> result Array and check against input data array.
         wtu.enqueueReadImage(webCLCommandQueue, dstImage, true, dstOrigin, region, 0, result);
-        correct = 0;
         // Get a subarray of last row of data to validate it with copied values.
-        aData = new Uint8Array(data.buffer, result.BYTES_PER_ELEMENT * 20 * 19 * 4, 20 * 4);
+        aData = eval("new " +  arrayType + "(data.buffer, result.BYTES_PER_ELEMENT * 20 * 19 * elementsPerPixel, 20 * elementsPerPixel)");
         wtu.verifyResult(aData, result, partialCopySize, "Test case for copying last 20 pixels from srcImage into destination image.");
 
     } catch(e) {
@@ -134,13 +132,13 @@ try {
     *   Copies First pixel of a source image to destination image.
     */
     try  {
-        partialCopySize = 20 * 4;
+        partialCopySize = 20 * elementsPerPixel;
         copySrcOrigin = [0, 0];
         copyDstOrigin = [0, 0];
         copyRegion = [1, 20];
 
-        result = new Uint8Array(imageArea);
-        dstImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+        result = eval("new " + arrayType + "(imageSizeInBytes)");
+        dstImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
 
         wtu.enqueueCopyImage(webCLCommandQueue, srcImage, dstImage, copySrcOrigin, copyDstOrigin, copyRegion);
 
@@ -148,10 +146,12 @@ try {
         wtu.enqueueReadImage(webCLCommandQueue, dstImage, true, dstOrigin, region, 0, result);
         var results = 0;
         for (var i = 0; i < result.length; i++)
-            if (result[i] != 0 && data[i] == result[i])
+            if (result[i] != 0 && data[i] == result[i]) {
                 results++;
+                i = i + 3;
+            }
 
-        if (results == partialCopySize)
+        if (results == 20)
             testPassed("Test passed for test case for copying first pixel from srcImage into destination image.");
         else
             testFailed("Test Failed for test case for copying first pixel from srcImage into destination image. Copied only " + results + " pixels. Expected " + partialCopySize+ ".");
@@ -163,20 +163,19 @@ try {
     *   Copies first 40 pixels of a source image to end of destination image.
     */
     try  {
-        partialCopySize = 40 * 4;
+        partialCopySize = 40 * elementsPerPixel;
         copySrcOrigin = [0, 0];
         copyDstOrigin = [0, 18];
         copyRegion = [20, 2];
         dstOrigin = [0, 18];
 
-        result = new Uint8Array(imageArea);
-        dstImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
+        result = eval("new " + arrayType + "(imageSizeInBytes)");
+        dstImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
 
         wtu.enqueueCopyImage(webCLCommandQueue, srcImage, dstImage, copySrcOrigin, copyDstOrigin, copyRegion);
 
         // Verify reading the dstImage -> result Array and check against input data array.
         wtu.enqueueReadImage(webCLCommandQueue, dstImage, true, dstOrigin, copyRegion, 0, result);
-        correct = 0;
         // Get a subarray of last row of data to validate it with copied values.
         wtu.verifyResult(data, result, partialCopySize, "Test case for copying first 40 pixels from srcImage to end of destination image.");
 

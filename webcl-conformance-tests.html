@@ -910,7 +910,7 @@ function initCL() {
     if (webCLPlatforms.length == 1) {
         platforms.options[platforms.options.length] = new Option("Platform" + webCLPlatforms.length, webCLPlatforms.length - 1, true, true);
         displayDevices();
-        var defautDevice = webCLPlatforms[0].getDevices(webcl.DEFAULT_TYPE);
+        var defautDevice = webCLPlatforms[0].getDevices(webcl.DEVICE_TYPE_DEFAULT);
         var defaultDeviceType = getDeviceType(defautDevice[0]);
         document.getElementById(defaultDeviceType).checked = true;
         document.getElementById("platforms").disabled = true;

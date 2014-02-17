@@ -43,38 +43,36 @@ try {
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var correct;
-    var count = SIZE;
-    var webCLBufferReadWrite, webCLImageReadWrite;
-    var partialCopySize = 10;
-    var data, result, origin, region;
+    var webCLBuffer, webCLImage;
+    var partialCopySize;
+    var data, result, copyOrigin, copyRegion;
 
-    var width = 100;
-    var height = 100;
-    var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, width, height);
+    var width = 20, height = 20;
+    var webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, width, height);
+    var arrayType = wtu.getArrayTypeForChanneltype(webCLImageDescriptor.channelType);
+    var elementsPerPixel = wtu.getBytesForChannelOrder(webCLImageDescriptor.channelOrder);
+    var imageSizeInBytes = width * height * elementsPerPixel;
+
+    // Create input buffer and populate with int8 values.
+    data = eval("new " + arrayType + "(imageSizeInBytes)");
+    data = wtu.generateRandomInt(data, imageSizeInBytes);
+    webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, imageSizeInBytes * data.BYTES_PER_ELEMENT, data);
 
     /*
     *   Testing for partial size enqueueCopyBufferToImage.
-    *   Copies 10 int values from source buffer to destination image.
+    *   Copies 10 * elementsPerPixel values as 10 pixels, from source buffer to destination image.
     */
-
     try {
-        data = new Int32Array(partialCopySize);
-        result = new Int32Array(partialCopySize);
-        origin = [0, 0];
-        region = [2, 5];
+        partialCopySize = 10 * elementsPerPixel;
+        result = eval("new " + arrayType + "(partialCopySize)");
+        copyOrigin = [0, 0];
+        copyRegion = [2, 5];
+        webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
 
-        data = wtu.generateRandomInt(data, partialCopySize);
+        wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBuffer, webCLImage, 0, copyOrigin, copyRegion);
 
-        webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, partialCopySize * Int32Array.BYTES_PER_ELEMENT);
-        wtu.enqueueWriteBuffer(webCLCommandQueue, webCLBufferReadWrite, true, 0, partialCopySize * Int32Array.BYTES_PER_ELEMENT, data);
-
-        webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
-
-        webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, 0, origin, region);
-        wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, 0, result);
-
-        wtu.verifyResult(data, result, partialCopySize, "enqueueCopyBufferToImage for copying 10 values with origin as [0, 0] & region as [2,5]");
+        wtu.enqueueReadImage(webCLCommandQueue, webCLImage, true, copyOrigin, copyRegion, 0, result);
+        wtu.verifyResult(data, result, partialCopySize, "enqueueCopyBufferToImage for copying 10 * elementsPerPixel values as 10 pixels.");
 
     } catch(e) {
         testFailed(e.description);
@@ -82,27 +80,18 @@ try {
 
     /*
     *   Testing for complete size enqueueCopyBufferToImage.
-    *   Copies imageArea (100 * 100) int values from source buffer to destination image.
+    *   Copies (20 * 20 * elementsPerPixel) buffer values to destination image.
     */
-
     try {
-        var imageArea = width * height;
-        data = new Int32Array(imageArea);
-        result = new Int32Array(imageArea);
-        origin = [0, 0];
-        region = [100, 100];
+        result = eval("new " + arrayType + "(imageSizeInBytes)");
+        copyOrigin = [0, 0];
+        copyRegion = [20, 20];
+        webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
 
-        data = wtu.generateRandomInt(data, imageArea);
+        wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBuffer, webCLImage, 0, copyOrigin, copyRegion);
 
-        webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, imageArea * Int32Array.BYTES_PER_ELEMENT);
-        wtu.enqueueWriteBuffer(webCLCommandQueue, webCLBufferReadWrite, true, 0, imageArea * Int32Array.BYTES_PER_ELEMENT, data);
-
-        webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
-
-        wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, 0, origin, region);
-        wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, 0, result);
-
-        wtu.verifyResult(data, result, imageArea, "enqueueCopyBufferToImage for copying imageArea (100 * 100) values with origin as [0, 0] & region as [width, height]");
+        wtu.enqueueReadImage(webCLCommandQueue, webCLImage, true, copyOrigin, copyRegion, 0, result);
+        wtu.verifyResult(data, result, imageSizeInBytes, "enqueueCopyBufferToImage for copying (20 * 20 * elementsPerPixel) int8 buffer values to destination image.");
 
     } catch(e) {
         testFailed(e.description);
@@ -110,53 +99,42 @@ try {
 
     /*
     *   Testing for partial size enqueueCopyBufferToImage.
-    *   Copies 10 int values from source buffer to the end of destination image.
+    *   Copies 10 pixel values from buffer to the end of destination image.
     */
 
     try {
-        data = new Int32Array(partialCopySize);
-        result = new Int32Array(partialCopySize);
-        origin = [99, 90];
-        region = [1, 10];
+        partialCopySize = 10 * elementsPerPixel;
+        result = eval("new " + arrayType + "(partialCopySize)");
+        copyOrigin = [10, 19];
+        copyRegion = [10, 1];
+        webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
 
-        data = wtu.generateRandomInt(data, partialCopySize);
+        wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBuffer, webCLImage, 0, copyOrigin, copyRegion);
 
-        webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, partialCopySize * Int32Array.BYTES_PER_ELEMENT);
-        wtu.enqueueWriteBuffer(webCLCommandQueue, webCLBufferReadWrite, true, 0, partialCopySize * Int32Array.BYTES_PER_ELEMENT, data);
+        wtu.enqueueReadImage(webCLCommandQueue, webCLImage, true, copyOrigin, copyRegion, 0, result);
+        wtu.verifyResult(data, result, partialCopySize, "enqueueCopyBufferToImage for copying 10 values from buffer to end of the image.")
 
-        webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
-
-        wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, 0, origin, region);
-        wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, 0, result);
-
-        wtu.verifyResult(data, result, partialCopySize, "enqueueCopyBufferToImage for copying 10 values from buffer to end of the image."); 
     } catch(e) {
         testFailed(e.description);
     }
 
     /*
     *   Testing for partial size enqueueCopyBufferToImage.
-    *   Copies 10 int values from source buffer with offset as 50 to the destination image.
+    *   Copies 10 pixel values from buffer at offset 50, to the destination image.
     */
 
     try {
-        data = new Int32Array(partialCopySize);
-        result = new Int32Array(partialCopySize);
-        origin = [0, 0];
-        region = [1, 10];
-        var bufferOffset = 50;
+        result = eval("new " + arrayType + "(partialCopySize)");
+        copyOrigin = [0, 0];
+        copyRegion = [10, 1];
+        var bufferOffset = 50 * result.BYTES_PER_ELEMENT;
+        webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
 
-        data = wtu.generateRandomInt(data, partialCopySize);
+        wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBuffer, webCLImage, bufferOffset, copyOrigin, copyRegion);
 
-        webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, (partialCopySize * Int32Array.BYTES_PER_ELEMENT) + bufferOffset);
-        wtu.enqueueWriteBuffer(webCLCommandQueue, webCLBufferReadWrite, true, bufferOffset, partialCopySize * Int32Array.BYTES_PER_ELEMENT, data);
-
-        webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
-
-        wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, bufferOffset, origin, region);
-        wtu.enqueueReadImage(webCLCommandQueue, webCLImageReadWrite, true, origin, region, 0, result);
-
-        wtu.verifyResult(data, result, partialCopySize, "enqueueCopyBufferToImage for copying 10 values from buffer with an offset of " + bufferOffset + " to the image. Origin : [0, 0] and region [1, 10]"); 
+        var aData = eval("new " + arrayType + "(data.buffer, bufferOffset, partialCopySize)");
+        wtu.enqueueReadImage(webCLCommandQueue, webCLImage, true, copyOrigin, copyRegion, 0, result);
+        wtu.verifyResult(aData, result, partialCopySize, "enqueueCopyBufferToImage for copying 10 values from buffer with an offset[50] to the image.");
     } catch(e) {
         testFailed(e.description);
     }

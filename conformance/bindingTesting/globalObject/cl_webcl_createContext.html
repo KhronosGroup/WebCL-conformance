@@ -49,7 +49,7 @@ try {
     shouldBeTypeOrException("webcl.createContext(webcl.DEVICE_TYPE_CPU);", "WebCLContext", "DEVICE_NOT_FOUND");
     shouldBeTypeOrException("webcl.createContext(webcl.DEVICE_TYPE_GPU);", "WebCLContext", "DEVICE_NOT_FOUND");
     shouldBeTypeOrException("webcl.createContext(webcl.DEVICE_TYPE_ACCELERATOR);", "WebCLContext", "DEVICE_NOT_FOUND");
-    shouldBeTypeOrException("webcl.createContext(webcl.DEVICE_TYPE_DEFAULT);", "WebCLContext", "DEVICE_NOT_FOUND");
+    shouldBeType("webcl.createContext(webcl.DEVICE_TYPE_DEFAULT);", "WebCLContext");
 
     shouldThrowExceptionName("webcl.createContext(invalid_CLenum);", "INVALID_DEVICE_TYPE");
 
@@ -68,9 +68,10 @@ try {
     shouldThrowExceptionName("webcl.createContext(webCLPlatform, invalid_CLenum);", "INVALID_DEVICE_TYPE");
 
     /*
-     *  Creating context on WebCLDevice.
+     *  Creating context on WebCLDevice and sequence of WebCLDevices.
      */
     debug("\n(WebCLDevice device)");
+    debug("(sequence<WebCLDevice> devices)");
     var getAndValidateDevices = function(webCLPlatform, type) {
         try {
             var webCLDevice = wtu.getDevices(webCLPlatform, type);
@@ -85,24 +86,26 @@ try {
     }
 
     var webCLDevicesCPU = getAndValidateDevices(webCLPlatform, webcl.DEVICE_TYPE_CPU);
-    if (webCLDevicesCPU)
-        shouldBeTypeOrException("webcl.createContext(webCLDevicesCPU[0]);", "WebCLContext", "DEVICE_NOT_FOUND");
+    if (webCLDevicesCPU) {
+        shouldBeType("webcl.createContext(webCLDevicesCPU[0]);", "WebCLContext");
+        shouldBeType("webcl.createContext(webCLDevicesCPU);", "WebCLContext");
+    }
 
     var webCLDevicesGPU = getAndValidateDevices(webCLPlatform, webcl.DEVICE_TYPE_GPU);
-    if (webCLDevicesGPU)
-        shouldBeTypeOrException("webcl.createContext(webCLDevicesGPU[0]);", "WebCLContext", "DEVICE_NOT_FOUND");
+    if (webCLDevicesGPU) {
+        shouldBeType("webcl.createContext(webCLDevicesGPU[0]);", "WebCLContext");
+        shouldBeType("webcl.createContext(webCLDevicesGPU);", "WebCLContext");
+    }
 
     var webCLDevicesACCELERATOR = getAndValidateDevices(webCLPlatform, webcl.DEVICE_TYPE_ACCELERATOR);
-    if(webCLDevicesACCELERATOR)
-        shouldBeTypeOrException("webcl.createContext(webCLDevicesACCELERATOR[0]);", "WebCLContext", "DEVICE_NOT_FOUND");
+    if (webCLDevicesACCELERATOR) {
+        shouldBeType("webcl.createContext(webCLDevicesACCELERATOR[0]);", "WebCLContext");
+        shouldBeType("webcl.createContext(webCLDevicesACCELERATOR);", "WebCLContext");
+    }
 
     /*
-     *  Creating context on sequence of devices.
+     *  Creating context on sequence of default and all devices.
      */
-    debug("\n(sequence<WebCLDevice> devices)");
-    shouldBeTypeOrException("webcl.createContext(webCLDevicesCPU);", "WebCLContext", "DEVICE_NOT_FOUND");
-    shouldBeTypeOrException("webcl.createContext(webCLDevicesGPU);", "WebCLContext", "DEVICE_NOT_FOUND");
-    shouldBeTypeOrException("webcl.createContext(webCLDevicesACCELERATOR);", "WebCLContext", "DEVICE_NOT_FOUND");
     var webCLDevicesDEFAULT = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_DEFAULT);
     shouldBeType("webcl.createContext(webCLDevicesDEFAULT);", "WebCLContext");
     var webCLDevicesALL = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);

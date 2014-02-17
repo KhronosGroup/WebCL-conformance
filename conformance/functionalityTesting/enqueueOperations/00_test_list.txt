@@ -3,6 +3,9 @@ enqueueCopyImage.html
 enqueueCopyImageToBuffer.html
 enqueueCopyBufferToImage.html
 enqueueReadBuffer.html
+enqueueReadBufferUsingKernel.html
 enqueueWriteBuffer.html
+enqueueWriteBufferUsingKernel.html
 bufferRectOperations.html
-webCLImageOperations.html
+enqueueReadImage.html
+enqueueWriteImage.html

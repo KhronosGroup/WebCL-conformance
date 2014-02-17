@@ -129,14 +129,20 @@ function testPassed(msg)
 {
     reportTestResultsToHarness(true, msg);
     var tid = getTestCaseCount();
-    debug(tid + " : " + '<span><span class="pass">PASS</span> ' + escapeHTML(msg) + '</span>');
+    if (tid)
+        debug(tid + " : " + '<span><span class="pass">PASS</span> ' + escapeHTML(msg) + '</span>');
+    else
+        debug('<span><span class="pass">PASS</span> ' + escapeHTML(msg) + '</span>');
 }
 
 function testFailed(msg)
 {
     reportTestResultsToHarness(false, msg);
     var tid = getTestCaseCount();
-    debug(tid + " : " + '<span><span class="fail">FAIL</span> ' + escapeHTML(msg) + '</span>');
+    if (tid)
+        debug(tid + " : " + '<span><span class="fail">FAIL</span> ' + escapeHTML(msg) + '</span>');
+    else
+        debug('<span><span class="fail">FAIL</span> ' + escapeHTML(msg) + '</span>');
 }
 
 function areArraysEqual(_a, _b)
@@ -593,14 +599,10 @@ function shouldBeTypeOrException(_a, _type, _e, isArray, quite)
     var _typePrototype = _typev.prototype.toString();
 
     if (exception) {
-        var isStrict = window.top.CLGlobalVariables ? window.top.CLGlobalVariables.getInstance().isStrict() : 0;
-        if (exception instanceof WebCLException) {
-            if (isStrict && exception.name != _e)
-                testFailed(_a + " should throw " + _e + ". Threw " + exception.name + ".");
-            else
-                testPassed(_a + " threw exception " + exception.name + ".");
-        } else
-            testFailed(_a + " threw exception " + exception.message);
+        if (exception instanceof WebCLException && exception.name == _e)
+            testPassed(_a + " threw exception " + exception.name + ".");
+        else
+            testFailed(_a + " threw exception " + exception.name);
     } else if (isArray)
        shouldBeArrayOfType(_a, _type);
     else if (_av instanceof  _typev || _aPrototype == _typePrototype) {

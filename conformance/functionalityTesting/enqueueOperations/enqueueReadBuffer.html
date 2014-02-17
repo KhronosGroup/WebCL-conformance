@@ -1,5 +1,5 @@
 <!--
- Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+ Copyright (C) 2014 Samsung Electronics Corporation. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided the following conditions
@@ -35,64 +35,63 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
-
 <script>
-var executeKernel = function (webCLContext, kernelName, webCLDevices, webCLCommandQueue, resultDataType, numBytes, expectedResult) {
-    try {
-        webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, resultDataType.length * resultDataType.BYTES_PER_ELEMENT);
-        kernelName = kernelName.replace(/^\s+|\s+$/g, '');
-        var kernelPath = "../../../resources/kernels/" + kernelName + ".cl";
-        kernelSource = wtu.readKernel(kernelPath);
-        webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-        wtu.build(webCLProgram, webCLDevices);
-
-        webCLKernel = wtu.createKernel(webCLProgram, kernelName);
-        wtu.setArg(webCLKernel, 0, webCLBuffer);
-
-        var globalWorkSize = [SIZE];
-        var localWorkSize = [webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
-
-        wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkSize.length, [], globalWorkSize, localWorkSize);
-        wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, true, 0, resultDataType.length * resultDataType.BYTES_PER_ELEMENT, resultDataType);
-        if (resultDataType[0] == expectedResult || String.fromCharCode(resultDataType[0]) == expectedResult)
-            testPassed("Test passed for kernel: " + kernelName);
-        else
-            testFailed("Test failed for kernel: " + kernelName);
-    } catch (e) {
-        testFailed(e.description);
-    }
-}
-
 try {
     debug("enqueueReadBuffer functionality test case.");
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var webCLPlatform = wtu.getPlatform();
-    var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var kernelSource, webCLKernel, webCLProgram;
-    var count = SIZE;
-    var webCLBuffer;
-    var resultInt = new Int32Array(1);
-    var resultUInt = new Uint32Array(1);
-    var resultLong = new Int32Array(2);
-    var resultULong = new Uint32Array(2);
-    var resultShort = new Int16Array(1);
-    var resultUShort = new Uint16Array(1);
-    var resultChar = new Int8Array(1);
-    var resultUChar = new Uint8Array(1);
-    var resultFloat = new Float32Array(1);
+    var data, result, bufferOffset, numberBytes;
+    data = new Int32Array(SIZE);
+    data = wtu.generateRandomNumberInRange (data, 0, 2147483647, SIZE);
+    var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE, data);
 
-    executeKernel(webCLContext, "test_stream_read_char", webCLDevices, webCLCommandQueue, resultChar, 1, 'w');
-    executeKernel(webCLContext, "test_stream_read_uchar", webCLDevices, webCLCommandQueue, resultUChar, 1, 'w');
-    executeKernel(webCLContext, "test_stream_read_short", webCLDevices, webCLCommandQueue, resultShort, 2, (1<<8)+1);
-    executeKernel(webCLContext, "test_stream_read_ushort", webCLDevices, webCLCommandQueue, resultUShort, 2, (1<<8)+1);
-    executeKernel(webCLContext, "test_stream_read_int", webCLDevices, webCLCommandQueue, resultInt, 4, ((1<<16)+1));
-    executeKernel(webCLContext, "test_stream_read_uint", webCLDevices, webCLCommandQueue, resultUInt, 4, ((1<<16)+1));
-    executeKernel(webCLContext, "test_stream_read_long", webCLDevices, webCLCommandQueue, resultLong, 8, (1<<32)+1);
-    executeKernel(webCLContext, "test_stream_read_ulong", webCLDevices, webCLCommandQueue, resultULong, 8, (1<<32)+1);
-    executeKernel(webCLContext, "test_stream_read_float", webCLDevices, webCLCommandQueue, resultFloat, 4, (3.40282346638528860e+38));
+    /*
+     *  Testing for reading whole buffer of 1024 values, of 4 bytes each.
+     */
+    try {
+        bufferOffset = 0;
+        numberBytes = BUFFER_SIZE;
+        result = new Int32Array(SIZE);
+
+        wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, true, bufferOffset, numberBytes, result);
+
+        wtu.verifyResult(data, result, SIZE, "reading whole buffer");
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+    /*
+     *  Testing for reading first 10 values (of 4 bytes each) from buffer.
+     */
+    try  {
+        bufferOffset = 0;
+        partialReadSize = 10 * data.BYTES_PER_ELEMENT;
+        result = new Int32Array(10);
+
+        wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, true, bufferOffset, partialReadSize, result);
+
+        wtu.verifyResult(data, result, 10, "reading first 10 bytes");
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+    /*
+     *   Testing for reading last 20 values (of 4 bytes each) from buffer.
+     */
+    try {
+        partialReadSize = 20 * data.BYTES_PER_ELEMENT;
+        bufferOffset = BUFFER_SIZE - partialReadSize;
+        result = new Int32Array(20);
+
+        wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, true, bufferOffset, partialReadSize, result);
+
+        var aData = new Int32Array(data.buffer, bufferOffset, 20);
+        wtu.verifyResult(aData, result, 20, "reading last 20 values");
+    } catch(e) {
+        testFailed(e.description);
+    }
 
 } catch(e) {
     testFailed(e.description);

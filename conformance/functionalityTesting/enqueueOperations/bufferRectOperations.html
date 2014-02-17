@@ -43,14 +43,21 @@ try {
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var correct;
-    var count = SIZE;
+    var correct, data, result;
 
-    var data = new Int32Array(RECT_AREA);
-    var result = new Int32Array(RECT_AREA);
+    var hostOrigin = [0, 0, 0];
+    var srcOrigin = [0, 0, 0];
+    var dstOrigin = [0, 0, 0];
 
-    var srcBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
-    var dstBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_RECT_SIZE);
+    var hostRowPitch = 0;
+    var hostSlicePitch = 0;
+    var srcRowPitch = 0;
+    var srcSlicePitch = 0;
+    var dstRowPitch = 0;
+    var dstSlicePitch = 0;
+
+    var srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, SIZE * Int32Array.BYTES_PER_ELEMENT);
+    var dstBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, SIZE * Int32Array.BYTES_PER_ELEMENT);
 
     /*
      *   Testing for partial size rectOperation.
@@ -58,29 +65,17 @@ try {
      */
 
     try {
-        var loopCount = 20;
-        var partialCopySize = 20;
-        var data = new Int32Array(partialCopySize);
-        var result = new Int32Array(partialCopySize);
-        data = wtu.generateRandomInt(data, partialCopySize);
+        var partialCopySize = 128;
+        data = new Int32Array(SIZE);
+        result = new Int32Array(SIZE);
+        var region = [16 * Int32Array.BYTES_PER_ELEMENT, 4, 2]; // copy as 2 slice, each slice of 4 rows with 16 int32 elements each.
+        data = wtu.generateRandomInt(data, SIZE);
 
-        var hostOrigin = [0, 0, 0];
-        var srcOrigin = [0, 0, 0];
-        var dstOrigin = [0, 0, 0];
-        var region = [2, 10, 1];
+        wtu.enqueueWriteBufferRect(webCLCommandQueue, srcBuffer, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
+        wtu.enqueueCopyBufferRect(webCLCommandQueue, srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
+        wtu.enqueueReadBufferRect(webCLCommandQueue, dstBuffer, true, dstOrigin, hostOrigin, region, dstRowPitch, dstSlicePitch, hostRowPitch, hostSlicePitch, result);
 
-        var hostRowPitch = 0;
-        var hostSlicePitch = 0;
-        var srcRowPitch = 0;
-        var srcSlicePitch = 0;
-        var dstRowPitch = 0;
-        var dstSlicePitch = 0;
-
-        wtu.enqueueWriteBufferRect(webCLCommandQueue, srcBufferReadWrite, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
-        wtu.enqueueCopyBufferRect(webCLCommandQueue, srcBufferReadWrite, dstBufferReadWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
-        wtu.enqueueReadBufferRect(webCLCommandQueue, dstBufferReadWrite, true, dstOrigin, hostOrigin, region, dstRowPitch, dstSlicePitch, hostRowPitch, hostSlicePitch, result);
-
-        wtu.verifyResult(data, result, partialCopySize, "bufferRectOperations for " + partialCopySize + " values for writing into, copying and reading from a bufferRect.");
+        wtu.verifyResult(data, result, partialCopySize, "bufferRectOperations for " + partialCopySize + " values for writing into, copying and reading from a bufferRect");
 
     } catch(e) {
         testFailed(e.description);
@@ -92,24 +87,54 @@ try {
      */
 
     try {
-        var data = new Int32Array(RECT_AREA);
-        var result = new Int32Array(RECT_AREA);
+        data = new Int32Array(SIZE);
+        result = new Int32Array(SIZE);
 
-        region = [RECT_WIDTH, RECT_HEIGHT, 4];
-        hostRowPitch = RECT_WIDTH;
-        hostSlicePitch = RECT_AREA;
-        srcRowPitch = RECT_WIDTH;
-        srcSlicePitch = RECT_AREA;
-        dstRowPitch = RECT_WIDTH;
-        dstSlicePitch = RECT_AREA;
+        region = [64 * Int32Array.BYTES_PER_ELEMENT, 8, 2];
+        data = wtu.generateRandomInt(data, SIZE);
 
-        data = wtu.generateRandomInt(data, RECT_AREA);
+        wtu.enqueueWriteBufferRect(webCLCommandQueue, srcBuffer, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
+        wtu.enqueueCopyBufferRect(webCLCommandQueue, srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
+        wtu.enqueueReadBufferRect(webCLCommandQueue, dstBuffer, true, dstOrigin, hostOrigin, region, dstRowPitch, dstSlicePitch, hostRowPitch, hostSlicePitch, result);
 
-        wtu.enqueueWriteBufferRect(webCLCommandQueue, srcBufferReadWrite, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
-        wtu.enqueueCopyBufferRect(webCLCommandQueue, srcBufferReadWrite, dstBufferReadWrite, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
-        wtu.enqueueReadBufferRect(webCLCommandQueue, dstBufferReadWrite, true, dstOrigin, hostOrigin, region, dstRowPitch, dstSlicePitch, hostRowPitch, hostSlicePitch, result);
+        wtu.verifyResult(data, result, SIZE, "bufferRectOperations for " + SIZE + " values for writing into, copying and reading from a bufferRect");
 
-        wtu.verifyResult(data, result, count, "bufferRectOperations for " + count + " values for writing into, copying and reading from a bufferRect.");
+    } catch(e) {
+        testFailed(e.description);
+    }
+
+    /*
+     *   Testing for complete size rectOperation skipping 16 values after 16 read.
+     *   Copies int values from source to destination buffer.
+     */
+
+    try {
+        data = new Int32Array(SIZE);
+        result = new Int32Array(SIZE);
+
+        region = [16 * Int32Array.BYTES_PER_ELEMENT, 8, 8];
+        readRegion = [16 * Int32Array.BYTES_PER_ELEMENT, 4, 8];
+        data = wtu.generateRandomInt(data, SIZE);
+
+        wtu.enqueueWriteBufferRect(webCLCommandQueue, srcBuffer, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
+        wtu.enqueueCopyBufferRect(webCLCommandQueue, srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
+        wtu.enqueueReadBufferRect(webCLCommandQueue, dstBuffer, true, dstOrigin, hostOrigin, readRegion, 128, dstSlicePitch, 128, hostSlicePitch, result);
+        // Validate the copy wrt above test case.
+        var correctValues = 0, flag = true;
+        for(var i, z = 0; z < SIZE && flag; z = z + 32) {
+            for ( i = z; i < z + 16; i++) {
+                if ( data[i]  !=  result[i]) {
+                    testFailed("Test failed for skipping 64 values after 64 values read. Computed " + correctValues + " / " + SIZE / 2 + " correct values.");
+                    flag = false;
+                    break;
+                }
+                correctValues++;
+            }
+        }
+        if (correctValues == SIZE / 2)
+            testPassed("Test passed for skipping 16 values after 16 values read.");
+        else
+            testFailed("Test failed for skipping 16 values after 16 values read. Computed " + correctValues + " / " + SIZE / 2 + " correct values.");
 
     } catch(e) {
         testFailed(e.description);

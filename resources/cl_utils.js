@@ -29,11 +29,6 @@
 
 var SIZE = 1024;
 var BUFFER_SIZE = Float32Array.BYTES_PER_ELEMENT * SIZE;
-var RECT_WIDTH = 320;
-var RECT_HEIGHT = 240;
-var RECT_AREA = RECT_WIDTH * RECT_HEIGHT;
-var BUFFER_RECT_SIZE = RECT_AREA * Float32Array.BYTES_PER_ELEMENT;
-var WIDTH_STEP = RECT_WIDTH * Float32Array.BYTES_PER_ELEMENT;
 
 function loadDefault() {
     var wtu = WebCLTestUtils;
@@ -513,7 +508,7 @@ var enqueueCopyImageToBuffer = function(webCLCommandQueue, srcImage, dstBuffer, 
 
 var generateRandomInt = function(data, loopSize) {
     for (i = 0; i < loopSize; i++)
-        data[i] = Math.floor(Math.random() * 10);
+        data[i] = Math.floor(Math.random() * 10) + 1;
     return data;
 }
 
@@ -580,6 +575,21 @@ var enqueueMarker = function(webCLCommandQueue, webCLEvent) {
         return webCLCommandQueue.enqueueMarker(webCLEvent);
     } catch(e) {
         e.description = "webCLCommandQueue :: enqueueMarker threw exception : " + e.name;
+        throw e;
+    }
+}
+
+var verifyArrayForZeroValues = function(array, arraySize, msg) {
+    try {
+        for (index = 0; index < arraySize; index++) {
+            if (array[index] != 0) {
+                testFailed(msg);
+                return;
+            }
+        }
+        testPassed(msg);
+    } catch(e) {
+        e.description = "Verifying if the array " + array + "is null, threw exception : " + e.name;
         throw e;
     }
 }
@@ -673,6 +683,7 @@ enableExtension:enableExtension,
 enqueueMarker:enqueueMarker,
 getBytesForChannelOrder:getBytesForChannelOrder,
 getArrayTypeForChanneltype:getArrayTypeForChanneltype,
+verifyArrayForZeroValues:verifyArrayForZeroValues,
 none:false
 };
 }());

@@ -50,9 +50,13 @@ try {
     shouldBeType("webCLContext.createCommandQueue(null, webcl.QUEUE_PROFILING_ENABLE);", "WebCLCommandQueue");
     for (var i = 0; i < webCLDevices.length; i++) {
         shouldBeType("webCLContext.createCommandQueue(webCLDevices[" + i + "]);", "WebCLCommandQueue");
-        shouldBeTypeOrException("webCLContext.createCommandQueue(webCLDevices[" + i + "], webcl.QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE);", "WebCLCommandQueue", "INVALID_QUEUE_PROPERTIES");
         shouldBeType("webCLContext.createCommandQueue(webCLDevices[" + i + "], webcl.QUEUE_PROFILING_ENABLE);", "WebCLCommandQueue");
+        // As per OpenCL 1.1 spec, it is not mandatory for a device to support QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE. So calling this only if it supports.
+        var outOfOrderModeFlagMask = 0x1;
+        if (webCLDevices[i].getInfo(webcl.DEVICE_QUEUE_PROPERTIES) & outOfOrderModeFlagMask)
+            shouldBeType("webCLContext.createCommandQueue(webCLDevices[" + i + "], webcl.QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE);", "WebCLCommandQueue");
     }
+
     // Testing for Exceptions.
     var devices = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
     if (devices.length > 1) {

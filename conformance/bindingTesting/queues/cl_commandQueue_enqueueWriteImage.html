@@ -129,10 +129,24 @@ try {
 
     var hostRowPitchValid = imageWidth * 2;
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, hostRowPitchValid, hostPtr);");
-    var hostRowPitchInvalid = (Float32Array.BYTES_PER_ELEMENT * imageWidth) - 1;
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, hostRowPitchInvalid, hostPtr);", "INVALID_VALUE");
-    hostRowPitchInvalid = hostPtr.BYTES_PER_ELEMENT - 1;
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, hostRowPitchInvalid, hostPtr);", "INVALID_VALUE");
+
+    //  Fetching a image format with channelType of more than 1 byte, to provide invalid value for hostRowPitch.
+    var supportedImageFormats = webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE);
+    for(i = 0; i < supportedImageFormats.length; i++) {
+        if (wtu.getArrayTypeForChanneltype(supportedImageFormats[i].channelType) != "Uint8Array")
+            break;
+    }
+
+    if (i != supportedImageFormats.length) {
+        var arrayType = wtu.getArrayTypeForChanneltype(supportedImageFormats[i].channelType);
+        var elementsPerPixel = wtu.getBytesForChannelOrder(supportedImageFormats[i].channelOrder);
+        var validHostPtr = eval("new " + arrayType + "(imageWidth * imageHeight * elementsPerPixel)");
+
+        var hostRowPitchInvalid = (imageWidth * validHostPtr.BYTES_PER_ELEMENT) - 1;
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, hostRowPitchInvalid, validHostPtr);", "INVALID_VALUE");
+        hostRowPitchInvalid = validHostPtr.BYTES_PER_ELEMENT - 1;
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, hostRowPitchInvalid, validHostPtr);", "INVALID_VALUE");
+    }
 
     var hostPtrInvalid = new Float32Array((imageWidth * imageWidth) / Float32Array.BYTES_PER_ELEMENT - 1);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtrInvalid);", "INVALID_VALUE");
