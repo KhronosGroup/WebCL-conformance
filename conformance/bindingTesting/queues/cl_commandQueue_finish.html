@@ -45,6 +45,7 @@ try {
 
     // Testing for finish.
     shouldBeUndefined("webCLCommandQueue.finish();");
+    shouldThrowTypeError("webCLCommandQueue.finish(new Object());");
 
 } catch (e) {
     testFailed(e.description);

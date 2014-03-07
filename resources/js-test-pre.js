@@ -632,3 +632,25 @@ function shouldContainString(_a, _b)
     else
         testFailed(_a + " should contain the string " + _b + " (of type " + typeof _b + "). Was " + _av + " (of type " + typeof _av + ").");
 }
+
+function shouldThrowTypeError(_a)
+{
+    if (typeof _a != "string")
+        debug("WARN: shouldBe() expects string arguments");
+
+    var exception;
+    var _av;
+    try {
+        _av = eval(_a);
+    } catch (e) {
+        exception = e;
+    }
+
+    if (exception) {
+        if (exception.name == "TypeError")
+            testPassed(_a + "threw type error");
+        else
+            testFailed(_a + "should throw type error but threw " + exception.name);
+    } else
+        testFailed(_a + "should throw type error but was " + _av);
+}

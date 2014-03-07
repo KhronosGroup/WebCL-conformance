@@ -124,6 +124,7 @@ try {
     shouldBeUndefined("webCLProgram.build(webCLDevice, null, callback);");
     shouldBeUndefined("webCLProgram.build(null, \"-cl-fast-relaxed-math\", callback);");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-fast-relaxed-math\", callback);");
+    shouldThrowTypeError("webCLProgram.build(null, null, new Object());");
 
     // Testing for Exceptions.
 

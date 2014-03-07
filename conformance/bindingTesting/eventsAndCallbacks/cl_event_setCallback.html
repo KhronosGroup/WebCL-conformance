@@ -47,10 +47,20 @@ try {
     var webCLContext = wtu.createContext();
     var webCLEvent = wtu.createEvent();
 
+    shouldThrowExceptionName("webCLEvent.setCallback(webcl.COMPLETE, callback);", "INVALID_EVENT");
+
+    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+    var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var data = new Int32Array(SIZE);
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, false, 0, BUFFER_SIZE, data, [], webCLEvent);
     shouldBeUndefined("webCLEvent.setCallback(webcl.COMPLETE, callback);");
 
     // Testing for exception.
     shouldThrowExceptionName("webCLEvent.setCallback(invalid_CLenum, callback);", "INVALID_VALUE");
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, false, 0, BUFFER_SIZE, data, [], webCLEvent);
+    shouldThrowTypeError("webCLEvent.setCallback(webcl.COMPLETE, new Object());");
 
     /*
      * Testing for userEvents.
@@ -61,6 +71,7 @@ try {
 
     // Testing for exception.
     shouldThrowExceptionName("webCLUserEvent.setCallback(invalid_CLenum, callback);", "INVALID_VALUE");
+    shouldThrowTypeError("webCLUserEvent.setCallback(webcl.COMPLETE, new Object());");
 
 } catch (e) {
     testFailed(e.description);

@@ -73,7 +73,7 @@ try {
 
         shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_VENDOR)", "'string'");
 
-        shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_VENDOR_ID)", "'string'");
+        shouldBe("typeof " + "webCLDevice.getInfo(webcl.DEVICE_VENDOR_ID)", "'number'");
 
         shouldBe("typeof " + "webCLDevice.getInfo(webcl.DRIVER_VERSION)", "'string'");
 
@@ -152,7 +152,7 @@ try {
         shouldBeTrue("webCLDevice.getInfo(webcl.DEVICE_AVAILABLE)");
 
         if (webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === 2 || webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === 1
-                || webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === null)
+                || webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === 0)
             testPassed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is either QUEUE_PROFILING_ENABLE or QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE or null.");
         else
             testFailed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is neither QUEUE_PROFILING_ENABLE nor QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE nor null.");
