@@ -947,7 +947,7 @@ function displayDevices() {
     var webCLPlatformIndex = document.getElementById('platforms').options[document.getElementById('platforms').selectedIndex].value;
     var platform = webCLPlatforms[webCLPlatformIndex];
     var webCLGlobalObject = CLGlobalVariables.getInstance();
-    webCLGlobalObject.setwebCLPlatform(platform);
+    webCLGlobalObject.setwebCLPlatformIndex(webCLPlatformIndex);
 
     // Fetch available devices for selected platform and populate.
     document.getElementById("devicesDiv").style.display = 'block';
@@ -998,22 +998,14 @@ function getTestCases() {
         finalResultText.removeChild(finalResultText.childNodes[0]);
     }
     var webCLGlobalObject = CLGlobalVariables.getInstance();
-    var selectedPlatform = webCLGlobalObject.getwebCLPlatform();
 
-    var selectedDevice = [];
+    var selectedDeviceIndex = [];
     var devices = document.getElementById("devices");
     for (var j = 0; j < webCLDevices.length; j++) {
         if (devices[j].checked)
-            selectedDevice.push(webCLDevices[j]);
+            selectedDeviceIndex.push(j);
     }
-
-    // Set selected devices.
-    if (typeof(selectedDevice) == 'object' && selectedDevice.length) {
-        webCLGlobalObject.setwebCLDevices(selectedDevice);
-    } else {
-        console.error("Failed in selecting device(s).");
-        return 0;
-    }
+    webCLGlobalObject.setwebCLDevicesIndex(selectedDeviceIndex);
 
     var strictModeCheckBox = document.getElementById("strictModeCheckBox");
     var webCLGlobalObject = CLGlobalVariables.getInstance();

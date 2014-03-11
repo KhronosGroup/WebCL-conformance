@@ -40,52 +40,35 @@ var CLGlobalVariables = (function() {
 
     var init = function() {
         // Create new Object and return it.
-
         return {
-        // FIXME default must not be null
-        webCLPlatform : null,
-        webCLDevices : null,
+        webCLPlatformIndex : 0,
+        webCLDevicesIndex : [],
         m_isStrict : false,
 
-        setwebCLPlatform : function (platform) {
-            if (platform instanceof WebCLPlatform)
-                this.webCLPlatform = platform;
-            else
-                throw { name : "WebCLException", message : "CLGlobalVariables ::setwebCLPlatform() failed. INVALID_PLATFORM"};
+        setwebCLPlatformIndex : function (platformIndex) {
+            this.webCLPlatformIndex = platformIndex;
         },
 
-        setwebCLDevices : function (devices) {
-            if (typeof(devices) == 'object' && devices.length) {
-                var flag = true;
-                for (var i = 0; i < devices.length; i++) {
-                    if (!(devices[i] instanceof WebCLDevice)) {
-                        flag = false;
-                        break;
-                    }
-                }
-            }
-            if (flag) {
-                this.webCLDevices = devices;
-                return;
-            }
-            throw { name : "WebCLException", message : "CLGlobalVariables ::setwebCLDevices() failed."};
+        setwebCLDevicesIndex : function (deviceIndex) {
+            this.webCLDevicesIndex = deviceIndex.slice();
         },
 
         setStrictFlag : function (value) {
             this.m_isStrict = value;
         },
 
-        getwebCLPlatform : function() {
-            return this.webCLPlatform;
+        getwebCLPlatformIndex : function () {
+            return this.webCLPlatformIndex;
         },
 
-        getwebCLDevices : function() {
-            return this.webCLDevices;
+        getwebCLDevicesIndex : function() {
+            return this.webCLDevicesIndex;
         },
 
         isStrict : function() {
             return this.m_isStrict;
         }
+
         }
     }
 

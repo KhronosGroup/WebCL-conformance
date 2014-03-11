@@ -85,6 +85,28 @@ var generateData = function(type, size) {
     return data;
 };
 
+var getwebCLPlatform = function() {
+    var gv = window.top.CLGlobalVariables;
+    var selecedPlatformIndex = gv.getInstance().getwebCLPlatformIndex();
+    var selectedPlatform = webcl.getPlatforms()[selecedPlatformIndex];
+    if (selectedPlatform instanceof WebCLPlatform)
+        return selectedPlatform;
+    throw { name : "WebCLException", message : "getwebCLPlatform() failed."};
+};
+
+var getwebCLDevices = function(selectedPlatform) {
+    var gv = window.top.CLGlobalVariables;
+    var selecedDevicesIndex = gv.getInstance().getwebCLDevicesIndex();
+    var devicesArray = selectedPlatform.getDevices(webcl.DEVICE_TYPE_ALL);
+    var selectedDevices = [];
+    for (i = 0; i < selecedDevicesIndex.length; i++)
+        if (selecedDevicesIndex[i] < devicesArray.length)
+            selectedDevices.push(devicesArray[selecedDevicesIndex[i]]);
+    if (selectedDevices.length)
+        return selectedDevices;
+    throw { name : "WebCLException", message : "getwebCLDevices() failed."};
+};
+
 var createContext = function(param1, param2, param3) {
     var gv = window.top.CLGlobalVariables;
     if (arguments.length > 3)
@@ -97,13 +119,14 @@ var createContext = function(param1, param2, param3) {
             webCLContext = eval("webcl.createContext(param1, param2);");
         else if (param1 != undefined) {
             if (param1 instanceof WebGLRenderingContext) {
-                var selectedDevices = gv ? gv.getInstance().getwebCLDevices() :
+                var selectedDevices = gv ? getwebCLDevices(getwebCLPlatform()) :
                     webcl.getPlatforms()[0].getDevices(webcl.DEVICE_TYPE_DEFAULT);
                 webCLContext = eval("webcl.createContext(param1, selectedDevices)");
             } else
                 webCLContext = eval("webcl.createContext(param1);");
         } else if (gv) {
-            var selectedDevices = gv.getInstance().getwebCLDevices();
+            selectedPlatform = getwebCLPlatform();
+            selectedDevices = getwebCLDevices(selectedPlatform);
             webCLContext = eval("webcl.createContext(selectedDevices)");
         } else
             webCLContext = eval("webcl.createContext()");
@@ -134,7 +157,8 @@ var createCommandQueue = function(webCLContext, webCLDevice, properties) {
             webCLCommandQueue = eval("webCLContext.createCommandQueue(webCLDevice, properties)");
         } else {
             if (gv) {
-                var selectedDevices = gv.getInstance().getwebCLDevices();
+                var selectedPlatform = getwebCLPlatform();
+                var selectedDevices = getwebCLDevices(selectedPlatform);
                 var dev = selectedDevices[0];
                 webCLCommandQueue = eval("webCLContext.createCommandQueue(dev)");
             } else {
@@ -197,7 +221,7 @@ var getPlatform = function() {
     var gv = window.top.CLGlobalVariables;
     try {
         if (gv)
-            return gv.getInstance().getwebCLPlatform();
+            return getwebCLPlatform();
         else {
             var webCLPlatforms = eval("webcl.getPlatforms()");
             if (typeof(webCLPlatforms) == 'object' && webCLPlatforms.length)
@@ -216,9 +240,10 @@ var getDevices = function(webCLPlatform, deviceType) {
         if (arguments.length > 1)
             webCLDevices = eval("webCLPlatform.getDevices(deviceType)");
         else {
-            if (gv)
-                return gv.getInstance().getwebCLDevices();
-            else
+            if (gv) {
+                var selectedPlatform = getwebCLPlatform();
+                return getwebCLDevices(selectedPlatform);
+            } else
                 webCLDevices = eval("webCLPlatform.getDevices(webcl.DEVICE_TYPE_DEFAULT)");
         }
         if (typeof(webCLDevices) == 'object' && webCLDevices.length)
