@@ -151,11 +151,19 @@ try {
 
         shouldBeTrue("webCLDevice.getInfo(webcl.DEVICE_AVAILABLE)");
 
-        if (webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === 2 || webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === 1
-                || webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) === 0)
-            testPassed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is either QUEUE_PROFILING_ENABLE or QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE or null.");
-        else
-            testFailed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is neither QUEUE_PROFILING_ENABLE nor QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE nor null.");
+        var queueProperty = webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES);
+        switch (queueProperty) {
+            case 0: testPassed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is null");
+                    break;
+            case 1: testPassed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE");
+                    break;
+            case 2: testPassed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is QUEUE_PROFILING_ENABLE");
+                    break;
+            case 3: testPassed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE and QUEUE_PROFILING_ENABLE");
+                    break;
+            default: testFailed("webCLDevice.getInfo(webcl.DEVICE_QUEUE_PROPERTIES) is neither QUEUE_PROFILING_ENABLE nor QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE nor null.");
+                    break;
+        }
 
         shouldContainString("webCLDevice.getInfo(webcl.DEVICE_PROFILE)", "WEBCL_PROFILE");
 

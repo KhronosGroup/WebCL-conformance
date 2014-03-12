@@ -3,3 +3,4 @@ cl_platform_getDevices.html
 cl_webcl_createContext.html
 cl_webcl_getSupportedExtensions.html
 cl_webcl_enableExtension.html
+cl_webcl_constants_check.html

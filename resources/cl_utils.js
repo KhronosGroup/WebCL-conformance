@@ -256,6 +256,9 @@ var getDevices = function(webCLPlatform, deviceType) {
 
 var getSupportedImageFormats = function(webCLContext, flag, imageWidth, imageHeight)
 {
+    // Temporary fix, till implementation supports getSupportedImageFormats without params.
+    if (arguments.length < 3)
+        return webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE);
     var imageFormatsArray = eval("webCLContext.getSupportedImageFormats(flag)");
     // FIXME :: Hardcoding to 1st image type. Need to check use cases.
     if (imageFormatsArray instanceof Array && imageFormatsArray.length > 0)
@@ -301,7 +304,7 @@ var readKernel = function(file) {
             if (source.length)
                 return source;
         }
-        throw { name : "WebCLException", message : "Failed to read Kernel."};
+        throw {name: "Failed to read Kernel."};
     } catch(e) {
         e.description = "readKernel threw exception : " + e.name;
         throw e;
@@ -334,7 +337,7 @@ var release = function(webCLObject) {
 
 var releaseAll = function(webCLObject) {
     try {
-        if (webCLObject instanceof WebCLContext || Object.getPrototypeOf(webCLObject) == Object.getPrototypeOf(webcl))
+        if (webCLObject instanceof WebCLContext || webCLObject === webcl)
             eval("webCLObject.releaseAll()");
         else
             throw { description : "releaseAll is not defined for " + webCLObject };
@@ -534,19 +537,16 @@ var enqueueCopyImageToBuffer = function(webCLCommandQueue, srcImage, dstBuffer, 
 var generateRandomInt = function(data, loopSize) {
     for (i = 0; i < loopSize; i++)
         data[i] = Math.floor(Math.random() * 10) + 1;
-    return data;
 }
 
 var generateRandomFloat = function(data, loopSize) {
     for (i = 0; i < loopSize; i++)
         data[i] = Math.random() * 10;
-    return data;
 }
 
 var generateRandomNumberInRange = function (data, min, max, loopSize) {
     for (i = 0; i < loopSize; i++)
         data[i] = Math.random() * (max - min) + min;
-    return data;
 }
 
 var verifyResult = function(data, result, loopSize, msg) {

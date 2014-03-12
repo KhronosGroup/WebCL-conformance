@@ -49,7 +49,7 @@ try {
     var result, data = new Int32Array(SIZE);
 
     // Populate data into srcBuffer.
-    data = wtu.generateRandomInt(data, SIZE);
+    wtu.generateRandomInt(data, SIZE);
     srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
     wtu.enqueueWriteBuffer(webCLCommandQueue, srcBuffer, true, 0, bufferSize, data);
 

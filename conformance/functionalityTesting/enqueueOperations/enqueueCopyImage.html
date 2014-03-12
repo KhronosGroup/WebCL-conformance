@@ -55,7 +55,7 @@ try {
 
     // Create input buffer and populate with int8 values.
     data = eval("new " + arrayType + "(imageSizeInBytes)");
-    data = wtu.generateRandomInt(data, imageSizeInBytes);
+    wtu.generateRandomInt(data, imageSizeInBytes);
     var srcImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor, data);
     srcOrigin = [0, 0];
     dstOrigin = [0, 0];

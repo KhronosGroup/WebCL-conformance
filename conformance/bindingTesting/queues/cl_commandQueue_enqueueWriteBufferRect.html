@@ -53,7 +53,7 @@ try {
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     var region = [16 * 4, 4, 4]; /* Read as 4 rows of 16 int32 elements each with 4 slice.*/
     var hostPtr = new Int32Array(256);
-    hostPtr = wtu.generateRandomInt(hostPtr, 256);
+    wtu.generateRandomInt(hostPtr, 256);
 
     // Testing with buffer as MEM_READ_WRITE memory object.
     var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE_IN_BYTES);

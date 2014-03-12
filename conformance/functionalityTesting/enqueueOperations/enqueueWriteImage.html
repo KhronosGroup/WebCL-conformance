@@ -54,7 +54,7 @@ try {
     var imageSizeInBytes = imageWidth * imageHeight * elementsPerPixel;
     var webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
     data = eval("new " + arrayType + "(imageSizeInBytes)");
-    data = wtu.generateRandomInt(data, imageSizeInBytes);
+    wtu.generateRandomInt(data, imageSizeInBytes);
     result = eval("new " + arrayType + "(imageSizeInBytes)");
 
     /*

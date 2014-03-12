@@ -69,7 +69,7 @@ try {
         data = new Int32Array(SIZE);
         result = new Int32Array(SIZE);
         var region = [16 * Int32Array.BYTES_PER_ELEMENT, 4, 2]; // copy as 2 slice, each slice of 4 rows with 16 int32 elements each.
-        data = wtu.generateRandomInt(data, SIZE);
+        wtu.generateRandomInt(data, SIZE);
 
         wtu.enqueueWriteBufferRect(webCLCommandQueue, srcBuffer, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
         wtu.enqueueCopyBufferRect(webCLCommandQueue, srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
@@ -91,7 +91,7 @@ try {
         result = new Int32Array(SIZE);
 
         region = [64 * Int32Array.BYTES_PER_ELEMENT, 8, 2];
-        data = wtu.generateRandomInt(data, SIZE);
+        wtu.generateRandomInt(data, SIZE);
 
         wtu.enqueueWriteBufferRect(webCLCommandQueue, srcBuffer, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
         wtu.enqueueCopyBufferRect(webCLCommandQueue, srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);
@@ -114,7 +114,7 @@ try {
 
         region = [16 * Int32Array.BYTES_PER_ELEMENT, 8, 8];
         readRegion = [16 * Int32Array.BYTES_PER_ELEMENT, 4, 8];
-        data = wtu.generateRandomInt(data, SIZE);
+        wtu.generateRandomInt(data, SIZE);
 
         wtu.enqueueWriteBufferRect(webCLCommandQueue, srcBuffer, true, srcOrigin, hostOrigin, region, srcRowPitch, srcSlicePitch, hostRowPitch, hostSlicePitch, data);
         wtu.enqueueCopyBufferRect(webCLCommandQueue, srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitch);

@@ -62,10 +62,10 @@ try {
         throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
     }
 
-    webCLContext.releaseAll();
+    wtu.releaseAll(webCLContext);
     webCLContext = wtu.createContext();
     webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    
+
     // Testing with buffer as MEM_READ_ONLY memory object.
     var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferRead, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");

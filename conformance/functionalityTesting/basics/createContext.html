@@ -99,14 +99,14 @@ try {
                     }
             }
 
-            if (Object.getPrototypeOf(param1).toString() == '[object WebCLDevicePrototype]') {
+            if (param1 instanceof WebCLDevice) {
                 if (contextDevices[0] !== param1) {
                     testFailed("Failed in validating devices[" + i + "]. Expected : " + param1[i] + ". Obtained : " + contextDevices[i]);
                     return;
                 }
             }
 
-            if (Object.getPrototypeOf(param1).toString() == '[object WebCLPlatformPrototype]') {
+            if (param1 instanceof WebCLPlatform) {
                 if (contextDevices[0].getInfo(webcl.DEVICE_PLATFORM) === param1) {
                     if (param2) {
                         if (contextDevices[0].getInfo(webcl.DEVICE_TYPE) !== param2) {

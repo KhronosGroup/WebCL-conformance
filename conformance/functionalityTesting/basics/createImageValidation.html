@@ -56,7 +56,7 @@ try {
     var webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
     var arrayType = wtu.getArrayTypeForChanneltype(webCLImageDescriptor.channelType);
     var data = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptor.channelOrder))");
-    data = wtu.generateRandomNumberInRange(data, 0, 255, data.length);
+    wtu.generateRandomNumberInRange(data, 0, 255, data.length);
     var result = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptor.channelOrder))");
 
     var webCLImageWithHostPtr = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor, data);

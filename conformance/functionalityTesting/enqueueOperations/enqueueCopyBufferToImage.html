@@ -55,7 +55,7 @@ try {
 
     // Create input buffer and populate with int8 values.
     data = eval("new " + arrayType + "(imageSizeInBytes)");
-    data = wtu.generateRandomInt(data, imageSizeInBytes);
+    wtu.generateRandomInt(data, imageSizeInBytes);
     webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, imageSizeInBytes * data.BYTES_PER_ELEMENT, data);
 
     /*

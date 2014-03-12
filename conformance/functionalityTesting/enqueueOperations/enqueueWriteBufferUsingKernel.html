@@ -91,7 +91,7 @@ try {
     */
     var dataFloat = new Float32Array(SIZE);
     var resultFloat = new Float32Array(SIZE);
-    dataFloat = wtu.generateRandomFloat(dataFloat, count);
+    wtu.generateRandomFloat(dataFloat, count);
     executeKernel(webCLContext, "test_stream_write_float", webCLDevices, webCLCommandQueue, dataFloat, resultFloat);
 
     /*
@@ -99,7 +99,7 @@ try {
     */
     var dataLong = new Int32Array(SIZE * 2);
     var resultLong = new Int32Array(SIZE * 2);
-    dataLong = wtu.generateRandomNumberInRange(dataLong, -9223372036854775808, 9223372036854775807, count);
+    wtu.generateRandomNumberInRange(dataLong, -9223372036854775808, 9223372036854775807, count);
     executeKernel(webCLContext, "test_stream_write_long", webCLDevices, webCLCommandQueue, dataLong, resultLong);
 
     /*
@@ -107,7 +107,7 @@ try {
     */
     var dataULong = new Uint32Array(SIZE * 2);
     var resultULong = new Uint32Array(SIZE * 2);
-    dataULong = wtu.generateRandomNumberInRange(dataULong, 0, 18446744073709551615, count);
+    wtu.generateRandomNumberInRange(dataULong, 0, 18446744073709551615, count);
     executeKernel(webCLContext, "test_stream_write_ulong", webCLDevices, webCLCommandQueue, dataULong, resultULong);
 
     /*
@@ -116,7 +116,7 @@ try {
 
     var dataInt = new Int32Array(SIZE);
     var resultInt = new Int32Array(SIZE);
-    dataInt = wtu.generateRandomNumberInRange(dataInt, -2147483648, 2147483647, count);
+    wtu.generateRandomNumberInRange(dataInt, -2147483648, 2147483647, count);
     executeKernel(webCLContext, "test_stream_write_int", webCLDevices, webCLCommandQueue, dataInt, resultInt);
 
     /*
@@ -125,7 +125,7 @@ try {
 
     var dataUInt = new Uint32Array(SIZE);
     var resultUInt = new Uint32Array(SIZE);
-    dataUInt = wtu.generateRandomNumberInRange(dataUInt, 0, 4294967295, count);
+    wtu.generateRandomNumberInRange(dataUInt, 0, 4294967295, count);
     executeKernel(webCLContext, "test_stream_write_uint", webCLDevices, webCLCommandQueue, dataUInt, resultUInt);
 
 
@@ -134,7 +134,7 @@ try {
     */
     var dataShort = new Int16Array(SIZE);
     var resultShort = new Int16Array(SIZE);
-    dataShort = wtu.generateRandomNumberInRange(dataShort, -327616, 32767, count);
+    wtu.generateRandomNumberInRange(dataShort, -327616, 32767, count);
     executeKernel(webCLContext, "test_stream_write_short", webCLDevices, webCLCommandQueue, dataShort, resultShort);
 
     /*
@@ -142,7 +142,7 @@ try {
     */
     var dataUShort = new Uint16Array(SIZE);
     var resultUShort = new Uint16Array(SIZE);
-    dataUShort = wtu.generateRandomNumberInRange(dataUShort, 0, 65535, count);
+    wtu.generateRandomNumberInRange(dataUShort, 0, 65535, count);
     executeKernel(webCLContext, "test_stream_write_ushort", webCLDevices, webCLCommandQueue, dataUShort, resultUShort);
 
     /*
@@ -150,7 +150,7 @@ try {
     */
     var dataChar = new Int8Array(SIZE);
     var resultChar = new Int8Array(SIZE);
-    dataChar = wtu.generateRandomNumberInRange(dataChar, -128, 127, count);
+    wtu.generateRandomNumberInRange(dataChar, -128, 127, count);
     executeKernel(webCLContext, "test_stream_write_char", webCLDevices, webCLCommandQueue, dataChar, resultChar);
 
     /*
@@ -158,7 +158,7 @@ try {
     */
     var dataUChar = new Uint8Array(SIZE);
     var resultUChar = new Uint8Array(SIZE);
-    dataUChar = wtu.generateRandomNumberInRange(dataUChar, 0, 255, count);
+    wtu.generateRandomNumberInRange(dataUChar, 0, 255, count);
     executeKernel(webCLContext, "test_stream_write_uchar", webCLDevices, webCLCommandQueue, dataUChar, resultUChar);
 
 } catch(e) {

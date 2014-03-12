@@ -429,26 +429,17 @@ function shouldBeType(_a, _type, quite) {
     var exception;
     var _av, _avPrototype;
 
-    /*  operator instanceof works based on prototype.constructor. Across multiple frames the
-        constructor definition need not be the same. Thus when running the test in iframe it fails for
-        certain type checks.
-        As a workaround we are comparing prototype of _a and _type
-        after evaluating respective strings.
-    */
-
     try {
         _av = eval(_a);
-        _aPrototype = Object.getPrototypeOf(_av).toString();
     } catch (e) {
         exception = e;
     }
 
     var _typev = eval(_type);
-    var _typePrototype = _typev.prototype.toString();
 
     if (exception)
         testFailed(_a + "should be an instance of " + _type + ". But threw exception " + exception.name);
-    else if (_av instanceof  _typev || _aPrototype == _typePrototype) {
+    else if (_av instanceof  _typev) {
         if (!quite)
             testPassed(_a + " is an instance of " + _type);
     } else
@@ -590,13 +581,11 @@ function shouldBeTypeOrException(_a, _type, _e, isArray, quite)
     var _av;
     try {
         _av = eval(_a);
-        _aPrototype = Object.getPrototypeOf(_av).toString();
     } catch (e) {
         exception = e;
     }
 
     var _typev = eval(_type);
-    var _typePrototype = _typev.prototype.toString();
 
     if (exception) {
         if (exception instanceof WebCLException && exception.name == _e)
@@ -605,7 +594,7 @@ function shouldBeTypeOrException(_a, _type, _e, isArray, quite)
             testFailed(_a + " threw exception " + exception.name);
     } else if (isArray)
        shouldBeArrayOfType(_a, _type);
-    else if (_av instanceof  _typev || _aPrototype == _typePrototype) {
+    else if (_av instanceof  _typev) {
         if (!quite)
             testPassed(_a + " is an instance of " + _type);
     } else

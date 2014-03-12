@@ -46,7 +46,7 @@ try {
     var data, result, bufferOffset, numberBytes;
     var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
     data = new Int32Array(SIZE);
-    data = wtu.generateRandomNumberInRange(data, 0, 2147483647, SIZE);
+    wtu.generateRandomNumberInRange(data, 0, 2147483647, SIZE);
     result = new Int32Array(SIZE);
 
    /*

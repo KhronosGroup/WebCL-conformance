@@ -54,7 +54,7 @@ try {
     var elementsPerPixel = wtu.getBytesForChannelOrder(webCLImageDescriptor.channelOrder);
     var imageSizeInBytes = width * height * elementsPerPixel;
     data = eval("new " + arrayType + "(imageSizeInBytes)");
-    data = wtu.generateRandomInt(data, imageSizeInBytes);
+    wtu.generateRandomInt(data, imageSizeInBytes);
 
     webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor, data);
 

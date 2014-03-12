@@ -52,7 +52,7 @@ var getProgram = function (webCLContext, kernelSource) {
             return null;
         else {
             for (i = 0; i < associatedDevices.length; i++) {
-                if (Object.getPrototypeOf(associatedDevices[i]).toString() != WebCLDevice.prototype.toString())
+                if (!(associatedDevices[i] instanceof WebCLDevice))
                     return null;
             }
         }

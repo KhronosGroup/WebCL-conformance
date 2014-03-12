@@ -39,14 +39,34 @@
 
 try {
     debug("WebCLContext getSupportedImageFormats test case.");
-    debug("getSupportedImageFormats(flag)");
+    debug("(optional CLenum memFlags = MEM_READ_WRITE)");
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
 
-    shouldBeArrayOfType("webCLContext.getSupportedImageFormats(webcl.MEM_READ_ONLY)", WebCLImageDescriptor);
-    shouldBeArrayOfType("webCLContext.getSupportedImageFormats(webcl.MEM_WRITE_ONLY)", WebCLImageDescriptor);
-    shouldBeArrayOfType("webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE)", WebCLImageDescriptor);
+    shouldBeArrayOfType("webCLContext.getSupportedImageFormats()", "WebCLImageDescriptor");
+    shouldBeArrayOfType("webCLContext.getSupportedImageFormats(webcl.MEM_READ_ONLY)", "WebCLImageDescriptor");
+    shouldBeArrayOfType("webCLContext.getSupportedImageFormats(webcl.MEM_WRITE_ONLY)", "WebCLImageDescriptor");
+    shouldBeArrayOfType("webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE)", "WebCLImageDescriptor");
+
+    // Testing for equivalence [Specification : Omitting the memory flag is equivalent to specifying MEM_READ_WRITE.]
+    var formatsWithoutMemFlag = wtu.getSupportedImageFormats(webCLContext);
+    var formatsWithReadWriteFlag = webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE);
+    var i = 0;
+    if (formatsWithoutMemFlag.length == formatsWithReadWriteFlag.length) {
+        for (i = 0; i < formatsWithoutMemFlag.length; i++) {
+            if (formatsWithoutMemFlag.channelOrder !== formatsWithReadWriteFlag.channelOrder ||
+                formatsWithoutMemFlag.channelType !== formatsWithReadWriteFlag.channelType ||
+                formatsWithoutMemFlag.width !== formatsWithReadWriteFlag.width ||
+                formatsWithoutMemFlag.height !== formatsWithReadWriteFlag.height ||
+                formatsWithoutMemFlag.rowPitch !== formatsWithReadWriteFlag.rowPitch)
+                break;
+        }
+    }
+    if (i == formatsWithoutMemFlag.length)
+        testPassed("webCLContext.getSupportedImageFormats() is webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE)");
+    else
+        testFailed("webCLContext.getSupportedImageFormats() should be webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE)");
 
     // Testing for Exception.
     shouldThrowExceptionName("webCLContext.getSupportedImageFormats(invalid_CLenum);", "INVALID_VALUE");

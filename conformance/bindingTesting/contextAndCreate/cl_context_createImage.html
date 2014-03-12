@@ -53,7 +53,7 @@ try {
 
     var arrayType = wtu.getArrayTypeForChanneltype(webCLImageDescriptorRead.channelType);
     var hostPtr = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptorRead.channelOrder))");
-    hostPtr = wtu.generateRandomNumberInRange(hostPtr, 0, 255, hostPtr.length);
+    wtu.generateRandomNumberInRange(hostPtr, 0, 255, hostPtr.length);
 
     // Testing for MEM_READ_ONLY images.
     shouldBeType("webCLContext.createImage(webcl.MEM_READ_ONLY, webCLImageDescriptorRead)", WebCLImage);

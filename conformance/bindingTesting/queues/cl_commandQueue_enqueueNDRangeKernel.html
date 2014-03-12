@@ -48,7 +48,7 @@ try {
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLContext = wtu.createContext();
-    data = wtu.generateRandomFloat(data, count);
+    wtu.generateRandomFloat(data, count);
 
     var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
@@ -116,7 +116,7 @@ try {
     wtu.build(webCLProgram, webCLDevices);
     var webCLKernelCopy = wtu.createKernel(webCLProgram, "copy");
 
-    data = wtu.generateRandomFloat(data, count);
+    wtu.generateRandomFloat(data, count);
     input = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
     output = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
     wtu.enqueueWriteBuffer(webCLCommandQueue, input, true, 0, BUFFER_SIZE, data);
@@ -143,7 +143,7 @@ try {
         var webCLKernel1 = wtu.createKernel(webCLProgram1, "square");
         var input1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_WRITE, BUFFER_SIZE);
         var output1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-        data = wtu.generateRandomFloat(data, count);
+        wtu.generateRandomFloat(data, count);
         wtu.enqueueWriteBuffer(webCLCommandQueue1, input1, true, 0, BUFFER_SIZE, data);
         wtu.setArg(webCLKernel1, 0, input1);
         wtu.setArg(webCLKernel1, 1, output1);
@@ -157,7 +157,7 @@ try {
         var webCLKernel2 = wtu.createKernel(webCLProgram2, "square");
         var input2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_WRITE, BUFFER_SIZE);
         var output2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-        data = wtu.generateRandomFloat(data, count);
+        wtu.generateRandomFloat(data, count);
         wtu.enqueueWriteBuffer(webCLCommandQueue2, input2, true, 0, BUFFER_SIZE, data);
         wtu.setArg(webCLKernel2, 0, input2);
         wtu.setArg(webCLKernel2, 1, output2);

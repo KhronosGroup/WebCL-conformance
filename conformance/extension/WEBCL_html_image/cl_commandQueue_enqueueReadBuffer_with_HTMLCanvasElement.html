@@ -59,7 +59,8 @@ try {
     if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
         throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
     }
-    webCLContext.releaseAll();
+
+    wtu.releaseAll(webCLContext);
     webCLContext = wtu.createContext();
     webCLCommandQueue = wtu.createCommandQueue(webCLContext);
 

@@ -99,7 +99,6 @@ try {
     shouldBeUndefined("webCLProgram.build(null, \"-cl-opt-disable\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-D SIZE\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-D SIZE=1024\");");
-    shouldBeUndefined("webCLProgram.build(webCLDevice, \"-DSIZE=1024\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-opt-disable\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-single-precision-constant\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-denorms-are-zero\");");
@@ -137,6 +136,10 @@ try {
     kernelSource = wtu.readKernel("../../../resources/kernels/nbody_simulation_bad.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "BUILD_PROGRAM_FAILURE");
+
+    kernelSource = wtu.readKernel("../../../resources/kernels/kernel_with_struct_argument.cl");
+    var webCLProgramWithStructure = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgramWithStructure.build(webCLDevice);", "BUILD_PROGRAM_FAILURE");
 
     // Testing for exception "INVALID_OPERATION".
     kernelSource = wtu.readKernel("../../../resources/kernels/nbody_simulation.cl");

@@ -92,7 +92,7 @@ try {
     *   Testing for "kernel : sample_copy_kernel"
     *   Copies int values from i/p to o/p.
     */
-    dataInt = wtu.generateRandomInt(dataInt, count);
+    wtu.generateRandomInt(dataInt, count);
     try {
         kernelSource = wtu.readKernel("../../../resources/kernels/sample_copy_kernel.cl");
         resultObject = getKernels(webCLContext, kernelSource, webCLDevices, ["sample_copy_kernel"], [2]);
@@ -123,7 +123,7 @@ try {
     *   Testing for "kernel : square"
     *   Squares float value.
     */
-    dataFloat = wtu.generateRandomFloat(dataFloat, count);
+    wtu.generateRandomFloat(dataFloat, count);
     try {
         kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
         resultObject = getKernels(webCLContext, kernelSource, webCLDevices, ["square"], [3]);
@@ -164,7 +164,7 @@ try {
     *   Testing for "kernel : sample_single_kernel"
     *   Rounds off float to an int.
     */
-    dataFloat = wtu.generateRandomFloat(dataFloat, count);
+    wtu.generateRandomFloat(dataFloat, count);
     try {
         kernelSource = wtu.readKernel("../../../resources/kernels/sample_single_kernel.cl");
         resultObject = getKernels(webCLContext, kernelSource, webCLDevices, ["sample_single_kernel"], [2]);
@@ -204,8 +204,8 @@ try {
     *   Testing for "two kernels in one"
     *   Consists of two kernels: to square and to roundoff a float to an int.
     */
-    dataFloat = wtu.generateRandomFloat(dataFloat, count);
-    dataSquare = wtu.generateRandomFloat(dataSquare, count);
+    wtu.generateRandomFloat(dataFloat, count);
+    wtu.generateRandomFloat(dataSquare, count);
     try {
         kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
         kernelSource = kernelSource.concat(wtu.readKernel("../../../resources/kernels/sample_single_kernel.cl"));
@@ -272,8 +272,8 @@ try {
     *   Testing for "two kernels : sample_test, sample_test2"
     *   Converting float to int and to converting int to a float.
     */
-    dataInt = wtu.generateRandomInt(dataInt, count);
-    dataFloat = wtu.generateRandomFloat(dataFloat, count);
+    wtu.generateRandomInt(dataInt, count);
+    wtu.generateRandomFloat(dataFloat, count);
     try {
         kernelSource = wtu.readKernel("../../../resources/kernels/sample_two_kernels_in_one.cl");
         resultObject = getKernels(webCLContext, kernelSource, webCLDevices, ["sample_test", "sample_test2"], [2, 2]);

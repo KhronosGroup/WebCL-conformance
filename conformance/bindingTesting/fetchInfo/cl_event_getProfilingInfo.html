@@ -46,7 +46,7 @@ try {
     var webCLContext = wtu.createContext();
     var data = new Float32Array(SIZE);
     var count = SIZE;
-    data = wtu.generateRandomFloat(data, count);
+    wtu.generateRandomFloat(data, count);
     var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext, webCLDevices[0], webcl.QUEUE_PROFILING_ENABLE);

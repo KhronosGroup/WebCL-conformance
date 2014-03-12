@@ -1,8 +1,8 @@
 <!--
- Copyright (C) 2013 Samsung Electronics Corporation. All rights reserved.
+ Copyright (C) 2014 Samsung Electronics Corporation. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
- modification, are permitted provided the following condition
+ modification, are permitted provided the following conditions
  are met:
 
  1.  Redistributions of source code must retain the above copyright
@@ -27,7 +27,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-    <title>WebCLContext createBuffer functionality test.</title>
+    <title>WebCL CLGL constants check conformance test.</title>
     <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
     <script src="../../../resources/js-test-pre.js"></script>
     <script src="../../../resources/cl_utils.js"></script>
@@ -36,26 +36,23 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-debug("WebCLContext :: createBuffer functionality test case.");
-
-var wtu = WebCLTestUtils;
-var webCLContext = wtu.createContext();
-var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-
-/*
- *   Creating buffer and filling it with ArrayBufferView.
- */
 try {
-    var data = new Float32Array(SIZE);
-    var result = new Float32Array(SIZE);
-    count = SIZE;
-    var bufferOffset = 0;
-    var BUFFER_SIZE = Float32Array.BYTES_PER_ELEMENT * SIZE;
+    debug("WebCL CLGL constants check test case.\n");
 
-    wtu.generateRandomFloat(data, count);
-    var webCLBufferWithHostPtr = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE, data);
-    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWithHostPtr, true, bufferOffset, BUFFER_SIZE, result);
-    wtu.verifyResult(data, result, count, "Validation of data filled by ArrayBufferView on creation of a buffer with size " + SIZE);
+    debug("Enabling extension KHR_gl_sharing.\n");
+
+    var wtu = WebCLTestUtils;
+    wtu.enableExtension(webcl, "KHR_gl_sharing");
+
+    shouldEvaluateTo("webcl.INVALID_GL_OBJECT", "-60");
+    shouldEvaluateTo("webcl.INVALID_MIP_LEVEL", "-62");
+    shouldEvaluateTo("webcl.COMMAND_ACQUIRE_GL_OBJECTS", "0x11FF");
+    shouldEvaluateTo("webcl.COMMAND_RELEASE_GL_OBJECTS", "0x1200");
+    shouldEvaluateTo("webcl.GL_OBJECT_BUFFER", "0x2000");
+    shouldEvaluateTo("webcl.GL_OBJECT_TEXTURE2D", "0x2001");
+    shouldEvaluateTo("webcl.GL_OBJECT_RENDERBUFFER", "0x2003");
+    shouldEvaluateTo("webcl.GL_TEXTURE_TARGET", "0x2004");
+    shouldEvaluateTo("webcl.GL_MIPMAP_LEVEL", "0x2005");
 
 } catch(e) {
     testFailed(e.description);

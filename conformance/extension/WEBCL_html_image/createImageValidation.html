@@ -57,7 +57,7 @@ try {
     var canvasForImageData = document.getElementById("inputCanvasForImageData");
     var canvasContextForImageData = canvasForImageData.getContext("2d");
     var imgData = canvasContextForImageData.createImageData(100, 100);
-    imgData.data = wtu.generateRandomNumberInRange(imgData.data, 0, 255, imgData.data.length);
+    wtu.generateRandomNumberInRange(imgData.data, 0, 255, imgData.data.length);
     canvasContextForImageData.putImageData(imgData, 0, 0);
 
     var webCLImageWithImageData = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, imgData);
