@@ -44,9 +44,9 @@ try {
     testFailed("Unable to load HTML image element : " + e.name);
 }
 var webCLContext, webCLCommandQueue, webCLImageRead, webCLImageWrite, webCLImageReadWrite, origin, region, imageWidth, imageHeight, webCLImageDescriptorReadWrite, webCLImage;
-var releasedImage, originInvalid, originOutOfBound, regionInvalid, regionOutOfBound;
+var releasedImage, originInvalid, originOutOfBound, regionInvalid, regionOutOfBound, originNonZero, regionSmall;
 var webCLPlatform, devices, webCLDevice1, webCLDevice2, webCLContext1, webCLContext2, webCLCommandQueue1, webCLCommandQueue2, webCLImage1, webCLImage2, webCLImageDescriptor1, webCLImageDescriptor2;
-var releasedEvent, webCLUserEvent, webCLUserEvent1, webCLUserEvent2, webCLEvent1, webCLEvent2;
+var releasedEvent, webCLUserEvent, webCLUserEvent1, webCLUserEvent2, webCLEvent1, webCLEvent2, invalid_image;
 function execute() {
     try {
         debug("WebCLCommandQueue enqueueWriteImage with imageElement test case. \n");
@@ -67,6 +67,10 @@ function execute() {
             throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
         }
 
+        wtu.releaseAll(webCLContext);
+        webCLContext = wtu.createContext();
+        webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+
         // Testing with image as MEM_READ_ONLY memory object.
         webCLImageRead = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
         shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, origin, region, image);");
@@ -82,10 +86,18 @@ function execute() {
         shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, image);");
         shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, false, origin, region, image);");
 
+        originNonZero = [10, 10];
+        regionSmall = [imageWidth - 10, imageHeight - 10];
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, originNonZero, regionSmall, image);");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, regionSmall, image);");
+
         // Testing for exceptions.
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, originNonZero, region, image);", "INVALID_VALUE")
+
         releasedImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
         wtu.release(releasedImage);
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(releasedImage, true, origin, region, image);", "INVALID_MEM_OBJECT");
+        invalid_image = new Image();
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, invalid_image);", "INVALID_HOST_PTR");
 
         originInvalid = [];
@@ -140,7 +152,7 @@ function execute() {
         wtu.release(releasedEvent);
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, image, [releasedEvent]);", "INVALID_EVENT_WAIT_LIST");
 
-        var webCLUserEvent = wtu.createUserEvent(webCLContext);
+        webCLUserEvent = wtu.createUserEvent(webCLContext);
         wtu.setStatus(webCLUserEvent, -1);
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, image, [webCLUserEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 

@@ -51,17 +51,23 @@ try {
     // MEM_READ_ONLY Buffers.
     var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, true, bufferOffset, numberBytes, hostPtr)");
-    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, false, bufferOffset, numberBytes, hostPtr)");
+    var webCLEvent = new WebCLEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, false, bufferOffset, numberBytes, hostPtr, [], webCLEvent)");
+    wtu.waitForEvents([webCLEvent]);
 
     // MEM_WRITE_ONLY Buffers.
     var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferWrite, true, bufferOffset, numberBytes, hostPtr)");
-    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferWrite, false, bufferOffset, numberBytes, hostPtr)");
+    webCLEvent = new WebCLEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferWrite, false, bufferOffset, numberBytes, hostPtr, [], webCLEvent)");
+    wtu.waitForEvents([webCLEvent]);
 
     // MEM_READ_WRITE Buffers.
     var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr)");
-    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr)");
+    webCLEvent = new WebCLEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [], webCLEvent)");
+    wtu.waitForEvents([webCLEvent]);
 
     // Testing with events.
     var webCLEvent = wtu.createEvent();

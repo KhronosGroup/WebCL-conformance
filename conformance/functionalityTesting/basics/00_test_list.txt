@@ -5,3 +5,4 @@ createBufferValidation.html
 createImageValidation.html
 createCommandQueue.html
 createSampler.html
+createBuffer.html

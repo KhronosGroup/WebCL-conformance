@@ -50,7 +50,7 @@ try {
     shouldBeArrayOfType("webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE)", "WebCLImageDescriptor");
 
     // Testing for equivalence [Specification : Omitting the memory flag is equivalent to specifying MEM_READ_WRITE.]
-    var formatsWithoutMemFlag = wtu.getSupportedImageFormats(webCLContext);
+    var formatsWithoutMemFlag = webCLContext.getSupportedImageFormats();
     var formatsWithReadWriteFlag = webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE);
     var i = 0;
     if (formatsWithoutMemFlag.length == formatsWithReadWriteFlag.length) {

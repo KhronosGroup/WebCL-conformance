@@ -48,7 +48,7 @@ try {
     var invalid_canvas = document.getElementById("invalidCanvas");
     var bytesPerPixel = 4; /* Source pixel format is treated as 32-bit RGBA (8-bits per component) with non-premultiplied alpha */
     var bufferSize = canvas.width * canvas.height * bytesPerPixel;
-    
+
     var bufferOrigin = [0, 0, 0];
     var dstOrigin = [0, 0, 0];
     var region = [canvas.width / 2 * bytesPerPixel, canvas.height, 2];
@@ -74,21 +74,21 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferRead, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");
     var webCLEvent = new WebCLEvent();
     shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferRead, false, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent);");
-    webcl.waitForEvents([webCLEvent]);
+    wtu.waitForEvents([webCLEvent]);
 
     // Testing with buffer as MEM_WRITE_ONLY memory object.
     var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");
     webCLEvent = new WebCLEvent();
     shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferWrite, false, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent);");
-    webcl.waitForEvents([webCLEvent]);
+    wtu.waitForEvents([webCLEvent]);
 
     // Testing with buffer as MEM_READ_WRITE memory object.
     var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");
     webCLEvent = new WebCLEvent();
     shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, false, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent);");
-    webcl.waitForEvents([webCLEvent]);
+    wtu.waitForEvents([webCLEvent]);
 
     // Testing for exceptions.
     var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, bufferSize);

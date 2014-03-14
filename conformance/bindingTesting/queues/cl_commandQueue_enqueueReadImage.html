@@ -56,7 +56,9 @@ try {
     var hostPtr = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptor.channelOrder))");
     var webCLImageRead = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptor);
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageRead, true, origin, region, hostRowPitch, hostPtr);");
-    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageRead, false, origin, region, hostRowPitch, hostPtr);");
+    var webCLEvent = new WebCLEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageRead, false, origin, region, hostRowPitch, hostPtr, [], webCLEvent);");
+    wtu.waitForEvents([webCLEvent]);
 
     // MEM_WRITE_ONLY images.
     webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_WRITE_ONLY, imageWidth, imageHeight);
@@ -64,7 +66,9 @@ try {
     hostPtr = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptor.channelOrder))");
     var webCLImageWrite = wtu.createImage(webCLContext, webcl.MEM_WRITE_ONLY, webCLImageDescriptor);
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageWrite, true, origin, region, hostRowPitch, hostPtr);");
-    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageWrite, false, origin, region, hostRowPitch, hostPtr);");
+    webCLEvent = new WebCLEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageWrite, false, origin, region, hostRowPitch, hostPtr, [], webCLEvent);");
+    wtu.waitForEvents([webCLEvent]);
 
     // MEM_READ_WRITE images.
     webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
@@ -72,7 +76,9 @@ try {
     hostPtr = eval("new " + arrayType + "(imageWidth * imageHeight * wtu.getBytesForChannelOrder(webCLImageDescriptor.channelOrder))");
     var webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, hostRowPitch, hostPtr);");
-    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, false, origin, region, hostRowPitch, hostPtr);");
+    webCLEvent = new WebCLEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, false, origin, region, hostRowPitch, hostPtr, [], webCLEvent);");
+    wtu.waitForEvents([webCLEvent]);
 
     // WebCLImage to be used for other test cases.
     var webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);

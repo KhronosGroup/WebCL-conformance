@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2012 The Khronos Group Inc.
+** Copyright (c) 2012, 2014 The Khronos Group Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and/or associated documentation files (the
@@ -22,5 +22,6 @@
 */
 
 shouldBe("successfullyParsed", "true", true);
+webcl.releaseAll();
 debug('<br /><span class="pass">TEST COMPLETE</span>');
 notifyFinishedToHarness()

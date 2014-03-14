@@ -48,12 +48,12 @@ try {
     var webCLContext = wtu.createContext();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     var origin = [0, 0];
-    var region = [10, 10];
     var canvas = document.getElementById("inputCanvas");
     var invalid_canvas = document.getElementById("invalidCanvas");
 
     var imageWidth = 100;
     var imageHeight = 100;
+    var region = [imageWidth, imageHeight];
     var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
     var webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
 
@@ -70,23 +70,30 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageRead, true, origin, region, canvas);");
     var webCLEvent = new WebCLEvent();
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageRead, false, origin, region, canvas, [], webCLEvent);");
-    webcl.waitForEvents([webCLEvent]);
+    wtu.waitForEvents([webCLEvent]);
 
     // Testing with image as MEM_WRITE_ONLY memory object.
     var webCLImageWrite = wtu.createImage(webCLContext, webcl.MEM_WRITE_ONLY, webCLImageDescriptorReadWrite);
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageWrite, true, origin, region, canvas);");
     var webCLEvent = new WebCLEvent();
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageWrite, false, origin, region, canvas, [], webCLEvent);");
-    webcl.waitForEvents([webCLEvent]);
+    wtu.waitForEvents([webCLEvent]);
 
     // Testing with image as MEM_READ_WRITE memory object.
     var webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, canvas);");
     var webCLEvent = new WebCLEvent();
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, false, origin, region, canvas, [], webCLEvent);");
-    webcl.waitForEvents([webCLEvent]);
+    wtu.waitForEvents([webCLEvent]);
+
+    var originNonZero = [10, 10];
+    var regionSmall = [imageWidth - 10, imageHeight - 10];
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, originNonZero, regionSmall, canvas);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, regionSmall, canvas);");
 
     // Testing for exceptions.
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, originNonZero, region, canvas);", "INVALID_VALUE");
+
     var releasedImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
     wtu.release(releasedImage);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadImage(releasedImage, true, origin, region, canvas);", "INVALID_MEM_OBJECT");

@@ -510,10 +510,6 @@ function finishTest() {
 // WebCL specific methods.
 
 var invalid_CLenum = 9999;
-var invalid_canvas = document.createElement('canvas');
-var invalid_imageData = invalid_canvas.getContext("2d").createImageData(100,100);
-var invalid_image = new Image();
-invalid_image.src = "http://www.khronos.org/registry/webcl/resources/WebCL_logo.png";
 var invalid_video = document.createElement('video');
 
 function shouldThrowExceptionName(_a, _e)
@@ -642,4 +638,25 @@ function shouldThrowTypeError(_a)
             testFailed(_a + "should throw type error but threw " + exception.name);
     } else
         testFailed(_a + "should throw type error but was " + _av);
+}
+
+function shouldBeValueOrUndefined(_a, _b)
+{
+    if (typeof _a != "string" || typeof _b != "string")
+        debug("WARN: shouldBeValueOrUndefined() expects string arguments");
+    var exception;
+    var _av;
+    try {
+        _av = eval(_a);
+    } catch (e) {
+        exception = e;
+    }
+    var _bv = eval(_b);
+
+    if (exception)
+        testFailed(_a + " should be " + _bv + " or undefined. Threw exception " + exception.name);
+    else if (typeof _av == "undefined")
+        testPassed(_a + " is undefined.");
+    else
+        shouldBe(_a, _b);
 }

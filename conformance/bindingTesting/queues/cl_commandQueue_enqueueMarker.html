@@ -47,17 +47,13 @@ try {
     var webCLEvent = wtu.createEvent();
     shouldBeUndefined("webCLCommandQueue.enqueueMarker(webCLEvent);");
 
-    /*
-     *  Testing for userEvent.
-     */
-
-    var webCLUserEvent = wtu.createUserEvent(webCLContext);
-    shouldBeUndefined("webCLCommandQueue.enqueueMarker(webCLUserEvent);");
-
     // Testing for Exception.
     webCLEvent = wtu.createEvent();
     wtu.enqueueMarker(webCLCommandQueue, webCLEvent);
     shouldThrowExceptionName("webCLCommandQueue.enqueueMarker(webCLEvent);", "INVALID_EVENT");
+
+    var webCLUserEvent = wtu.createUserEvent(webCLContext);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueMarker(webCLUserEvent);", "INVALID_EVENT");
 
 } catch (e) {
     testFailed(e.description);

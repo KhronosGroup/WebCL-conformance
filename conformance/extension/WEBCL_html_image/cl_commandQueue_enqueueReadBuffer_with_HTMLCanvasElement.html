@@ -69,23 +69,30 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, true, bufferOffset, numBytes, canvas)");
     var webCLEvent = new WebCLEvent();
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferRead, false, bufferOffset, numBytes, canvas, [], webCLEvent)");
-    webcl.waitForEvents([webCLEvent]);
+    wtu.waitForEvents([webCLEvent]);
 
     // MEM_WRITE_ONLY Buffers.
     var webCLBufferWrite = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferWrite, true, bufferOffset, numBytes, canvas)");
     webCLEvent = new WebCLEvent();
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferWrite, false, bufferOffset, numBytes, canvas, [], webCLEvent)");
-    webcl.waitForEvents([webCLEvent]);
+    wtu.waitForEvents([webCLEvent]);
 
     // MEM_READ_WRITE Buffers.
     var webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, canvas)");
     webCLEvent = new WebCLEvent();
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numBytes, canvas, [], webCLEvent)");
-    webcl.waitForEvents([webCLEvent]);
+    wtu.waitForEvents([webCLEvent]);
+
+    var bufferOffsetNonZero = 10;
+    var numBytesWithOffset = bufferSize - bufferOffsetNonZero;
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffsetNonZero, numBytesWithOffset, canvas)");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytesWithOffset, canvas)");
 
     // Testing for exceptions.
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffsetNonZero, numBytes, canvas)", "INVALID_VALUE");
+
     var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
     wtu.release(releasedBuffer);
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(releasedBuffer, true, bufferOffset, numBytes, canvas)", "INVALID_MEM_OBJECT");

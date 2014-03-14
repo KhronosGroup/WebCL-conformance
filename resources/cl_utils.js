@@ -256,9 +256,6 @@ var getDevices = function(webCLPlatform, deviceType) {
 
 var getSupportedImageFormats = function(webCLContext, flag, imageWidth, imageHeight)
 {
-    // Temporary fix, till implementation supports getSupportedImageFormats without params.
-    if (arguments.length < 3)
-        return webCLContext.getSupportedImageFormats(webcl.MEM_READ_WRITE);
     var imageFormatsArray = eval("webCLContext.getSupportedImageFormats(flag)");
     // FIXME :: Hardcoding to 1st image type. Need to check use cases.
     if (imageFormatsArray instanceof Array && imageFormatsArray.length > 0)
@@ -665,6 +662,15 @@ var getArrayTypeForChanneltype = function(channelType) {
     }
 }
 
+var waitForEvents = function(webCLEvents) {
+    try {
+        return webcl.waitForEvents(webCLEvents);
+    } catch (e) {
+        e.description = "webCL :: waitForEvents threw exception : " + e.name;
+        throw e;
+    }
+}
+
 return {
 createContext:createContext,
 createProgram:createProgram,
@@ -709,6 +715,7 @@ enqueueMarker:enqueueMarker,
 getBytesForChannelOrder:getBytesForChannelOrder,
 getArrayTypeForChanneltype:getArrayTypeForChanneltype,
 verifyArrayForZeroValues:verifyArrayForZeroValues,
+waitForEvents:waitForEvents,
 none:false
 };
 }());

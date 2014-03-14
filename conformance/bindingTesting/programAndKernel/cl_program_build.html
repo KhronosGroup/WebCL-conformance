@@ -134,8 +134,12 @@ try {
 
     // Testing for exception "BUILD_PROGRAM_FAILURE".
     kernelSource = wtu.readKernel("../../../resources/kernels/nbody_simulation_bad.cl");
-    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    shouldThrowExceptionName("webCLProgram.build(webCLDevice);", "BUILD_PROGRAM_FAILURE");
+    var webCLProgramBadKernel = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgramBadKernel.build(webCLDevice);", "BUILD_PROGRAM_FAILURE");
+
+    kernelSource = wtu.readKernel("../../../resources/kernels/sample_kernel_bad_name.cl");
+    var webCLProgramBadKernelName = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgramBadKernelName.build(webCLDevice);", "BUILD_PROGRAM_FAILURE");
 
     kernelSource = wtu.readKernel("../../../resources/kernels/kernel_with_struct_argument.cl");
     var webCLProgramWithStructure = wtu.createProgram(webCLContext, kernelSource);

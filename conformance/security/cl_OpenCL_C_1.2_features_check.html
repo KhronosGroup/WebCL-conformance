@@ -47,28 +47,28 @@ try {
     var webCLDevices = wtu.getDevices(webCLPlatform);
 
     var kernelSource = wtu.readKernel("../../resources/kernels/double.cl");
-    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    shouldThrowExceptionName("webCLProgram.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
+    webCLProgramDouble = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgramDouble.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
 
     kernelSource = wtu.readKernel("../../resources/kernels/doubleVector.cl");
-    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    shouldThrowExceptionName("webCLProgram.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
+    webCLProgramDoubleVector = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgramDoubleVector.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
 
     kernelSource = wtu.readKernel("../../resources/kernels/image1d_array_type.cl");
-    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    shouldThrowExceptionName("webCLProgram.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
+    webCLProgramImage1dArray = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgramImage1dArray.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
 
     kernelSource = wtu.readKernel("../../resources/kernels/image1d_buffer_type.cl");
-    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    shouldThrowExceptionName("webCLProgram.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
+    webCLProgramImage1dBuffer = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgramImage1dBuffer.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
 
     kernelSource = wtu.readKernel("../../resources/kernels/image1d_type.cl");
-    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    shouldThrowExceptionName("webCLProgram.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
+    webCLProgramImage1d = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgramImage1d.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
 
     kernelSource = wtu.readKernel("../../resources/kernels/image2d_array_type.cl");
-    webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    shouldThrowExceptionName("webCLProgram.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
+    webCLProgramImage2dArray = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgramImage2dArray.build(webCLDevices);", "BUILD_PROGRAM_FAILURE");
 
 } catch (e) {
     testFailed(e.description);

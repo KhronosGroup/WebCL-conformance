@@ -42,7 +42,8 @@
 <script>
 try {
     debug("WebCLContext :: createBuffer with HTMLCanvasElement test case.");
-    debug("(CLenum memFlags, ImageData srcPixels)");
+    debug("(CLenum memFlags, HTMLCanvasElement srcCanvas)\n");
+
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var canvas = document.getElementById("inputCanvas");

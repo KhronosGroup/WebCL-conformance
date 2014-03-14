@@ -46,7 +46,8 @@ try {
 var webCLContext, webCLCommandQueue, webCLBufferRead, webCLBufferWrite, webCLBufferReadWrite, bufferRowPitch, bufferSlicePitch, bufferSize;
 var bufferOrigin, srcOrigin, region, webCLBuffer, releasedBuffer, bufferOriginInvalid, bufferOriginOutOfBound, srcOriginInvalid, srcOriginOutOfBound, regionInvalid, regionOutOfBound, bufferRowPitchInvalid, bufferSlicePitchInvalid;
 var webCLPlatform, devices, webCLDevice1, webCLDevice2, webCLContext1, webCLContext2, webCLCommandQueue1, webCLCommandQueue2, webCLBuffer1, webCLBuffer2;
-var releasedEvent, webCLUserEvent, webCLUserEvent1, webCLUserEvent2, webCLEvent1, webCLEvent2;
+var releasedEvent, webCLUserEvent, webCLUserEvent1, webCLUserEvent2, webCLEvent1, webCLEvent2, invalid_image;
+var bufferOriginValid, regionForValidBufferOrigin, srcOriginValid, regionForValidSrcOrigin, regionValid, bufferRowPitchValid, regionValidForRowPitch, bufferSlicePitchValid, regionValidForSlicePitch;
 function execute() {
     try {
         debug("WebCLCommandQueue enqueueWriteBufferRect with HTML Image element test case. \n");
@@ -57,16 +58,20 @@ function execute() {
         webCLCommandQueue = wtu.createCommandQueue(webCLContext);
         bufferOrigin = [0, 0, 0];
         srcOrigin = [0, 0, 0];
-        region = [10, 10, 1];
+        region = [image.width * 4 / 2, image.height, 2];
         bufferRowPitch = 0;
         bufferSlicePitch = 0;
         bufferSize = image.width * image.height * 4;
 
         webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, bufferSize);
-        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(releasedBuffer, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image);", "WEBCL_EXTENSION_NOT_ENABLED");
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBuffer, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image);", "WEBCL_EXTENSION_NOT_ENABLED");
         if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
             throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
         }
+
+        wtu.releaseAll(webCLContext);
+        webCLContext = wtu.createContext();
+        webCLCommandQueue = wtu.createCommandQueue(webCLContext);
 
         // Testing with buffer as MEM_READ_ONLY memory object.
         webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, bufferSize);
@@ -87,8 +92,13 @@ function execute() {
         releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
         wtu.release(releasedBuffer);
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(releasedBuffer, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image);", "INVALID_MEM_OBJECT");
+        invalid_image = new Image();
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, invalid_image);", "INVALID_HOST_PTR");
 
+        bufferOriginValid = [image.width, 0, 0];
+        regionForValidBufferOrigin = [(image.width - 1) * 4, image.height, 1];
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOriginValid, srcOrigin, regionForValidBufferOrigin, bufferRowPitch, bufferSlicePitch, image);");
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOriginValid, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
         bufferOriginInvalid = [];
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOriginInvalid, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
         bufferOriginInvalid = [0];
@@ -98,6 +108,10 @@ function execute() {
         bufferOriginOutOfBound = [bufferSize + 1, bufferSize + 1, 0];
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOriginOutOfBound, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
 
+        srcOriginValid = [image.width, 0, 0];
+        regionForValidSrcOrigin = [(image.width - 1) * 4, image.height, 1];
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOriginValid, regionForValidSrcOrigin, bufferRowPitch, bufferSlicePitch, image);");
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOriginValid, region, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
         srcOriginInvalid = [];
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOriginInvalid, region, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
         srcOriginInvalid = [0];
@@ -107,6 +121,8 @@ function execute() {
         srcOriginOutOfBound = [bufferSize + 1, bufferSize + 1, 0];
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOriginOutOfBound, region, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
 
+        regionValid = [image.width * 4, image.height / 2, 2];
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, regionValid, bufferRowPitch, bufferSlicePitch, image);");
         regionInvalid = [];
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, regionInvalid, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
         regionInvalid = [0];
@@ -116,11 +132,19 @@ function execute() {
         regionOutOfBound = [bufferSize + 1, bufferSize + 1, 1];
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, regionInvalid, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
 
+        bufferRowPitchValid = image.width * 4 * 2; /* Skipping odd rows */
+        regionValidForRowPitch = [image.width * 4, image.height / 2, 1];
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitchValid, bufferSlicePitch, image);", "INVALID_VALUE");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, regionValidForRowPitch, bufferRowPitchValid, bufferSlicePitch, image);");
         bufferRowPitchInvalid = bufferSize + 1;
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitchInvalid, bufferSlicePitch, image);", "INVALID_VALUE");
 
+        bufferSlicePitchValid = image.width * image.height * 4;
+        regionValidForSlicePitch = [image.width * 4, image.height, 1];
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitchValid, image);", "INVALID_VALUE");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, regionValidForSlicePitch, bufferRowPitch, bufferSlicePitchValid, image);");
         bufferSlicePitchInvalid = bufferSize + 1;
-        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferSlicePitch, bufferSlicePitchInvalid, image);", "INVALID_VALUE");
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitchInvalid, image);", "INVALID_VALUE");
 
         // Testing for exception "INVALID_CONTEXT"
         webCLPlatform = wtu.getPlatform();

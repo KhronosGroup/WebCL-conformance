@@ -150,16 +150,25 @@ try {
     shouldBeUndefined("webCLKernelVector16.setArg(8, wtu.generateData(Float32Array, 16));");
 
     // Testing for Exception.
-    debug("INVALID_ARG_INDEX::");
     var kernelNumArgs = webCLSquareKernel.getInfo(webcl.KERNEL_NUM_ARGS);
     shouldThrowExceptionName("webCLSquareKernel.setArg((kernelNumArgs + 1), webCLBuffer);", "INVALID_ARG_INDEX");
 
-    debug("INVALID_ARG_VALUE::");
     shouldThrowExceptionName("webCLSquareKernel.setArg(0, new Int32Array([10]));", "INVALID_ARG_VALUE");
     shouldThrowExceptionName("webCLKernelVector4.setArg(0, new Int32Array([10, 90, 89, 78, 67]));", "INVALID_ARG_VALUE");
     shouldThrowExceptionName("webCLLocalKernel.setArg(2, new Uint32Array ([1000, 35]));", "INVALID_ARG_VALUE");
     shouldThrowExceptionName("webCLLocalKernel.setArg(2, new Int32Array ([1000]));", "INVALID_ARG_VALUE");
     shouldThrowExceptionName("webCLKernel.setArg(0, [10.90]);", "INVALID_ARG_VALUE");
+
+    // Testing for Validation of ArrayBufferView types against the type in Kernel signature.
+    shouldThrowExceptionName("webCLKernel.setArg(0, new Uint8Array([255]));", "INVALID_ARG_VALUE");
+    shouldThrowExceptionName("webCLKernel.setArg(1, new Int8Array([-128]));", "INVALID_ARG_VALUE");
+    shouldThrowExceptionName("webCLKernel.setArg(2, new Uint16Array([65536]));", "INVALID_ARG_VALUE");
+    shouldThrowExceptionName("webCLKernel.setArg(3, new Int16Array([-32768]));", "INVALID_ARG_VALUE");
+    shouldThrowExceptionName("webCLKernel.setArg(4, new Uint32Array([4294967295]));", "INVALID_ARG_VALUE");
+    shouldThrowExceptionName("webCLKernel.setArg(5, new Int32Array([-2147483648]));", "INVALID_ARG_VALUE");
+    shouldThrowExceptionName("webCLKernel.setArg(6, new Uint32Array([4294967295, 4294967295]));", "INVALID_ARG_VALUE");
+    shouldThrowExceptionName("webCLKernel.setArg(7, new Int32Array([-2147483648, -2147483648]));", "INVALID_ARG_VALUE");
+    shouldThrowExceptionName("webCLKernel.setArg(8, new Int32Array([-2147483648]));", "INVALID_ARG_VALUE");
 
     shouldThrowExceptionName("webCLKernelVector2.setArg(0, new Int32Array([10, 90, 89]));", "INVALID_ARG_SIZE");
     shouldThrowExceptionName("webCLLocalKernel.setArg(2, new Uint32Array(0));", "INVALID_ARG_SIZE");

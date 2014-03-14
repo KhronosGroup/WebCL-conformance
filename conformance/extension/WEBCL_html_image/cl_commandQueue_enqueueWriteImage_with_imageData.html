@@ -36,7 +36,7 @@
 <div id="description"></div>
 <div id="console"></div>
 <div style="position:absolute; left:0px; top:0px; visibility:hidden" id="x">
-    <canvas id="inputCanvas" />
+    <canvas id="inputCanvas" width = 200 height = 100/>
 </div>
 <script>
 try {
@@ -68,6 +68,10 @@ try {
         throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
     }
 
+    wtu.releaseAll(webCLContext);
+    webCLContext = wtu.createContext();
+    webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+
     // Testing with image as MEM_READ_ONLY memory object.
     var webCLImageRead = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, origin, region, imgData);");
@@ -83,11 +87,19 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, imgData);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, false, origin, region, imgData);");
 
+    var originNonZero = [10, 10];
+    var regionSmall = [imageWidth - 10, imageHeight - 10];
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, originNonZero, regionSmall, imgData);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, regionSmall, imgData);");
+
     // Testing for exceptions.
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, originNonZero, region, imgData);", "INVALID_VALUE");
+
     var releasedImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
     wtu.release(releasedImage);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(releasedImage, true, origin, region, imgData);", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, invalid_imageData);", "INVALID_HOST_PTR");
+    var imgDataInvalid = canvasContext.createImageData(-10, -10);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, imgDataInvalid);", "INVALID_VALUE");
 
     var originInvalid = [];
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, originInvalid, region, imgData);", "INVALID_VALUE");
@@ -102,9 +114,6 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, regionInvalid, imgData);", "INVALID_VALUE");
     var regionOutOfBound = [imageWidth + 1, imageHeight + 1];
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, regionOutOfBound, imgData);", "INVALID_VALUE");
-
-    var imgDataInvalid = canvasContext.createImageData(-10, -10);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, imgDataInvalid);", "INVALID_VALUE");
 
     // Testing for exception "INVALID_CONTEXT"
     var webCLPlatform = wtu.getPlatform();

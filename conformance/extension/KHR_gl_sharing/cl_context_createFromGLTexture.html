@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
     <script src="../../../resources/js-test-pre.js"></script>
     <script src="../../../resources/cl_utils.js"></script>
+    <script src="../../../resources/clgl_utils.js"></script>
 </head>
 <body>
 <div id="description"></div>
@@ -44,6 +45,7 @@ try {
     debug("\n(CLenum memFlags, GLenum textureTarget, CLint miplevel, WebGLTexture texture)");
 
     var wtu = WebCLTestUtils;
+    var clgl = WebCLGLTestUtils;
 
     var canvas = document.getElementById("inputCanvas");
     var glContext = canvas.getContext("experimental-webgl");
@@ -53,8 +55,8 @@ try {
     }
 
     var webCLGLContext = wtu.createContext(glContext);
-    var glTexture = glContext.createTexture();
-    glContext.bindTexture(glContext.TEXTURE_2D, glTexture);
+    var glTexture = clgl.createTexture(glContext);
+    clgl.bindTexture(glContext, glContext.TEXTURE_2D, glTexture);
 
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_ONLY, glContext.TEXTURE_2D, 0,  glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_ONLY, glContext.TEXTURE_2D, 1,  glTexture);", "WebCLImage");
@@ -93,7 +95,7 @@ try {
     shouldThrowExceptionName("webCLGLContext.createFromGLTexture(webcl.MEM_READ_WRITE, glContext.TEXTURE_2D, 3, glTexture);", "INVALID_MIP_LEVEL");
 
     // Testing for exception INVALID_GL_OBJECT
-    var glTextureUnbound = glContext.createTexture();
+    var glTextureUnbound = clgl.createTexture(glContext);
     shouldThrowExceptionName("webCLGLContext.createFromGLTexture(webcl.MEM_READ_WRITE, glContext.TEXTURE_2D, 1, glTextureUnbound);", "INVALID_GL_OBJECT");
 
     // Creating context without glContext.

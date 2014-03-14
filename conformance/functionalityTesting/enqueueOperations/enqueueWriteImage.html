@@ -96,16 +96,14 @@ try {
      *  Testing for writing only 1 pixel (first pixel) per row.
      */
     try {
-        hostRowPitch = 20 * elementsPerPixel;
-        writeOrigin = [0, 0];
-        writeRegion = [1, 20];
+        hostRowPitch = imageWidth * elementsPerPixel * data.BYTES_PER_ELEMENT;
 
-        wtu.enqueueWriteImage(webCLCommandQueue, webCLImage, true, writeOrigin, writeRegion, hostRowPitch, data);
+        wtu.enqueueWriteImage(webCLCommandQueue, webCLImage, true, origin, region, hostRowPitch, data);
 
         wtu.enqueueReadImage(webCLCommandQueue, webCLImage, true, origin, region, 0, result);
         var flag = false;
-        for (i = 0; i < imageSizeInBytes; i += (imageHeight * elementsPerPixel)) {
-            for(j = 0; j < 4; j++) {
+        for (i = 0; i < imageSizeInBytes; i += hostRowPitch) {
+            for(j = 0; j < elementsPerPixel; j++) {
                 if (result[i+j] != data[i+j]) {
                     flag = true;
                     break;

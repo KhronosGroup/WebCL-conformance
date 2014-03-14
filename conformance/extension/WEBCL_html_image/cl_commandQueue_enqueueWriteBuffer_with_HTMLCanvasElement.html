@@ -77,7 +77,14 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, canvas)");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, false, bufferOffset, canvas)");
 
+    bufferOffsetNonZero = 10;
+    var bufferSizeBig = (canvas.width * canvas.height * 4) + bufferOffsetNonZero;
+    var webCLBufferBig = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSizeBig);
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferBig, true, bufferOffsetNonZero, canvas)");
+
     // Testing for exceptions.
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffsetNonZero, canvas)", "INVALID_VALUE");
+
     var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
     wtu.release(releasedBuffer);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(releasedBuffer, true, bufferOffset, canvas)", "INVALID_MEM_OBJECT");

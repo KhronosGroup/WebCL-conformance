@@ -36,7 +36,7 @@
 <div id="description"></div>
 <div id="console"></div>
 <div style="position:absolute; left:0px; top:0px; visibility:hidden" id="x">
-    <canvas id="inputCanvas" />
+    <canvas id="inputCanvas" width = 20 height = 10/>
 </div>
 <script>
 try {
@@ -60,13 +60,16 @@ try {
         throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..."};
     }
 
+    wtu.releaseAll(webCLContext);
+    webCLContext = wtu.createContext();
     shouldBeType("webCLContext.createImage(webcl.MEM_READ_ONLY, imgData);", "WebCLImage");
     shouldBeType("webCLContext.createImage(webcl.MEM_WRITE_ONLY, imgData);", "WebCLImage");
     shouldBeType("webCLContext.createImage(webcl.MEM_READ_WRITE, imgData);", "WebCLImage");
 
     // Testing for exceptions.
     shouldThrowExceptionName("webCLContext.createImage(invalid_CLenum, imgData);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, invalid_imageData);", "INVALID_HOST_PTR");
+    var imgDataInvalid = canvasContext.createImageData(-10, -10);
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, imgDataInvalid);", "INVALID_HOST_PTR");
 
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);

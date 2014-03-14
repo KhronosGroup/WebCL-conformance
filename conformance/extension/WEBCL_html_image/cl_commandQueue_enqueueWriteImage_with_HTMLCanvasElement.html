@@ -81,7 +81,14 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, canvas);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, false, origin, region, canvas);");
 
+    var originNonZero = [10, 10];
+    var regionSmall = [imageWidth - 10, imageHeight - 10];
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, originNonZero, regionSmall, canvas);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, regionSmall, canvas);");
+
     // Testing for exceptions.
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, originNonZero, region, canvas);", "INVALID_VALUE");
+
     var releasedImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
     wtu.release(releasedImage);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(releasedImage, true, origin, region, canvas);", "INVALID_MEM_OBJECT");

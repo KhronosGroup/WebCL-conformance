@@ -36,7 +36,7 @@
 <div id="description"></div>
 <div id="console"></div>
 <div style="position:absolute; left:0px; top:0px; visibility:hidden" id="x">
-    <canvas id="inputCanvas" />
+    <canvas id="inputCanvas" width = 200 height = 100/>
 </div>
 <script>
 try {
@@ -64,6 +64,10 @@ try {
         throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
     }
 
+    wtu.releaseAll(webCLContext);
+    webCLContext = wtu.createContext();
+    webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+
     // MEM_READ_ONLY Buffers.
     var webCLBufferRead = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, bufferSize);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferRead, true, bufferOffset, imgData)");
@@ -79,17 +83,27 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, imgData)");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, false, bufferOffset, imgData)");
 
+    bufferOffsetNonZero = 10;
+    var bufferSizeBig = (imgData.width * imgData.height * 4) + bufferOffsetNonZero;
+    var webCLBufferBig = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSizeBig);
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferBig, true, bufferOffsetNonZero, imgData)");
+
     // Testing for exception.
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffsetNonZero, imgData)", "INVALID_VALUE");
+
     var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
     wtu.release(releasedBuffer);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(releasedBuffer, true, bufferOffset, imgData)", "INVALID_MEM_OBJECT");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, invalid_imageData)", "INVALID_HOST_PTR");
+    var imgDataInvalid = canvasContext.createImageData(-10, -10);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, canvas)", "INVALID_HOST_PTR");
 
     var bufferOffsetInvalid = bufferSize + 1;
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffsetInvalid, imgData)", "INVALID_VALUE");
 
+    var canvasContext = canvas.getContext("2d");
+    var imageData = canvasContext.createImageData(10, 10);
     var bufferSizeSmall = imgData.data.length - 1;
-    var webCLBufferSmall = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
+    var webCLBufferSmall = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSizeSmall);
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBuffer(webCLBufferSmall, true, bufferOffset, imgData)", "INVALID_VALUE");
 
     // Testing for exception "INVALID_CONTEXT"

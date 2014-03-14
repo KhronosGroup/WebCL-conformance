@@ -39,18 +39,24 @@
 try {
     debug("WebCLEvent :: getInfo() Test case.");
     var wtu = WebCLTestUtils;
-    var webCLContext = wtu.createContext();
     var webCLEvent = wtu.createEvent();
+
+    shouldThrowExceptionName("webCLEvent.getInfo(webcl.EVENT_CONTEXT)", "INVALID_EVENT");
+    shouldThrowExceptionName("webCLEvent.getInfo(webcl.EVENT_COMMAND_QUEUE)", "INVALID_EVENT");
+    shouldThrowExceptionName("webCLEvent.getInfo(webcl.EVENT_COMMAND_EXECUTION_STATUS)", "INVALID_EVENT");
+    shouldThrowExceptionName("webCLEvent.getInfo(webcl.EVENT_COMMAND_TYPE)", "INVALID_EVENT");
+
+    var webCLContext = wtu.createContext();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+    var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var data = new Int32Array(SIZE);
+    webCLEvent = wtu.createEvent();
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, false, 0, BUFFER_SIZE, data, [], webCLEvent);
 
-    shouldBeNull("webCLEvent.getInfo(webcl.EVENT_CONTEXT)");
-    shouldBeNull("webCLEvent.getInfo(webcl.EVENT_COMMAND_QUEUE)");
-    shouldBe("webCLEvent.getInfo(webcl.EVENT_COMMAND_EXECUTION_STATUS)", "-1");
-    shouldBeNull("webCLEvent.getInfo(webcl.EVENT_COMMAND_TYPE)");
-
-    webCLCommandQueue.enqueueMarker(webCLEvent);
     shouldBe("webCLEvent.getInfo(webcl.EVENT_CONTEXT)", "webCLContext");
     shouldBe("webCLEvent.getInfo(webcl.EVENT_COMMAND_QUEUE)", "webCLCommandQueue");
+    shouldBeNonNull("webCLEvent.getInfo(webcl.EVENT_COMMAND_EXECUTION_STATUS)");
+    shouldBe("webCLEvent.getInfo(webcl.EVENT_COMMAND_TYPE)", "webcl.COMMAND_READ_BUFFER");
 
     // Testing for exception.
     shouldThrowExceptionName("webCLEvent.getInfo(invalid_CLenum)", "INVALID_VALUE");
@@ -63,8 +69,8 @@ try {
 
     shouldBe("webCLUserEvent.getInfo(webcl.EVENT_CONTEXT)", "webCLContext");
     shouldBeNull("webCLUserEvent.getInfo(webcl.EVENT_COMMAND_QUEUE)");
-    shouldBe("webCLUserEvent.getInfo(webcl.EVENT_COMMAND_EXECUTION_STATUS)", "webcl.SUBMITTED");
-    shouldBeNonNull("webCLUserEvent.getInfo(webcl.EVENT_COMMAND_TYPE)");
+    shouldBeNonNull("webCLUserEvent.getInfo(webcl.EVENT_COMMAND_EXECUTION_STATUS)");
+    shouldBe("webCLUserEvent.getInfo(webcl.EVENT_COMMAND_TYPE)", "webcl.COMMAND_USER");
 
     // Testing for exception.
     shouldThrowExceptionName("webCLUserEvent.getInfo(invalid_CLenum)", "INVALID_VALUE");

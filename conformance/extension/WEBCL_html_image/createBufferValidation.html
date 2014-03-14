@@ -35,13 +35,16 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
-<canvas id="inputCanvas" width="100" height="100" </canvas>
+<canvas id="inputCanvas" width="100" height="100" ></canvas>
 <canvas id="inputCanvasForImageData" width="100" height="100"></canvas>
-<canvas id="inputCanvasForImage" width="100" height="100"></canvas>
+<canvas id="inputCanvasForImage" width="240" height="400"></canvas>
 <script>
-debug("WebCLContext :: createBuffer with html image types functionality test case .");
-
 var wtu = WebCLTestUtils;
+debug("WebCLContext :: createBuffer with html image types functionality test case .");
+if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
+    throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..." };
+}
+
 var webCLContext = wtu.createContext();
 var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
 var bufferOffset = 0;
@@ -58,7 +61,9 @@ try {
 
     var webCLBufferWithImageData = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, imgData);
 
-    var resultArray = new Uint8Array(canvasForImageData.width * canvasForImageData.height);
+    // Source pixel format is treated as 32-bit RGBA (8-bits per component) with non-premultiplied alpha
+    var resultArraySize = canvasForImageData.width * canvasForImageData.height * 4;
+    var resultArray = new Uint8Array(resultArraySize);
     wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWithImageData, true, bufferOffset, resultArray.length, resultArray);
 
     wtu.verifyResult(imgData.data, resultArray, resultArray.length, "Validation of buffer created using imageData with size (100 * 100)");
@@ -73,13 +78,16 @@ try {
     var canvas = document.getElementById("inputCanvas");
     var canvasContext = canvas.getContext("2d");
     canvasContext.fillStyle="#FF0000";
-    canvasContext.fillRect(0,0,100,100);
-    var imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+    canvasContext.fillRect(0, 0, 100, 100);
+    var canvasData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
 
-    var webCLBufferWithCanvas = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, canvas);
-    var resultArray = new Uint8Array(canvas.width * canvas.height);
+    var webCLBufferWithCanvas = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, canvasData);
+
+    // Source pixel format is treated as 32-bit RGBA (8-bits per component) with non-premultiplied alpha
+    resultArraySize = canvas.width * canvas.height * 4;
+    resultArray = new Uint8Array(resultArraySize);
     wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWithCanvas, true, bufferOffset, resultArray.length , resultArray);
-    wtu.verifyResult(resultArray, imgData.data, resultArray.length, "Validation of buffer created using canvas with size (100 * 100)");
+    wtu.verifyResult(resultArray, canvasData.data, resultArray.length, "Validation of buffer created using canvas with size (100 * 100)");
 
 } catch(e) {
     testFailed(e.description);
@@ -104,10 +112,12 @@ function execute() {
 
         var webCLBufferWithImage = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, image);
 
-        var resultArray = new Uint8Array(canvasForImage.width * canvasForImage.height);
+        // Source pixel format is treated as 32-bit RGBA (8-bits per component) with non-premultiplied alpha
+        resultArraySize = canvasForImage.width * canvasForImage.height * 4;
+        resultArray = new Uint8Array(resultArraySize);
         wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferWithImage, true, bufferOffset, resultArray.length, resultArray);
 
-        wtu.verifyResult(dataOfImage.data, resultArray, resultArray.length, "Validation of buffer created using HTMLImageElement.");
+        wtu.verifyResult(dataOfImage.data, resultArray, resultArray.length, "Validation of buffer created using HTMLImageElement");
     } catch(e) {
         testFailed(e.description);
     }

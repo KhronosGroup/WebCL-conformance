@@ -47,7 +47,7 @@ __kernel void kernelULong(
    ulong8 input,
    __global ulong8* output)
 {
-   output[0] = input;
+   output[0] = input + 4294967297;
 }
 
 __kernel void kernelFloat(

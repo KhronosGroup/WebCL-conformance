@@ -73,11 +73,107 @@ var createFromGLTexture = function(webCLContext, flag, textureTarget, miplevel, 
     }
 }
 
+var enqueueAcquireGLObjects = function(webCLGLCommandQueue, memObjects, eventWaitList, webCLEvent) {
+    try {
+        if (typeof(webCLEvent) != 'undefined')
+            webCLGLCommandQueue.enqueueAcquireGLObjects(memObjects, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLGLCommandQueue.enqueueAcquireGLObjects(memObjects, eventWaitList);
+        else
+            webCLGLCommandQueue.enqueueAcquireGLObjects(memObjects);
+    } catch(e) {
+        e.description = "WebCLGLCommandQueue :: enqueueAcquireGLObjects threw exception : " + e.name;
+        throw e;
+    }
+}
+
+var enqueueReleaseGLObjects = function(webCLGLCommandQueue, memObjects, eventWaitList, webCLEvent) {
+    try {
+        if (typeof(webCLEvent) != 'undefined')
+            webCLGLCommandQueue.enqueueReleaseGLObjects(memObjects, eventWaitList, webCLEvent);
+        else if (typeof(eventWaitList) != 'undefined')
+            webCLGLCommandQueue.enqueueReleaseGLObjects(memObjects, eventWaitList);
+        else
+            webCLGLCommandQueue.enqueueReleaseGLObjects(memObjects);
+    } catch(e) {
+        e.description = "WebCLGLCommandQueue :: enqueueReleaseGLObjects threw exception : " + e.name;
+        throw e;
+    }
+}
+
+var createBuffer = function(glContext) {
+    try {
+        var glBuffer = eval("glContext.createBuffer();");
+        if (glBuffer instanceof WebGLBuffer)
+            return glBuffer;
+    } catch (e) {
+        e.description = "WebGLContext :: createBuffer threw exception : " + e.name;
+        throw e;
+    }
+}
+
+var bindBuffer = function(glContext, target, glBuffer) {
+    try {
+        glContext.bindBuffer(target, glBuffer);
+    } catch (e) {
+        e.description = "WebGLContext :: bindBuffer threw exception : " + e.name;
+        throw e;
+    }
+}
+
+var createRenderbuffer = function(glContext) {
+    try {
+        var glRenderbuffer = eval("glContext.createRenderbuffer();");
+        if (glRenderbuffer instanceof WebGLRenderbuffer)
+            return glRenderbuffer;
+    } catch (e) {
+        e.description = "WebGLContext :: createRenderbuffer threw exception : " + e.name;
+        throw e;
+    }
+}
+
+var bindRenderbuffer = function(glContext, target, glRenderbuffer) {
+    try {
+        glContext.bindRenderbuffer(target, glRenderbuffer);
+    } catch (e) {
+        e.description = "WebGLContext :: bindRenderbuffer threw exception : " + e.name;
+        throw e;
+    }
+}
+
+var createTexture = function(glContext) {
+    try {
+        var glTexture = eval("glContext.createTexture();");
+        if (glTexture instanceof WebGLTexture)
+            return glTexture;
+    } catch (e) {
+        e.description = "WebGLContext :: createTexture threw exception : " + e.name;
+        throw e;
+    }
+}
+
+var bindTexture = function(glContext, target, glTexture) {
+    try {
+        glContext.bindTexture(target, glTexture);
+    } catch (e) {
+        e.description = "WebGLContext :: bindTexture threw exception : " + e.name;
+        throw e;
+    }
+}
+
 return {
 getGLContext:getGLContext,
 createFromGLBuffer:createFromGLBuffer,
 createFromGLRenderbuffer:createFromGLRenderbuffer,
 createFromGLTexture:createFromGLTexture,
+enqueueAcquireGLObjects:enqueueAcquireGLObjects,
+enqueueReleaseGLObjects:enqueueReleaseGLObjects,
+createBuffer:createBuffer,
+bindBuffer:bindBuffer,
+createRenderbuffer:createRenderbuffer,
+bindRenderbuffer:bindRenderbuffer,
+createTexture:createTexture,
+bindTexture:bindTexture,
 none:false
 };
 }());

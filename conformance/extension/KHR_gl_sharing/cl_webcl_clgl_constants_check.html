@@ -38,8 +38,19 @@
 <script>
 try {
     debug("WebCL CLGL constants check test case.\n");
+    debug("Testing CLGL constants before enabling extension.\n");
 
-    debug("Enabling extension KHR_gl_sharing.\n");
+    shouldBeValueOrUndefined("webcl.INVALID_GL_OBJECT", "-60");
+    shouldBeValueOrUndefined("webcl.INVALID_MIP_LEVEL", "-62");
+    shouldBeValueOrUndefined("webcl.COMMAND_ACQUIRE_GL_OBJECTS", "0x11FF");
+    shouldBeValueOrUndefined("webcl.COMMAND_RELEASE_GL_OBJECTS", "0x1200");
+    shouldBeValueOrUndefined("webcl.GL_OBJECT_BUFFER", "0x2000");
+    shouldBeValueOrUndefined("webcl.GL_OBJECT_TEXTURE2D", "0x2001");
+    shouldBeValueOrUndefined("webcl.GL_OBJECT_RENDERBUFFER", "0x2003");
+    shouldBeValueOrUndefined("webcl.GL_TEXTURE_TARGET", "0x2004");
+    shouldBeValueOrUndefined("webcl.GL_MIPMAP_LEVEL", "0x2005");
+
+    debug("\nEnabling extension KHR_gl_sharing.\n");
 
     var wtu = WebCLTestUtils;
     wtu.enableExtension(webcl, "KHR_gl_sharing");

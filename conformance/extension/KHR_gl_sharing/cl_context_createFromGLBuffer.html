@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
     <script src="../../../resources/js-test-pre.js"></script>
     <script src="../../../resources/cl_utils.js"></script>
+    <script src="../../../resources/clgl_utils.js"></script>
 </head>
 <body>
 <div id="description"></div>
@@ -44,6 +45,7 @@ try {
     debug("\n(CLenum memFlags, WebGLBuffer buffer)");
 
     var wtu = WebCLTestUtils;
+    var clgl = WebCLGLTestUtils;
 
     var canvas = document.getElementById("inputCanvas");
     var glContext = canvas.getContext("experimental-webgl");
@@ -52,8 +54,8 @@ try {
         throw { description : "Failed to enable extension : KHR_gl_sharing. Exitting..."};
     }
 
-    var glBuffer = glContext.createBuffer();
-    glContext.bindBuffer(glContext.ARRAY_BUFFER, glBuffer);
+    var glBuffer = clgl.createBuffer(glContext);
+    clgl.bindBuffer(glContext, glContext.ARRAY_BUFFER, glBuffer);
 
     var webCLGLContext = wtu.createContext(glContext);
 
@@ -66,7 +68,7 @@ try {
     shouldThrowExceptionName("webCLGLContext.createFromGLBuffer(invalid_CLenum, glBuffer);", "INVALID_VALUE");
 
     // Testing for invalid Buffer.
-    var glBufferUnbound = glContext.createBuffer();
+    var glBufferUnbound = clgl.createBuffer(glContext);
     shouldThrowExceptionName("webCLGLContext.createFromGLBuffer(webcl.MEM_READ_WRITE, glBufferUnbound);", "INVALID_GL_OBJECT");
 
     var webCLContext = wtu.createContext();

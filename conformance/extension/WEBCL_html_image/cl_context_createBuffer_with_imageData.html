@@ -36,17 +36,18 @@
 <div id="description"></div>
 <div id="console"></div>
 <div style="position:absolute; left:0px; top:0px; visibility:hidden" id="x">
-    <canvas id="inputCanvas" />
+    <canvas id="inputCanvas" width = 20 height = 10/>
 </div>
 <script>
 try {
     debug("WebCLContext :: createBuffer with imageData test case.");
-    debug("(CLenum memFlags, ImageData srcPixels)");
+    debug("(CLenum memFlags, ImageData srcPixels)\n");
+
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var canvas = document.getElementById("inputCanvas");
     var canvasContext = canvas.getContext("2d");
-    var imgData = canvasContext.createImageData(100, 100);
+    var imgData = canvasContext.createImageData(canvas.width, canvas.height);
     for (var i = 0; i < imgData.data.length; i += 4) {
         imgData.data[i+0] = 255;
         imgData.data[i+1] = 0;
@@ -54,18 +55,21 @@ try {
         imgData.data[i+3] = 255;
     }
 
-    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_ONLY, image);", "WEBCL_EXTENSION_NOT_ENABLED");
+    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_ONLY, imgData);", "WEBCL_EXTENSION_NOT_ENABLED");
     if (!wtu.enableExtension(webcl, "WEBCL_html_image")) {
         throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..."};
     }
 
+    wtu.releaseAll(webCLContext);
+    webCLContext = wtu.createContext();
     shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_ONLY, imgData);", "WebCLBuffer");
     shouldBeType("webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, imgData);", "WebCLBuffer");
     shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imgData);", "WebCLBuffer");
 
     // Testing for exceptions.
     shouldThrowExceptionName("webCLContext.createBuffer(invalid_CLenum, imgData);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, invalid_imageData);", "INVALID_HOST_PTR");
+    var imgDataInvalid = canvasContext.createImageData(-10, -10);
+    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imgDataInvalid);", "INVALID_HOST_PTR");
 
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
@@ -74,11 +78,13 @@ try {
         if (maxMemAllocSize < webCLDevices[i].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE))
              maxMemAllocSize = webCLDevices[i].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE);
     }
-    maxMemAllocSize *= Float32Array.BYTES_PER_ELEMENT;
+    maxMemAllocSize *= Int32Array.BYTES_PER_ELEMENT;
+    var canvasContext = document.getElementById("inputCanvas").getContext("2d");
     var imgDataHugeLength = canvasContext.createImageData(maxMemAllocSize + 1, maxMemAllocSize + 1);
+    var canvasHuge = canvasContext.createImageData(maxMemAllocSize + 1, maxMemAllocSize + 1);
     shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imgDataHugeLength);", "INVALID_IMAGE_SIZE");
 
-    var imgDataInvalidSize = canvasContext.createImageData(-1, -1);
+    var imgDataInvalidSize = canvasContext.createImageData(canvas.width + 1, canvas.height + 1);
     shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imgDataInvalidSize);", "INVALID_HOST_PTR");
 
 } catch(e) {

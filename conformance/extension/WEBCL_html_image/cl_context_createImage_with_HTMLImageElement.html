@@ -43,11 +43,12 @@ try {
 } catch(e) {
     testFailed("Unable to load HTML image element : " + e.name);
 }
-var webCLContext, webCLPlatform, webCLDevices, imageWidthMax, imageInvalidWidth, imageHeightMax, imageInvalidHeight, webCLImageDescriptorObjectInvalidChannelOrder, webCLImageDescriptorObjectInvalidChannelType;
+var webCLContext, webCLPlatform, webCLDevices, imageWidthMax, imageInvalidWidth, imageHeightMax, imageInvalidHeight, webCLImageDescriptorObjectInvalidChannelOrder, webCLImageDescriptorObjectInvalidChannelType, invalid_image;
 function execute() {
     try {
         debug("WebCLContext :: createImage with HTMLImageElement test case.");
-        debug("(CLenum memFlags, HTMLImageElement srcImage)");
+        debug("(CLenum memFlags, HTMLImageElement srcImage)\n");
+
         var wtu = WebCLTestUtils;
         webCLContext = wtu.createContext();
         webCLImageDescriptor = {width : image.width, height : image.height, channelOrder : webcl.RGBA, channelType : webcl.UNORM_INT8};
@@ -57,26 +58,17 @@ function execute() {
             throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..."};
         }
 
+        wtu.releaseAll(webCLContext);
+        webCLContext = wtu.createContext();
+
         shouldBeType("webCLContext.createImage(webcl.MEM_READ_ONLY, image);", "WebCLImage");
         shouldBeType("webCLContext.createImage(webcl.MEM_WRITE_ONLY, image);", "WebCLImage");
         shouldBeType("webCLContext.createImage(webcl.MEM_READ_WRITE, image);", "WebCLImage");
 
         // Testing for exceptions.
         shouldThrowExceptionName("webCLContext.createImage(invalid_CLenum, image);", "INVALID_VALUE");
+        invalid_image = new Image();
         shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, invalid_image);", "INVALID_HOST_PTR");
-
-        webCLPlatform = wtu.getPlatform();
-        webCLDevices = wtu.getDevices(webCLPlatform);
-
-        imageWidthMax = webCLDevices[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_WIDTH);
-        imageInvalidWidth = new Image();
-        imageInvalidWidth.width = imageWidthMax + 1;
-        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, imageInvalidWidth);", "INVALID_IMAGE_SIZE");
-
-        imageHeightMax = webCLDevices[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT);
-        imageInvalidHeight = new Image();
-        imageInvalidHeight.width = imageHeightMax + 1;
-        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, imageInvalidHeight);", "INVALID_IMAGE_SIZE");
 
     } catch(e) {
         testFailed(e.description);

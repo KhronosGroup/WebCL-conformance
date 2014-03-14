@@ -36,9 +36,9 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-var webCLContext, webCLPlatform, webCLDevices, maxMemAllocSize = 0, imageHugeSize, imageInvalidSize;
+var webCLContext, webCLPlatform, webCLDevices, maxMemAllocSize = 0, imageHugeSize, imageInvalidSize, invalid_image;
 debug("WebCLContext :: createBuffer with HTMLImageElement test case.");
-debug("(CLenum memFlags, ImageData srcPixels)");
+debug("(CLenum memFlags, HTMLImageElement srcImage)\n");
 var wtu = WebCLTestUtils;
 webCLContext = wtu.createContext();
 
@@ -59,32 +59,17 @@ function execute() {
             throw { description : "Failed to enable extension : WEBCL_html_image. Exitting..."};
         }
 
+        wtu.releaseAll(webCLContext);
+        webCLContext = wtu.createContext();
+
         shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_ONLY, image);", "WebCLBuffer");
         shouldBeType("webCLContext.createBuffer(webcl.MEM_WRITE_ONLY, image);", "WebCLBuffer");
         shouldBeType("webCLContext.createBuffer(webcl.MEM_READ_WRITE, image);", "WebCLBuffer");
 
         // Testing for exceptions.
         shouldThrowExceptionName("webCLContext.createBuffer(invalid_CLenum, image);", "INVALID_VALUE");
+        invalid_image = new Image();
         shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, invalid_image);", "INVALID_HOST_PTR");
-
-        imageInvalidSize = new Image();
-        imageInvalidSize.width = 0;
-        imageInvalidSize.height = 0;
-        imageInvalidSize.src = "../../../resources/pebbleHalf.jpg";
-        shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imageInvalidSize);", "INVALID_IMAGE_SIZE");
-
-        webCLPlatform = wtu.getPlatform();
-        webCLDevices = wtu.getDevices(webCLPlatform);
-        for (i = 0; i < webCLDevices.length; i++) {
-            if (maxMemAllocSize < webCLDevices[i].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE))
-                     maxMemAllocSize = webCLDevices[i].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE);
-        }
-        maxMemAllocSize *= Float32Array.BYTES_PER_ELEMENT;
-        imageHugeSize = new Image();
-        imageHugeSize.width = maxMemAllocSize;
-        imageHugeSize.height = maxMemAllocSize;
-        imageHugeSize.src = "../../../resources/pebbleHalf.jpg";
-        shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imageHugeSize);", "INVALID_IMAGE_SIZE");
 
     } catch(e) {
         testFailed(e.description);

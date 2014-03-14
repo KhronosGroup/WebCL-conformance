@@ -110,15 +110,13 @@ try {
      */
     try {
         result = eval("new " + arrayType + "(imageSizeInBytes)");
-        readOrigin = [0, 0];
-        readRegion = [1, 20];
-        hostRowPitch = 20 * elementsPerPixel;
+        hostRowPitch = imageWidth * elementsPerPixel * result.BYTES_PER_ELEMENT;
 
-        wtu.enqueueReadImage(webCLCommandQueue, webCLImage, true, readOrigin, readRegion, hostRowPitch, result);
+        wtu.enqueueReadImage(webCLCommandQueue, webCLImage, true, origin, region, hostRowPitch, result);
 
         var flag = false;
-        for (i = 0; i < imageSizeInBytes; i += (imageHeight * elementsPerPixel)) {
-            for(j = 0; j < 4; j++) {
+        for (i = 0; i < imageSizeInBytes; i += hostRowPitch) {
+            for(j = 0; j < elementsPerPixel; j++) {
                 if (result[i+j] != data[i+j]) {
                     flag = true;
                     break;

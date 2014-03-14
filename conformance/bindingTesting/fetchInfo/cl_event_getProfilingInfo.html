@@ -41,6 +41,12 @@ try {
     debug("(CLenum name)");
 
     var wtu = WebCLTestUtils;
+    var webCLEvent = wtu.createEvent();
+    shouldThrowExceptionName("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_QUEUED);", "INVALID_EVENT");
+    shouldThrowExceptionName("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_SUBMIT);", "INVALID_EVENT");
+    shouldThrowExceptionName("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_START);", "INVALID_EVENT");
+    shouldThrowExceptionName("webCLEvent.getProfilingInfo(webcl.PROFILING_COMMAND_END);", "INVALID_EVENT");
+
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLContext = wtu.createContext();
@@ -50,7 +56,7 @@ try {
     var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     var webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext, webCLDevices[0], webcl.QUEUE_PROFILING_ENABLE);
-    var webCLEvent = wtu.createEvent();
+    webCLEvent = wtu.createEvent();
     wtu.build(webCLProgram, webCLDevices);
     var webCLKernel = wtu.createKernel(webCLProgram, "square");
     var workGroupSize = webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE);

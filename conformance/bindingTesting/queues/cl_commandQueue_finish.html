@@ -36,15 +36,21 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
+var callback = function()
+{
+    console.log("Inside callback");
+}
 try {
     debug("WebCLCommandQueue :: finish test case.");
+    debug("(optional WebCLCallback whenFinished)");
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
 
-    // Testing for finish.
     shouldBeUndefined("webCLCommandQueue.finish();");
+    shouldBeUndefined("webCLCommandQueue.finish(callback);");
+
     shouldThrowTypeError("webCLCommandQueue.finish(new Object());");
 
 } catch (e) {
