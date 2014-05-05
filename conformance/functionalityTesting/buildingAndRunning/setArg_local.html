@@ -72,7 +72,7 @@ try {
     webCLKernel.setArg(2, new Uint32Array([localWorkSize[0] * Float32Array.BYTES_PER_ELEMENT]));
     webCLKernel.setArg(3, new Int32Array([count]));
 
-    webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, 1, [], globalWorkSize, localWorkSize);
+    webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, 1, null, globalWorkSize, localWorkSize);
 
     webCLCommandQueue.enqueueReadBuffer(output, true, 0, BUFFER_SIZE, results);
     correct = 0;

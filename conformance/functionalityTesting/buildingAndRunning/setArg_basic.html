@@ -78,7 +78,7 @@ var runAndTest = function(commandqueue, kernel, inputArray, resultArray, expecte
         wtu.setArg(kernel, 2, new Uint32Array([inputArray.length]));
 
         var globalWorkSize = [1024];
-        wtu.enqueueNDRangeKernel(commandqueue, kernel, globalWorkSize.length, [], globalWorkSize, []);
+        wtu.enqueueNDRangeKernel(commandqueue, kernel, globalWorkSize.length, null, globalWorkSize, null);
         wtu.enqueueReadBuffer(commandqueue, output, true, 0, resultArray.BYTES_PER_ELEMENT * resultArray.length, resultArray);
 
         var flag = true, resultString = "";
