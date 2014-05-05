@@ -52,7 +52,7 @@ var executeKernel = function (webCLContext, kernelName, webCLDevices, webCLComma
         var globalWorkSize = [SIZE];
         var localWorkSize = [webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
 
-        wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkSize.length, [], globalWorkSize, localWorkSize);
+        wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkSize.length, null, globalWorkSize, localWorkSize);
         wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, true, 0, resultDataType.length * resultDataType.BYTES_PER_ELEMENT, resultDataType);
         if (resultDataType[0] == expectedResult || String.fromCharCode(resultDataType[0]) == expectedResult)
             testPassed("Test passed for kernel: " + kernelName);

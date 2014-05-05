@@ -92,7 +92,7 @@ try {
     wtu.setArg(webCLKernel, 1, resultBuffer);
     wtu.setArg(webCLKernel, 2, new Uint32Array([SIZE]));
 
-    wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, 1, [], [1], []);
+    wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, 1, null, [1], null);
     wtu.enqueueReadBuffer(webCLCommandQueue, resultBuffer, true, 0, 4, result);
     if (result[0])
         testFailed("Validation of a memory location (webCLBuffer) within kernel accepting char input. " + result[0] + " values are non zero.");
@@ -117,7 +117,7 @@ try {
     wtu.setArg(webCLKernel, 1, resultBuffer);
     wtu.setArg(webCLKernel, 2, new Uint32Array([SIZE]));
 
-    wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, 1, [], [1], []);
+    wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, 1, null, [1], null);
     wtu.enqueueReadBuffer(webCLCommandQueue, resultBuffer, true, 0, 4, result);
     if (result[0])
         testFailed("Validation of a memory location (webCLBuffer) within kernel accepting short input. " + result[0] + " values are non zero.");
@@ -142,7 +142,7 @@ try {
     wtu.setArg(webCLKernel, 1, resultBuffer);
     wtu.setArg(webCLKernel, 2, new Uint32Array([SIZE]));
 
-    wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, 1, [], [1], []);
+    wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, 1, null, [1], null);
     wtu.enqueueReadBuffer(webCLCommandQueue, resultBuffer, true, 0, 4, result);
     if (result[0])
         testFailed("Validation of a memory location (webCLBuffer) within kernel accepting int input. " + result[0] + " values are non zero.");
@@ -167,7 +167,7 @@ try {
     wtu.setArg(webCLKernel, 1, resultBuffer);
     wtu.setArg(webCLKernel, 2, new Uint32Array([SIZE]));
 
-    wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, 1, [], [1], []);
+    wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, 1, null, [1], null);
     wtu.enqueueReadBuffer(webCLCommandQueue, resultBuffer, true, 0, 4, result);
     if (result[0])
         testFailed("Validation of a memory location (webCLBuffer) within kernel accepting long input. " + result[0] + " values are non zero.");
