@@ -44,7 +44,7 @@ try {
     testFailed("Unable to load HTML image element : " + e.name);
 }
 var webCLContext, webCLCommandQueue, webCLImageRead, webCLImageWrite, webCLImageReadWrite, origin, region, imageWidth, imageHeight, webCLImageDescriptorReadWrite, webCLImage;
-var releasedImage, originInvalid, originOutOfBound, regionInvalid, regionOutOfBound, originNonZero, regionSmall;
+var releasedImage, originInvalid, originOutOfBound, regionInvalid, regionOutOfBound, originNonZero, regionSmall, webCLEvent;
 var webCLPlatform, devices, webCLDevice1, webCLDevice2, webCLContext1, webCLContext2, webCLCommandQueue1, webCLCommandQueue2, webCLImage1, webCLImage2, webCLImageDescriptor1, webCLImageDescriptor2;
 var releasedEvent, webCLUserEvent, webCLUserEvent1, webCLUserEvent2, webCLEvent1, webCLEvent2, invalid_image;
 function execute() {
@@ -85,6 +85,16 @@ function execute() {
         webCLImageReadWrite = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
         shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, image);");
         shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, false, origin, region, image);");
+
+        // Testing for nullable parameters.
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, image, []);");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, image, [], null);");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, image, null);");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, image, null, null);");
+        webCLEvent = wtu.createEvent();
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, image, null, webCLEvent);");
+        webCLEvent = wtu.createEvent();
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, image, [], webCLEvent);");
 
         originNonZero = [10, 10];
         regionSmall = [imageWidth - 10, imageHeight - 10];
@@ -162,14 +172,7 @@ function execute() {
         testFailed(e.description);
     }
 
-    // Since execute() is called on loading of the image, it is necessary to insert js-test-post.js in script tag, within this function.
-    var script = document.createElement('script');
-    script.src = '../../../resources/js-test-post.js';
-    script.type = 'text/javascript';
-
-    script.onload = function () {};
-
-    document.getElementsByTagName('head')[0].appendChild(script);
+    wtu.appendPostJSToHTML(document);
 }
 successfullyParsed = true;
 </script>

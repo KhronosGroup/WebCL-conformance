@@ -9,3 +9,5 @@ enqueueWriteBufferUsingKernel.html
 bufferRectOperations.html
 enqueueReadImage.html
 enqueueWriteImage.html
+enqueueReadBufferRect.html
+finish.html

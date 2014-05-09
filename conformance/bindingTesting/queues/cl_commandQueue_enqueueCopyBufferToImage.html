@@ -78,8 +78,16 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageRead, srcOffset, origin, region);");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferWrite, webCLImageRead, srcOffset, origin, region);");
 
-    // Testing with events.
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, []);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [], null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, null, null);");
     var webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, null, webCLEvent);");
+
+    // Testing with events.
+    webCLEvent = wtu.createEvent();
     wtu.enqueueCopyBufferToImage(webCLCommandQueue, webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [], webCLEvent);
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferToImage(webCLBufferReadWrite, webCLImageReadWrite, srcOffset, origin, region, [webCLEvent]);");
     var webCLUserEvent = wtu.createUserEvent(webCLContext);

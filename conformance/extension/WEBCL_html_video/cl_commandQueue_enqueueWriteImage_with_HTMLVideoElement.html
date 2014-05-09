@@ -60,6 +60,15 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video);");
 
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, []);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, [], null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, null, null);");
+    var webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, null, webCLEvent);");
+    webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, [], webCLEvent);");
+
     // Testing for exceptions.
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, invalid_video);", "INVALID_HOST_PTR");
 

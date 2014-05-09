@@ -90,6 +90,9 @@ try {
     invalidImageWidth = imageWidthMax  + 1;
     webCLImageDescriptorInvalidImageWidth = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, invalidImageWidth, imageHeight);
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorInvalidImageWidth);", "INVALID_IMAGE_SIZE");
+    var imageWidthString = "width";
+    webCLImageDescriptorWidthString = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidthString, imageHeight);
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorWidthString);", "INVALID_IMAGE_SIZE");
 
     // Testing for invalid values of Image height.
     var invalidImageHeight = 0;
@@ -99,6 +102,9 @@ try {
     invalidImageHeight = imageHeightMax + 1;
     webCLImageDescriptorInvalidImageHeight = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, invalidImageHeight);
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorInvalidImageHeight);", "INVALID_IMAGE_SIZE");
+    var imageHeightString = "height";
+    webCLImageDescriptorHeightString = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeightString);
+    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, webCLImageDescriptorHeightString);", "INVALID_IMAGE_SIZE");
 
     var webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, imageWidth, imageHeight);
     webCLImageDescriptor.rowPitch = 10;

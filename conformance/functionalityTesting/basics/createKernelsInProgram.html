@@ -43,26 +43,35 @@ var getKernels = function (webCLContext, kernelSource, webCLDevices, kernelName,
     try {
         webCLKernel = webCLProgram.createKernelsInProgram();
     } catch (e) {
-        console.log("createKernelsInProgram threw exception: " + e.message);
         e.description = "Exception thrown while creating kernels : " + e.name + ".";
     }
 
     for (i = 0; i < webCLKernel.length; i++) {
         if (webCLKernel[i].getInfo(webcl.KERNEL_CONTEXT) !== webCLContext) {
-            console.log("webCLKernel[i].getInfo(webcl.KERNEL_CONTEXT) !== webCLContext.");
-            return "webCLKernel[i].getInfo(webcl.KERNEL_CONTEXT) !== webCLContext, for " + i + "th kernel.";
+            return "Verification of context associated with kernel for " + i + "th kernel.";
         }
         if (webCLKernel[i].getInfo(webcl.KERNEL_PROGRAM) !== webCLProgram) {
-            console.log("webCLKernel[i].getInfo(webcl.KERNEL_PROGRAM) !== webCLProgram.");
-            return "webCLKernel[i].getInfo(webcl.KERNEL_PROGRAM) !== webCLProgram, for " + i + "th kernel.";
+            return "Verification of program associated with kernel for " + i + "th kernel.";
         }
-        if (webCLKernel[i].getInfo(webcl.KERNEL_NUM_ARGS) !== kernelArgCount[i]) {
-            console.log("webCLKernel[i].getInfo(webcl.KERNEL_NUM_ARGS) !== kernelArgCount[i].");
-            return "webCLKernel[i].getInfo(webcl.KERNEL_NUM_ARGS) !== kernelArgCount[i], for " + i + "th kernel.";
-        }
-        if (webCLKernel[i].getInfo(webcl.KERNEL_FUNCTION_NAME) !== kernelName[i]) {
-            console.log("webCLKernel[i].getInfo(webcl.KERNEL_FUNCTION_NAME) !== kernelName[i].");
-            return "webCLKernel[i].getInfo(webcl.KERNEL_FUNCTION_NAME) !== kernelName[i], for " + i + "th kernel.";
+
+        /*
+         *  Order of kernel creation is OpenCL vendor dependant and need not be in the same order as that of corresponding
+         *  kernel string. So checking order of kernels in the obtained sequence of kernels and also re-ordering (if needed)
+         */
+        if (webCLKernel[i].getInfo(webcl.KERNEL_NUM_ARGS) !== kernelArgCount[i] &&
+            webCLKernel[i].getInfo(webcl.KERNEL_FUNCTION_NAME) !== kernelName[i]) {
+            for (j = i + 1; j < webCLKernel.length; j++) {
+                if (webCLKernel[j].getInfo(webcl.KERNEL_NUM_ARGS) == kernelArgCount[i] &&
+                    webCLKernel[j].getInfo(webcl.KERNEL_FUNCTION_NAME) == kernelName[i]) {
+                        // Swapping kernel to the correct position in the sequence.
+                        var tmp = webCLKernel[i];
+                        webCLKernel[i] = webCLKernel[j];
+                        webCLKernel[j] = tmp;
+                        break;
+                    }
+            }
+            if (j == webCLKernel.length)
+                return "Verification of number of arguments and function name associated with kernel for " + i + "th kernel.";
         }
     }
     return {
@@ -148,7 +157,6 @@ try {
                 if (resultFloat[i].toPrecision(2) === (dataFloat[i] * dataFloat[i]).toPrecision(2))
                     correct++;
             }
-            console.log("Computed " + correct + "/" + count + " correct values for kernel \"square\".");
             if (correct == count)
                 testPassed("Test passed for all " + count + " values for kernel: \"square\".");
             else
@@ -188,7 +196,6 @@ try {
                 if (resultInt[i] == Math.floor(dataFloat[i]))
                     correct++;
             }
-            console.log("Computed " + correct + "/" + count + " correct values for kernel \"sample_single_kernel\".");
             if (correct == count)
                 testPassed("Test passed for all " + count + " values for kernel: \"sample_single_kernel\".");
             else

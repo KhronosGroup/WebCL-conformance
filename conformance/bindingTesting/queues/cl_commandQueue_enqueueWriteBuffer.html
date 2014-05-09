@@ -65,8 +65,16 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr)");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr)");
 
-    // Testing with events.
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [])");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [], null)");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, null)");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, null, null)");
     var webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, null, webCLEvent)");
+
+    // Testing with events.
+    webCLEvent = wtu.createEvent();
     wtu.enqueueWriteBuffer(webCLCommandQueue, webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [], webCLEvent);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [webCLEvent]);");
     var webCLUserEvent = wtu.createUserEvent(webCLContext);

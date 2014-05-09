@@ -308,8 +308,10 @@ function start() {
             frameElement = frameElement.childNodes[0];
         }
         var frameConsole = frameElement.contentDocument.getElementById("console");
-        while (frameConsole.hasChildNodes()) {
-            frameConsole.removeChild(frameConsole.childNodes[0]);
+        if (frameConsole) {
+            while (frameConsole.hasChildNodes()) {
+                frameConsole.removeChild(frameConsole.childNodes[0]);
+            }
         }
     }
     document.getElementById('platformDevices').style.display = 'block';
@@ -910,11 +912,12 @@ function initCL() {
     if (webCLPlatforms.length == 1) {
         platforms.options[platforms.options.length] = new Option("Platform" + webCLPlatforms.length, webCLPlatforms.length - 1, true, true);
         displayDevices();
-        var defautDevice = webCLPlatforms[0].getDevices(webcl.DEVICE_TYPE_DEFAULT);
-        var defaultDeviceType = getDeviceType(defautDevice[0]);
+        var defaultDevice = webCLPlatforms[0].getDevices(webcl.DEVICE_TYPE_DEFAULT);
+        var defaultDeviceType = getDeviceType(defaultDevice[0]);
         document.getElementById(defaultDeviceType).checked = true;
         document.getElementById("platforms").disabled = true;
-        document.getElementById("lblGPU").innerHTML = document.getElementById("lblGPU").innerHTML + "(default)";
+        document.getElementById("lbl" + defaultDeviceType).innerHTML =
+            document.getElementById("lbl" + defaultDeviceType).innerHTML + " (default)";
         getTestCases();
     } else {
         for (var i = 0; i < webCLPlatforms.length ; i++) {

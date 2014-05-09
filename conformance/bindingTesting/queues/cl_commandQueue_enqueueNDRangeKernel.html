@@ -79,6 +79,17 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, null);");
     shouldBeUndefined("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, null, globalWorkSize, null);");
 
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, null, globalWorkSize, []);");
+    shouldBeUndefined("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, [], globalWorkSize, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, null, globalWorkSize, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, []);");
+    shouldBeUndefined("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [], null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, null, null);");
+    webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, null, webCLEvent);");
+
     // Testing with events.
     shouldBeUndefined("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, null, globalWorkSize, null, [webCLEvent]);");
     var webCLUserEvent = wtu.createUserEvent(webCLContext);

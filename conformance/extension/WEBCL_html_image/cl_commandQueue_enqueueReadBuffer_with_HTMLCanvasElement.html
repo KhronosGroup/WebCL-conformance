@@ -85,6 +85,14 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numBytes, canvas, [], webCLEvent)");
     wtu.waitForEvents([webCLEvent]);
 
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, canvas, [])");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, canvas, [], null)");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, canvas, null)");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, canvas, null, null)");
+    webCLEvent = new WebCLEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numBytes, canvas, null, webCLEvent)");
+
     var bufferOffsetNonZero = 10;
     var numBytesWithOffset = bufferSize - bufferOffsetNonZero;
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffsetNonZero, numBytesWithOffset, canvas)");

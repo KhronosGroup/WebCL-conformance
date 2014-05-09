@@ -58,7 +58,7 @@ try {
     var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
     shouldBeUndefined("webCLSquareKernel.setArg(0, webCLBuffer);");
 
-    var webCLImageDescriptorObject  = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, "100", "100");
+    var webCLImageDescriptorObject  = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_ONLY, 100, 100);
     var webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorObject);
     shouldBeUndefined("webCLSquareKernel.setArg(1, webCLImage);");
 
@@ -139,8 +139,8 @@ try {
     shouldBeUndefined("webCLKernelVector8.setArg(8, wtu.generateData(Float32Array, 8));");
 
     var webCLKernelVector16 = wtu.createKernel(webCLProgram, "kernelVectorSixteen");
-    shouldBeUndefined("webCLKernelVector16.setArg(0, wtu.generateData(Int16Array, 16));");
-    shouldBeUndefined("webCLKernelVector16.setArg(1, wtu.generateData(Uint16Array, 16));");
+    shouldBeUndefined("webCLKernelVector16.setArg(0, wtu.generateData(Int8Array, 16));");
+    shouldBeUndefined("webCLKernelVector16.setArg(1, wtu.generateData(Uint8Array, 16));");
     shouldBeUndefined("webCLKernelVector16.setArg(2, wtu.generateData(Int16Array, 16));");
     shouldBeUndefined("webCLKernelVector16.setArg(3, wtu.generateData(Uint16Array, 16));");
     shouldBeUndefined("webCLKernelVector16.setArg(4, wtu.generateData(Int32Array, 16));");

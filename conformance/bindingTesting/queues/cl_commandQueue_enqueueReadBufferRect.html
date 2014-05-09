@@ -76,9 +76,17 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferWrite, false, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, [], webCLEvent);");
     wtu.waitForEvents([webCLEvent]);
 
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, []);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, [], null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, null, null);");
+    var webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, null, webCLEvent);");
+
     // Testing with events.
     var webCLBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE_IN_BYTES);
-    var webCLEvent = wtu.createEvent();
+    webCLEvent = wtu.createEvent();
     webCLCommandQueue.enqueueReadBufferRect(webCLBufferWrite, false, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, [], webCLEvent);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferWrite, false, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, [webCLEvent]);");
     var webCLUserEvent = wtu.createUserEvent(webCLContext);

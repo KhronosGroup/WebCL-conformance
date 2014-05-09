@@ -54,9 +54,15 @@ var executeKernel = function (webCLContext, kernelName, webCLDevices, webCLComma
 
         wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkSize.length, null, globalWorkSize, localWorkSize);
         wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, true, 0, resultDataType.length * resultDataType.BYTES_PER_ELEMENT, resultDataType);
-        if (resultDataType[0] == expectedResult || String.fromCharCode(resultDataType[0]) == expectedResult)
-            testPassed("Test passed for kernel: " + kernelName);
-        else
+
+        // Long and ULong datatypes are represented as a pair of int32array elements.
+        if (resultDataType.length == 2) {
+            if (resultDataType[1] == expectedResult[1] && resultDataType[0] == expectedResult[0])
+                testPassed("Test passed for kernel: " + kernelName);
+        } else if (resultDataType.length == 1) {
+            if (resultDataType[0] == expectedResult || String.fromCharCode(resultDataType[0]) == expectedResult)
+                testPassed("Test passed for kernel: " + kernelName);
+        } else
             testFailed("Test failed for kernel: " + kernelName);
     } catch (e) {
         testFailed(e.description);
@@ -90,8 +96,8 @@ try {
     executeKernel(webCLContext, "test_stream_read_ushort", webCLDevices, webCLCommandQueue, resultUShort, 2, (1<<8)+1);
     executeKernel(webCLContext, "test_stream_read_int", webCLDevices, webCLCommandQueue, resultInt, 4, ((1<<16)+1));
     executeKernel(webCLContext, "test_stream_read_uint", webCLDevices, webCLCommandQueue, resultUInt, 4, ((1<<16)+1));
-    executeKernel(webCLContext, "test_stream_read_long", webCLDevices, webCLCommandQueue, resultLong, 8, (1<<32)+1);
-    executeKernel(webCLContext, "test_stream_read_ulong", webCLDevices, webCLCommandQueue, resultULong, 8, (1<<32)+1);
+    executeKernel(webCLContext, "test_stream_read_long", webCLDevices, webCLCommandQueue, resultLong, 8, [1, 1]);
+    executeKernel(webCLContext, "test_stream_read_ulong", webCLDevices, webCLCommandQueue, resultULong, 8, [1, 1]);
     executeKernel(webCLContext, "test_stream_read_float", webCLDevices, webCLCommandQueue, resultFloat, 4, (3.40282346638528860e+38));
 
 } catch(e) {

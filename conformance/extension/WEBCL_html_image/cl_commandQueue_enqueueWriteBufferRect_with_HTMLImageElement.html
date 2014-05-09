@@ -46,7 +46,7 @@ try {
 var webCLContext, webCLCommandQueue, webCLBufferRead, webCLBufferWrite, webCLBufferReadWrite, bufferRowPitch, bufferSlicePitch, bufferSize;
 var bufferOrigin, srcOrigin, region, webCLBuffer, releasedBuffer, bufferOriginInvalid, bufferOriginOutOfBound, srcOriginInvalid, srcOriginOutOfBound, regionInvalid, regionOutOfBound, bufferRowPitchInvalid, bufferSlicePitchInvalid;
 var webCLPlatform, devices, webCLDevice1, webCLDevice2, webCLContext1, webCLContext2, webCLCommandQueue1, webCLCommandQueue2, webCLBuffer1, webCLBuffer2;
-var releasedEvent, webCLUserEvent, webCLUserEvent1, webCLUserEvent2, webCLEvent1, webCLEvent2, invalid_image;
+var releasedEvent, webCLUserEvent, webCLUserEvent1, webCLUserEvent2, webCLEvent, webCLEvent1, webCLEvent2, invalid_image;
 var bufferOriginValid, regionForValidBufferOrigin, srcOriginValid, regionForValidSrcOrigin, regionValid, bufferRowPitchValid, regionValidForRowPitch, bufferSlicePitchValid, regionValidForSlicePitch;
 function execute() {
     try {
@@ -88,6 +88,16 @@ function execute() {
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image);");
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, false, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image);");
 
+        // Testing for nullable parameters.
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, []);");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, [], null);");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, null);");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, null, null);");
+        webCLEvent = wtu.createEvent();
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, null, webCLEvent);");
+        webCLEvent = wtu.createEvent();
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, [], webCLEvent);");
+
         // Testing for exceptions.
         releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
         wtu.release(releasedBuffer);
@@ -128,6 +138,8 @@ function execute() {
         regionInvalid = [0];
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, regionInvalid, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
         regionInvalid = [0, 0];
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, regionInvalid, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
+        regionInvalid = [0, 0, 0];
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, regionInvalid, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
         regionOutOfBound = [bufferSize + 1, bufferSize + 1, 1];
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, regionInvalid, bufferRowPitch, bufferSlicePitch, image);", "INVALID_VALUE");
@@ -190,14 +202,7 @@ function execute() {
         testFailed(e.description);
     }
 
-    // Since execute() is called on loading of the image, it is necessary to insert js-test-post.js in script tag, within this function.
-    var script = document.createElement('script');
-    script.src = '../../../resources/js-test-post.js';
-    script.type = 'text/javascript';
-
-    script.onload = function () {};
-
-    document.getElementsByTagName('head')[0].appendChild(script);
+    wtu.appendPostJSToHTML(document);
 }
 successfullyParsed = true;
 </script>

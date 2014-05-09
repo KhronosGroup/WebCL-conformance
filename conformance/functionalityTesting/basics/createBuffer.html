@@ -110,23 +110,38 @@ try {
         return Math.ceil(Math.random() * 99);
     }
 
+    /*
+     * Randomly one of the single digit multiple of deviceBaseAddrAlignement is selected
+     * as the size of parent buffer is 10 times the deviceBaseAddrAlignement value.
+     */
+    var generateValidOrigin = function(deviceBaseAddrAlignement) {
+        return (Math.floor(Math.random() * 10)) * deviceBaseAddrAlignement;
+    }
+
     // Creating buffer with different memory flags and randomly generated buffer size.
     createAndVerifyBuffer("webcl.MEM_READ_ONLY", getRandomTwoDigitNumber());
     createAndVerifyBuffer("webcl.MEM_WRITE_ONLY", getRandomTwoDigitNumber());
     createAndVerifyBuffer("webcl.MEM_READ_WRITE", getRandomTwoDigitNumber());
 
-    // Creating sub-buffers on buffer of size of atleast 200, with different memory flags and randomly generated origin and sub-buffer size.
-    buffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, getRandomTwoDigitNumber() + 200);
-    createAndVerifyBuffer("webcl.MEM_READ_ONLY", getRandomTwoDigitNumber(), getRandomTwoDigitNumber(), buffer);
+    /*
+     *  Creating sub-buffers on buffer of size of atleast 10 times the value of device's base address alignement,
+     *  with different valid memory flags and randomly generated valid origin and sub-buffer size.
+     */
+    var contextDevices = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
+    for (i = 0; i < contextDevices.length; i++) {
+        var deviceBaseAddrAlignement = contextDevices[i].getInfo(webcl.DEVICE_MEM_BASE_ADDR_ALIGN);
 
-    buffer = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, getRandomTwoDigitNumber() + 200);
-    createAndVerifyBuffer("webcl.MEM_WRITE_ONLY", getRandomTwoDigitNumber(), getRandomTwoDigitNumber(), buffer);
+        buffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, deviceBaseAddrAlignement * 10);
+        createAndVerifyBuffer("webcl.MEM_READ_ONLY", getRandomTwoDigitNumber(), generateValidOrigin(deviceBaseAddrAlignement), buffer);
 
-    buffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, getRandomTwoDigitNumber() + 200);
-    createAndVerifyBuffer("webcl.MEM_READ_ONLY", getRandomTwoDigitNumber(), getRandomTwoDigitNumber(), buffer);
-    createAndVerifyBuffer("webcl.MEM_WRITE_ONLY", getRandomTwoDigitNumber(), getRandomTwoDigitNumber(), buffer);
-    createAndVerifyBuffer("webcl.MEM_READ_WRITE", getRandomTwoDigitNumber(), getRandomTwoDigitNumber(), buffer);
+        buffer = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, deviceBaseAddrAlignement * 10);
+        createAndVerifyBuffer("webcl.MEM_WRITE_ONLY", getRandomTwoDigitNumber(), generateValidOrigin(deviceBaseAddrAlignement), buffer);
 
+        buffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, deviceBaseAddrAlignement * 10);
+        createAndVerifyBuffer("webcl.MEM_READ_ONLY", getRandomTwoDigitNumber(), generateValidOrigin(deviceBaseAddrAlignement), buffer);
+        createAndVerifyBuffer("webcl.MEM_WRITE_ONLY", getRandomTwoDigitNumber(), generateValidOrigin(deviceBaseAddrAlignement), buffer);
+        createAndVerifyBuffer("webcl.MEM_READ_WRITE", getRandomTwoDigitNumber(), generateValidOrigin(deviceBaseAddrAlignement), buffer);
+    }
 } catch(e) {
     testFailed(e.description);
 }

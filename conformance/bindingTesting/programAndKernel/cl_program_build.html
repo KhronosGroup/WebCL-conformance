@@ -145,6 +145,14 @@ try {
     var webCLProgramWithStructure = wtu.createProgram(webCLContext, kernelSource);
     shouldThrowExceptionName("webCLProgramWithStructure.build(webCLDevice);", "BUILD_PROGRAM_FAILURE");
 
+    kernelSource = wtu.readKernel("../../../resources/kernels/sample_kernel_code_bad.cl");
+    var webCLProgramBadCode = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgramBadCode.build(webCLDevice);", "BUILD_PROGRAM_FAILURE");
+
+    kernelSource = wtu.readKernel("../../../resources/kernels/empty_kernel.cl");
+    var webCLProgramEmptyKernel = wtu.createProgram(webCLContext, kernelSource);
+    shouldThrowExceptionName("webCLProgramEmptyKernel.build(webCLDevice);", "BUILD_PROGRAM_FAILURE");
+
     // Testing for exception "INVALID_OPERATION".
     kernelSource = wtu.readKernel("../../../resources/kernels/nbody_simulation.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);

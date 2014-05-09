@@ -81,6 +81,16 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");
     shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, false, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas);");
 
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, []);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, null, null);");
+    var webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, null, webCLEvent);");
+    webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteBufferRect(webCLBufferReadWrite, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent);");
+
     // Testing for exceptions.
     var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
     wtu.release(releasedBuffer);

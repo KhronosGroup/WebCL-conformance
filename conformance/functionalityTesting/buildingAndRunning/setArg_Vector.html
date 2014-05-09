@@ -146,23 +146,23 @@ try {
     webCLContext = wtu.createContext();
     webCLCommandQueue = wtu.createCommandQueue(webCLContext);
 
-    var kernelSource = wtu.readKernel("../../../resources/kernels/setArg_vector2.cl");
+    var kernelSource = wtu.readKernel("../../../resources/kernels/setArg_Vector2.cl");
     runForAlltypes(2, kernelSource);
 
-    kernelSource = wtu.readKernel("../../../resources/kernels/setArg_vector3.cl");
+    kernelSource = wtu.readKernel("../../../resources/kernels/setArg_Vector3.cl");
     runForAlltypes(3, kernelSource);
 
-    kernelSource = wtu.readKernel("../../../resources/kernels/setArg_vector4.cl");
+    kernelSource = wtu.readKernel("../../../resources/kernels/setArg_Vector4.cl");
     runForAlltypes(4, kernelSource);
 
-    kernelSource = wtu.readKernel("../../../resources/kernels/setArg_vector8.cl");
+    kernelSource = wtu.readKernel("../../../resources/kernels/setArg_Vector8.cl");
     runForAlltypes(8, kernelSource);
 
-    kernelSource = wtu.readKernel("../../../resources/kernels/setArg_vector16.cl");
+    kernelSource = wtu.readKernel("../../../resources/kernels/setArg_Vector16.cl");
     runForAlltypes(16, kernelSource);
 
 } catch (e) {
-    testFailed("WebCLKernel setArg() basic test throws exception: " + e.description);
+    testFailed("WebCLKernel setArg() vector test throws exception: " + e.description);
 }
 
 

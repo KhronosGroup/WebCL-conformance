@@ -36,17 +36,14 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-var webCLContext, webCLPlatform, webCLDevices, maxMemAllocSize = 0, imageHugeSize, imageInvalidSize, invalid_image;
 debug("WebCLContext :: createBuffer with HTMLImageElement test case.");
 debug("(CLenum memFlags, HTMLImageElement srcImage)\n");
+var image, webCLContext, webCLPlatform, webCLDevices, maxMemAllocSize = 0, invalid_image, imageInvalid;
 var wtu = WebCLTestUtils;
 webCLContext = wtu.createContext();
 
 try {
-    var image = new Image();
-    // Calling before loading the image source.
-    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, image);", "INVALID_HOST_PTR");
-
+    image = new Image();
     image.src = "../../../resources/pebbleHalf.jpg";
     image.onload = execute;
 } catch(e) {
@@ -71,18 +68,30 @@ function execute() {
         invalid_image = new Image();
         shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, invalid_image);", "INVALID_HOST_PTR");
 
+        imageInvalid = image;
+        imageInvalid.height = 0;
+        shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imageInvalid);", "INVALID_IMAGE_SIZE");
+        imageInvalid.height = 10;
+        imageInvalid.width = 0;
+        shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imageInvalid);", "INVALID_IMAGE_SIZE");
+
+        webCLPlatform = wtu.getPlatform();
+        webCLDevices = wtu.getDevices(webCLPlatform);
+        for (i = 0; i < webCLDevices.length; i++) {
+            if (maxMemAllocSize < webCLDevices[i].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE))
+                maxMemAllocSize = webCLDevices[i].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE);
+        }
+        maxMemAllocSize = webCLDevices[0].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE);
+        maxMemAllocSize *= Int32Array.BYTES_PER_ELEMENT;
+        imageInvalid.height = maxMemAllocSize;
+        imageInvalid.width = maxMemAllocSize;
+        shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imageInvalid);", "INVALID_IMAGE_SIZE");
+
     } catch(e) {
         testFailed(e.description);
     }
 
-    // Since execute() is called on loading of the image, it is necessary to insert js-test-post.js in script tag, within this function.
-    var script = document.createElement('script');
-    script.src = '../../../resources/js-test-post.js';
-    script.type = 'text/javascript';
-
-    script.onload = function () {};
-
-    document.getElementsByTagName('head')[0].appendChild(script);
+    wtu.appendPostJSToHTML(document);
 }
 successfullyParsed = true;
 </script>

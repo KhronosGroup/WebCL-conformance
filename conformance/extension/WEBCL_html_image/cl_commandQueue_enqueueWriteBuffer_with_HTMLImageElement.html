@@ -44,7 +44,7 @@ try {
     testFailed("Unable to load HTML image element : " + e.name);
 }
 var webCLContext, webCLCommandQueue, webCLBufferRead, webCLBufferWrite, webCLBufferReadWrite, bufferOffset = 0, bufferOffsetInvalid, webCLBuffer;
-var bufferSize, releasedBuffer, bufferSizeSmall, webCLBufferSmall;
+var bufferSize, releasedBuffer, bufferSizeSmall, webCLBufferSmall, webCLEvent;
 var webCLPlatform, devices, webCLDevice1, webCLDevice2, webCLContext1, webCLContext2, webCLCommandQueue1, webCLCommandQueue2, webCLBuffer1, webCLBuffer2;
 var releasedEvent, webCLUserEvent, webCLUserEvent1, webCLUserEvent2, webCLEvent1, webCLEvent2, invalid_image;
 function execute() {
@@ -81,6 +81,16 @@ function execute() {
         webCLBufferReadWrite = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, bufferSize);
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image)");
         shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, false, bufferOffset, image)");
+
+        // Testing for nullable parameters.
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, [])");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, [], null)");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, null)");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, null, null)");
+        webCLEvent = wtu.createEvent();
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, null, webCLEvent)");
+        webCLEvent = wtu.createEvent();
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteBuffer(webCLBufferReadWrite, true, bufferOffset, image, [], webCLEvent)");
 
         bufferOffsetNonZero = 10;
         bufferSizeBig = (image.width * image.height * 4) + bufferOffsetNonZero;
@@ -146,13 +156,8 @@ function execute() {
     } catch (e) {
         testFailed(e.description);
     }
-    var script = document.createElement('script');
-    script.src = '../../../resources/js-test-post.js';
-    script.type = 'text/javascript';
 
-    script.onload = function () {};
-
-    document.getElementsByTagName('head')[0].appendChild(script);
+    wtu.appendPostJSToHTML(document);
 }
 successfullyParsed = true;
 </script>

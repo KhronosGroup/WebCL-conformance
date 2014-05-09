@@ -30,17 +30,23 @@
 var SIZE = 1024;
 var BUFFER_SIZE = Float32Array.BYTES_PER_ELEMENT * SIZE;
 
+if (!window.top.CLGlobalVariables) {
+    if (window.addEventListener)
+        window.addEventListener('load', loadDefault, false);
+    else
+        window.attachEvent('onload', loadDefault);
+}
+
 function loadDefault() {
     var wtu = WebCLTestUtils;
     var webCLPlatform = wtu.getPlatform();
-    var webCLDevices = wtu.getDevices(webCLPlatform);
-    var webCLDevice = webCLDevices[0];
+    var defaultDevice = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_DEFAULT);
 
-    var deviceType = webCLDevice.getInfo(webcl.DEVICE_TYPE);
+    var deviceType = defaultDevice[0].getInfo(webcl.DEVICE_TYPE);
     var type = "";
-    switch(deviceType) {
+    switch (deviceType) {
         case webcl.DEVICE_TYPE_GPU :
-            type = "GPU"
+            type = "GPU";
             break;
         case webcl.DEVICE_TYPE_CPU :
             type = "CPU";
@@ -48,23 +54,14 @@ function loadDefault() {
         case webcl.DEVICE_TYPE_ACCELERATOR :
             type = "ACCELERATOR";
             break;
-        default:
-            type = "Not Supported";
+        default :
+            type = "undefined";
             break;
-     }
-
-     printDefautMessage("1", type);
+    }
+    printDefaultMessage("1", type);
 }
 
-if(typeof window.top.CLGlobalVariables == "undefined") {
-    if(window.addEventListener)
-        window.addEventListener('load', loadDefault, false);
-    else
-        window.attachEvent('onload', loadDefault);
-}
-
-function printDefautMessage(platform, device)
-{
+function printDefaultMessage(platform, device) {
     var iDiv = document.createElement('div');
     iDiv.id = 'message';
     iDiv.setAttribute("style","position: fixed;top: 2%;right: 2%;padding: 10px;font-family: monospace;background: #CCC;border: 1px solid black;");
@@ -281,7 +278,7 @@ var enqueueNDRangeKernel = function(webCLCommandQueue, webCLKernel, workDim, glo
     try {
         if (typeof(webCLEvent) != 'undefined')
             webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, eventWaitList, webCLEvent);
-        else if ((typeof(eventWaitList) != 'undefined'))
+        else if (typeof(eventWaitList) != 'undefined')
             webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize, eventWaitList);
         else
             webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, globalWorkSize, localWorkSize);
@@ -671,6 +668,36 @@ var waitForEvents = function(webCLEvents) {
     }
 }
 
+var finish = function(webCLCommandQueue, callback) {
+    try {
+        if (arguments.length > 1)
+            webCLCommandQueue.finish(callback);
+        else
+            webCLCommandQueue.finish();
+    } catch(e) {
+        e.description = "WebCLCommandQueue :: finish threw exception : " + e.name;
+        throw e;
+    }
+}
+
+var setCallback = function(event, commandExecCallbackType, callback)
+{
+    try {
+        return event.setCallback(commandExecCallbackType, callback);
+    } catch(e) {
+        e.description = "WebCLEvent :: setCallback threw exception : " + e.name;
+        throw e;
+    }
+}
+
+var appendPostJSToHTML = function(document)
+{
+    var script = document.createElement('script');
+    script.src = '../../../resources/js-test-post.js';
+    script.type = 'text/javascript';
+    document.getElementsByTagName('head')[0].appendChild(script);
+}
+
 return {
 createContext:createContext,
 createProgram:createProgram,
@@ -716,6 +743,9 @@ getBytesForChannelOrder:getBytesForChannelOrder,
 getArrayTypeForChanneltype:getArrayTypeForChanneltype,
 verifyArrayForZeroValues:verifyArrayForZeroValues,
 waitForEvents:waitForEvents,
+finish:finish,
+setCallback:setCallback,
+appendPostJSToHTML:appendPostJSToHTML,
 none:false
 };
 }());

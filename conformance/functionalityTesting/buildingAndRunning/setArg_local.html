@@ -70,7 +70,7 @@ try {
     webCLKernel.setArg(0, input);
     webCLKernel.setArg(1, output);
     webCLKernel.setArg(2, new Uint32Array([localWorkSize[0] * Float32Array.BYTES_PER_ELEMENT]));
-    webCLKernel.setArg(3, new Int32Array([count]));
+    webCLKernel.setArg(3, new Uint32Array([count]));
 
     webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, 1, null, globalWorkSize, localWorkSize);
 

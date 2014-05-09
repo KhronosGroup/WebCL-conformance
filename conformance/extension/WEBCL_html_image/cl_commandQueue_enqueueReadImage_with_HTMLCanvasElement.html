@@ -86,6 +86,14 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, false, origin, region, canvas, [], webCLEvent);");
     wtu.waitForEvents([webCLEvent]);
 
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, canvas, []);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, canvas, [], null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, canvas, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, canvas, null, null);");
+    webCLEvent = new WebCLEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, origin, region, canvas, null, webCLEvent);");
+
     var originNonZero = [10, 10];
     var regionSmall = [imageWidth - 10, imageHeight - 10];
     shouldBeUndefined("webCLCommandQueue.enqueueReadImage(webCLImageReadWrite, true, originNonZero, regionSmall, canvas);");

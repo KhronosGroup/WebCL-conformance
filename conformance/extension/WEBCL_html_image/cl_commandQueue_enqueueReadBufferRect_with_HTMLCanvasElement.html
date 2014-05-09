@@ -90,6 +90,14 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, false, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent);");
     wtu.waitForEvents([webCLEvent]);
 
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, []);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, null, null);");
+    webCLEvent = new WebCLEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, null, webCLEvent);");
+
     // Testing for exceptions.
     var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, bufferSize);
     wtu.release(releasedBuffer);
@@ -120,6 +128,7 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOriginInvalid, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
     var dstOriginOutOfBound = [bufferSize + 1, bufferSize + 1, 0];
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOriginOutOfBound, region, bufferRowPitch, bufferSlicePitch, canvas);", "INVALID_VALUE");
+
     var regionValid = [canvas.width * bytesPerPixel, canvas.height / 2, 2];
     shouldBeUndefined("webCLCommandQueue.enqueueReadBufferRect(webCLBufferReadWrite, true, bufferOrigin, dstOrigin, regionValid, bufferRowPitch, bufferSlicePitch, canvas);");
     var regionInvalid = [];

@@ -35,90 +35,104 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
-
 <script>
-
-var getProgram = function (webCLContext, kernelSource) {
+var createValidateAndBuildProgram = function (webCLContext, kernelSource, kernelName) {
     try {
         webCLProgram = wtu.createProgram(webCLContext, kernelSource);
 
+        if (!(webCLProgram instanceof WebCLProgram)) {
+            testFailed("Failed to create a valid instance of program for kernel " + kernelName);
+            return;
+        }
+
         if (webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) !== webCLContext) {
-            console.log("webCLProgram.getInfo(webcl.PROGRAM_CONTEXT) !== webCLContext.");
-            return null;
+            testFailed("Verification of context associated with the program for kernel " + kernelName);
+            return;
         }
 
         var associatedDevices = webCLProgram.getInfo(webcl.PROGRAM_DEVICES);
-        if (!associatedDevices && !associatedDevices.length)
-            return null;
-        else {
+        if (!associatedDevices && !associatedDevices.length) {
+            testFailed("verification of count of devices associated with the program for kernel " + kernelName);
+            return;
+        } else {
             for (i = 0; i < associatedDevices.length; i++) {
-                if (!(associatedDevices[i] instanceof WebCLDevice))
-                    return null;
+                if (!(associatedDevices[i] instanceof WebCLDevice)) {
+                    testFailed("Verification of devices associated with the program for kernel " + kernelName);
+                    return;
+                }
             }
         }
 
         if (typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) != 'number') {
-            console.log("typeof(webCLProgram.getInfo(webcl.PROGRAM_NUM_DEVICES)) != 'number'.");
-            return null;
+            testFailed("Verification of number of devices associated with program for kernel " + kernelName);
+            return;
         }
+
         if (webCLProgram.getInfo(webcl.PROGRAM_SOURCE) !== kernelSource) {
-            console.log("webCLProgram.getInfo(webcl.PROGRAM_SOURCE) !== \"kernelSource\"");
-            return null;
+            testFailed("Verification of source used to create program for kernel " + kernelName +
+            ". Expected: " + kernelSource + ". Obtained: " + webCLProgram.getInfo(webcl.PROGRAM_SOURCE));
+            return;
         }
 
         wtu.build(webCLProgram, webCLDevices);
-        return webCLProgram;
+
+        testPassed("Creating, validating and building program for " + kernelName);
 
     } catch(e) {
-        e.description = "Exception thrown while creating program and building it : " + e.name + ".";
+        testFailed("Exception thrown while creating program and building for " + kernelName + " with exception: " + e.name);
     }
 }
-
 try {
-
     debug("createProgram functionality test case.");
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
-    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-    var webCLProgram, kernelSource, webCLKernel;
-    var correct, input, output, msg, resultObject;
-    var count = SIZE;
+    var webCLProgram, kernelSource;
 
     /*
-    *   Building for "kernel : sample_test_single_line"
-    *   Rounds off float to an int.
-    */
-    kernelSource = wtu.readKernel("../../../resources/kernels/sample_test_single_line.cl");
-    webCLProgram = getProgram(webCLContext, kernelSource);
-    if (webCLProgram)
-        testPassed("Test Passed for building for kernel: \"sample_test_single_line\".");
-    else
-        testFailed("Test Failed for building for kernel: \"sample_test_single_line\".");
+     *   Building for "kernel : sample_copy_kernel"
+     *   Copies int values from i/p to o/p.
+     */
+    kernelSource = wtu.readKernel("../../../resources/kernels/sample_copy_kernel.cl");
+    createValidateAndBuildProgram(webCLContext, kernelSource, "\"sample_copy_kernel\"");
 
     /*
-    *   Building for "kernel : multiple_kernels"
-    *   Consists of 2 kernels: converting float to int and int to float.
-    */
-    kernelSource = wtu.readKernel("../../../resources/kernels/multiple_kernels.cl");
-    webCLProgram = getProgram(webCLContext, kernelSource);
-    if (webCLProgram)
-        testPassed("Test Passed for building for kernel: \"multiple_kernels\".");
-    else
-        testFailed("Test Failed for building for kernel: \"multiple_kernels\".");
+     *   Building for "kernel : square"
+     *   Squares a float value.
+     */
+    kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
+    createValidateAndBuildProgram(webCLContext, kernelSource, "\"square\"");
 
     /*
-    *   Building for "kernel : sample_kernel_code_bad"
-    *   Kernel code with comment within it. It is expected to fail.
-    */
-    kernelSource = wtu.readKernel("../../../resources/kernels/sample_kernel_code_bad.cl");
-    webCLProgram = getProgram(webCLContext, kernelSource);
-    if (webCLProgram)
-        testFailed("Test Failed for building for kernel: \"sample_kernel_code_bad\".");
-    else
-        testPassed("Test passed for building for kernel: \"sample_kernel_code_bad\".");
+     *   Building for "kernel : sample_single_kernel"
+     *   Rounds off float to an int.
+     */
+    kernelSource = wtu.readKernel("../../../resources/kernels/sample_single_kernel.cl");
+    createValidateAndBuildProgram(webCLContext, kernelSource, "\"sample_single_kernel\"");
+
+    /*
+     *  Building for "kernel : sample_two_kernels_in_one"
+     *  Consists of 2 kernels: converting float to int and int to float.
+     */
+    kernelSource = wtu.readKernel("../../../resources/kernels/sample_two_kernels_in_one.cl");
+    createValidateAndBuildProgram(webCLContext, kernelSource, "sample_two_kernels_in_one (\"sample_test\" and \"sample_test2\")");
+
+    /*
+     *  Building for kernels : square and sample_single_kernel
+     *  Concatenation of 2 kernels : to square and to roundoff a float to an int.
+     */
+    kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
+    kernelSource = kernelSource.concat(wtu.readKernel("../../../resources/kernels/sample_single_kernel.cl"));
+    createValidateAndBuildProgram(webCLContext, kernelSource, "\"square\" and \"sample_single_kernel\"");
+
+    /*
+     *  Building for "kernel : basic_image_buffer_sampler"
+     *  Takes buffer, image and samper inputs.
+     */
+    kernelSource = wtu.readKernel("../../../resources/kernels/basic_image_buffer_sampler.cl");
+    createValidateAndBuildProgram(webCLContext, kernelSource, "\"basic_image_buffer_sampler\"");
 
 } catch(e) {
     testFailed(e.description);

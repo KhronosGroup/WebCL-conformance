@@ -1,5 +1,5 @@
 __kernel void test_stream_read_ulong(
     __global ulong *dst)
 {
-    dst[0] = ((1ULL<<32)+1ULL);
+    dst[0] = ((1UL<<32)+1UL);
 }

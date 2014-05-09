@@ -70,8 +70,16 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferWrite, dstBufferReadWrite, srcOffset, dstOffset, numBytes)");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, dstBufferReadWrite, srcOffset, dstOffset, numBytes)");
 
-    // Testing with events.
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, dstBufferReadWrite, srcOffset, dstOffset, numBytes, []);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, dstBufferReadWrite, srcOffset, dstOffset, numBytes, [], null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, dstBufferReadWrite, srcOffset, dstOffset, numBytes, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, dstBufferReadWrite, srcOffset, dstOffset, numBytes, null, null);");
     var webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, dstBufferReadWrite, srcOffset, dstOffset, numBytes, null, webCLEvent);");
+
+    // Testing with events.
+    webCLEvent = wtu.createEvent();
     wtu.enqueueCopyBuffer(webCLCommandQueue, srcBufferReadWrite, dstBufferReadWrite, srcOffset, dstOffset, numBytes, [], webCLEvent);
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBuffer(srcBufferReadWrite, dstBufferReadWrite, srcOffset, dstOffset, numBytes, [webCLEvent]);");
     var webCLUserEvent = wtu.createUserEvent(webCLContext);
@@ -112,13 +120,6 @@ try {
     releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
     wtu.release(releasedBuffer);
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, releasedBuffer, srcOffset, dstOffset, numBytes)", "INVALID_MEM_OBJECT");
-
-    var commandQueueDevice = webCLCommandQueue.getInfo(webcl.QUEUE_DEVICE);
-    var deviceMemAddressAlignment = commandQueueDevice.getInfo(webcl.DEVICE_MEM_BASE_ADDR_ALIGN);
-    var srcSubBuffer = wtu.createSubBuffer(srcBufferReadWrite, webcl.MEM_READ_ONLY, deviceMemAddressAlignment - 1, 1);
-    var dstSubBuffer = wtu.createSubBuffer(dstBufferReadWrite, webcl.MEM_READ_ONLY, deviceMemAddressAlignment - 1, 1);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcSubBuffer, dstBufferReadWrite, srcOffset, dstOffset, numBytes)", "MISALIGNED_SUB_BUFFER_OFFSET");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBuffer(srcBufferRead, dstSubBuffer, srcOffset, dstOffset, numBytes)", "MISALIGNED_SUB_BUFFER_OFFSET");
 
     // Testing for exception "INVALID_CONTEXT"
     var webCLPlatform = wtu.getPlatform();

@@ -80,8 +80,16 @@ try {
     var srcImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
     var dstImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptorReadWrite);
 
-    // Testing with events.
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImage, dstImage, srcOrigin, dstOrigin, region, []);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImage, dstImage, srcOrigin, dstOrigin, region, [], null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImage, dstImage, srcOrigin, dstOrigin, region, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImage, dstImage, srcOrigin, dstOrigin, region, null, null);");
     var webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImage, dstImage, srcOrigin, dstOrigin, region, null, webCLEvent);");
+
+    // Testing with events.
+    webCLEvent = wtu.createEvent();
     wtu.enqueueCopyImage(webCLCommandQueue, srcImage, dstImage, srcOrigin, dstOrigin, region, [], webCLEvent);
     shouldBeUndefined("webCLCommandQueue.enqueueCopyImage(srcImage, dstImage, srcOrigin, dstOrigin, region, [webCLEvent]);");
     var webCLUserEvent = wtu.createUserEvent(webCLContext);

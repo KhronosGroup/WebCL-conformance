@@ -65,14 +65,22 @@ try {
     shouldThrowExceptionName("webCLBufferWrite.createSubBuffer(webcl.MEM_READ_ONLY, origin, subBufferSize);", "INVALID_VALUE");
     shouldThrowExceptionName("webCLBufferWrite.createSubBuffer(webcl.MEM_READ_WRITE, origin, subBufferSize);", "INVALID_VALUE");
 
-    var contextDeviceArray = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
-    for (var i = 0; i < contextDeviceArray.length; i++) {
-        var deviceMemAddressAlignment = contextDeviceArray[i].getInfo(webcl.DEVICE_MEM_BASE_ADDR_ALIGN);
-        shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, deviceMemAddressAlignment - 1, 1);", "MISALIGNED_SUB_BUFFER_OFFSET");
-    }
-
     var webCLSubBuffer = wtu.createSubBuffer(webCLBuffer, webcl.MEM_READ_WRITE, origin, 100);
     shouldThrowExceptionName("webCLSubBuffer.createSubBuffer(webcl.MEM_READ_WRITE, origin, subBufferSize);", "INVALID_MEM_OBJECT");
+
+    var contextDeviceArray = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
+    var unalignedOrigin = null;
+    if (contextDeviceArray.length > 1) {
+        for (i = 0; i < contextDeviceArray.length - 1; i++) {
+            if (contextDeviceArray[i].getInfo(webcl.DEVICE_MEM_BASE_ADDR_ALIGN) !=
+                contextDeviceArray[i+1].getInfo(webcl.DEVICE_MEM_BASE_ADDR_ALIGN)) {
+                unalignedOrigin = contextDeviceArray[i+1].getInfo(webcl.DEVICE_MEM_BASE_ADDR_ALIGN);
+                break;
+            }
+        }
+        if (unalignedOrigin)
+            shouldThrowExceptionName("webCLBuffer.createSubBuffer(webcl.MEM_READ_ONLY, unalignedOrigin, subBufferSize);", "MISALIGNED_SUB_BUFFER_OFFSET");
+    }
 
 } catch(e) {
     testFailed(e.description);

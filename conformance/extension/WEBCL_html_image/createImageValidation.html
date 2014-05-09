@@ -125,12 +125,7 @@ function execute() {
         testFailed(e.description);
     }
 
-    // Since execute() is called on loading of the image, it is necessary to insert js-test-post.js in script tag, within this function.
-    var script = document.createElement('script');
-    script.src = '../../../resources/js-test-post.js';
-    script.type = 'text/javascript';
-    script.onload = function () {};
-    document.getElementsByTagName('head')[0].appendChild(script);
+    wtu.appendPostJSToHTML(document);
 }
 successfullyParsed = true;
 </script>

@@ -69,8 +69,16 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [], webCLEvent)");
     wtu.waitForEvents([webCLEvent]);
 
-    // Testing with events.
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [])");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [], null)");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, null)");
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, null, null)");
     var webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, null, webCLEvent)");
+
+    // Testing with events.
+    webCLEvent = wtu.createEvent();
     wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [], webCLEvent);
     shouldBeUndefined("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [webCLEvent]);");
     var webCLUserEvent = wtu.createUserEvent(webCLContext);

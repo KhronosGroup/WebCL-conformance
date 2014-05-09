@@ -90,8 +90,16 @@ try {
     hostPtr = eval("new " + arrayType + "(imageWidth * imageHeight * elementsPerPixel)");
     var bytesPerPixel = elementsPerPixel * hostPtr.BYTES_PER_ELEMENT;
 
-    // Testing with events.
+    // Testing for nullable parameters.
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, true, origin, region, hostRowPitch, hostPtr, []);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, true, origin, region, hostRowPitch, hostPtr, [], null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, true, origin, region, hostRowPitch, hostPtr, null);");
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, true, origin, region, hostRowPitch, hostPtr, null, null);");
     var webCLEvent = wtu.createEvent();
+    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, true, origin, region, hostRowPitch, hostPtr, null, webCLEvent);");
+
+    // Testing with events.
+    webCLEvent = wtu.createEvent();
     webCLCommandQueue.enqueueWriteImage(webCLImage, false, origin, region, hostRowPitch, hostPtr, [], webCLEvent);
     shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, false, origin, region, hostRowPitch, hostPtr, [webCLEvent]);");
     var webCLUserEvent = wtu.createUserEvent(webCLContext);
