@@ -38,11 +38,14 @@
 <script>
 var callback = function(event)
 {
-    // Build is expected to get over by the time callback is called. So, expecting build status to be 0.
-    shouldBe("webCLProgram.getBuildInfo(webCLDevices[0], webcl.PROGRAM_BUILD_STATUS);", "0");
-    console.log("\ninside callback");
+    if (webCLProgram) {
+        callbackFlag = true;
+        // Build is expected to get over by the time callback is called. So, expecting build status to be 0.
+        shouldBe("webCLProgram.getBuildInfo(webCLDevices[0], webcl.PROGRAM_BUILD_STATUS);", "0");
+    } else
+        testFailed("WebCLProgram is not a valid object.");
 }
-var webCLProgram, webCLDevices;
+var webCLProgram, webCLDevices, callbackFlag = false;
 try {
     debug("build with Callback functionality test case.");
 
@@ -53,11 +56,20 @@ try {
     var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
     wtu.build(webCLProgram, webCLDevices, "", callback);
+
+    // Wait for 500 ms for callback to be called.
+    setTimeout(function() {
+        if (!callbackFlag)
+            testFailed("webCLProgram did not call callback, as expected.");
+
+        wtu.appendPostJSToHTML(document);
+    }, 500);
+
 } catch(e) {
     testFailed(e.description);
+    wtu.appendPostJSToHTML(document);
 }
 successfullyParsed = true;
 </script>
-<script src="../../../resources/js-test-post.js"></script>
 </body>
 </html>
