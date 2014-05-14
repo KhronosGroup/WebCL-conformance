@@ -185,8 +185,8 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImage, true, origin, region, hostRowPitch, hostPtr, [webCLUserEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
     webCLEvent = wtu.createEvent();
-    wtu.enqueueWriteImage(webCLCommandQueue, webCLImage, false, origin, region, hostRowPitch, hostPtr, [webCLUserEvent], webCLEvent);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImage, false, origin, region, hostRowPitch, hostPtr, [webCLUserEvent], webCLEvent);", "INVALID_EVENT");
+    wtu.enqueueWriteImage(webCLCommandQueue, webCLImage, false, origin, region, hostRowPitch, hostPtr, null, webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImage, false, origin, region, hostRowPitch, hostPtr, null, webCLEvent);", "INVALID_EVENT");
 
     var releasedImage = wtu.createImage(webCLContext, webcl.MEM_READ_WRITE, webCLImageDescriptor);
     wtu.release(releasedImage);

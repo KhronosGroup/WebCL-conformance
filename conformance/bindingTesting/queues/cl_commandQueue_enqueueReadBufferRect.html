@@ -114,8 +114,8 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBuffer, true, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, [webCLUserEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
     webCLEvent = wtu.createEvent();
-    wtu.enqueueReadBufferRect(webCLCommandQueue, webCLBuffer, false, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, [webCLUserEvent], webCLEvent);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBuffer, false, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, [webCLUserEvent], webCLEvent);", "INVALID_EVENT");
+    wtu.enqueueReadBufferRect(webCLCommandQueue, webCLBuffer, false, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, null, webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBufferRect(webCLBuffer, false, webCLBufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, null, webCLEvent);", "INVALID_EVENT");
 
     var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_WRITE_ONLY, BUFFER_SIZE_IN_BYTES);
     wtu.release(releasedBuffer);

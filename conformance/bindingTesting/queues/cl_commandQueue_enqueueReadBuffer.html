@@ -106,8 +106,8 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, true, bufferOffset, numberBytes, hostPtr, [webCLUserEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
 
     webCLEvent = wtu.createEvent();
-    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [webCLUserEvent], webCLEvent);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, [webCLUserEvent], webCLEvent);", "INVALID_EVENT");
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, null, webCLEvent);
+    shouldThrowExceptionName("webCLCommandQueue.enqueueReadBuffer(webCLBufferReadWrite, false, bufferOffset, numberBytes, hostPtr, null, webCLEvent);", "INVALID_EVENT");
 
     var releasedBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
     wtu.release(releasedBuffer);
