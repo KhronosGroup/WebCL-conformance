@@ -59,35 +59,29 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents([releasedEvent]);", "INVALID_EVENT_WAIT_LIST");
 
     // Testing for exception "INVALID_CONTEXT"
-    var webCLPlatform = wtu.getPlatform();
-    var devices = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
-    if (devices.length > 1) {
-        var webCLDevice1 = devices[0];
-        var webCLContext1 = wtu.createContext(webCLDevice1);
-        var webCLCommandQueue1 = wtu.createCommandQueue(webCLContext1, webCLDevice1);
-        var webCLUserEvent1 = wtu.createUserEvent(webCLContext1);
-        var srcBuffer1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_ONLY, BUFFER_SIZE);
-        var dstBuffer1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var webCLContext1 = wtu.createContext();
+    var webCLCommandQueue1 = wtu.createCommandQueue(webCLContext1);
+    var webCLUserEvent1 = wtu.createUserEvent(webCLContext1);
+    var srcBuffer1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var dstBuffer1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_ONLY, BUFFER_SIZE);
 
-        var webCLDevice2 = devices[1];
-        var webCLContext2 = wtu.createContext(webCLDevice2);
-        var webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2, webCLDevice2);
-        var webCLUserEvent2 = wtu.createUserEvent(webCLContext2);
-        var srcBuffer2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_ONLY, BUFFER_SIZE);
-        var dstBuffer2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var webCLContext2 = wtu.createContext();
+    var webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2);
+    var webCLUserEvent2 = wtu.createUserEvent(webCLContext2);
+    var srcBuffer2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_ONLY, BUFFER_SIZE);
+    var dstBuffer2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_ONLY, BUFFER_SIZE);
 
-        shouldThrowExceptionName("webCLCommandQueue1.enqueueWaitForEvents([webCLUserEvent2]);", "INVALID_CONTEXT");
-        shouldThrowExceptionName("webCLCommandQueue2.enqueueWaitForEvents([webCLUserEvent1]);", "INVALID_CONTEXT");
-        wtu.setStatus(webCLUserEvent1, webcl.COMPLETE);
-        wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
+    shouldThrowExceptionName("webCLCommandQueue1.enqueueWaitForEvents([webCLUserEvent2]);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue2.enqueueWaitForEvents([webCLUserEvent1]);", "INVALID_CONTEXT");
+    wtu.setStatus(webCLUserEvent1, webcl.COMPLETE);
+    wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
 
-        var webCLEvent1 = wtu.createEvent();
-        wtu.enqueueCopyBuffer(webCLCommandQueue1, srcBuffer1, dstBuffer1, 0, 0, BUFFER_SIZE, [], webCLEvent1);
-        shouldThrowExceptionName("webCLCommandQueue2.enqueueWaitForEvents([webCLEvent1]);", "INVALID_CONTEXT");
-        var webCLEvent2 = wtu.createEvent();
-        wtu.enqueueCopyBuffer(webCLCommandQueue2, srcBuffer2, dstBuffer2, 0, 0, BUFFER_SIZE, [], webCLEvent2);
-        shouldThrowExceptionName("webCLCommandQueue1.enqueueWaitForEvents([webCLEvent2]);", "INVALID_CONTEXT");
-    }
+    var webCLEvent1 = wtu.createEvent();
+    wtu.enqueueCopyBuffer(webCLCommandQueue1, srcBuffer1, dstBuffer1, 0, 0, BUFFER_SIZE, [], webCLEvent1);
+    shouldThrowExceptionName("webCLCommandQueue2.enqueueWaitForEvents([webCLEvent1]);", "INVALID_CONTEXT");
+    var webCLEvent2 = wtu.createEvent();
+    wtu.enqueueCopyBuffer(webCLCommandQueue2, srcBuffer2, dstBuffer2, 0, 0, BUFFER_SIZE, [], webCLEvent2);
+    shouldThrowExceptionName("webCLCommandQueue1.enqueueWaitForEvents([webCLEvent2]);", "INVALID_CONTEXT");
 
 } catch (e) {
     testFailed(e.description);
