@@ -53,7 +53,10 @@ try {
     shouldBe("webCLImage.getInfo().height", "imageHeight", true);
     shouldBe("webCLImage.getInfo().channelOrder", "webCLImageDescriptorReadWrite.channelOrder", true);
     shouldBe("webCLImage.getInfo().channelType", "webCLImageDescriptorReadWrite.channelType", true);
-    shouldBe("webCLImage.getInfo().rowPitch", "0", true);
+    var elementsPerPixel = wtu.getBytesForChannelOrder(webCLImageDescriptorReadWrite.channelOrder);
+    var bytesPerElement = eval(wtu.getArrayTypeForChanneltype(webCLImageDescriptorReadWrite.channelType) + ".BYTES_PER_ELEMENT");
+    var expectedRowPitch = imageWidth * elementsPerPixel * bytesPerElement;
+    shouldBe("webCLImage.getInfo().rowPitch", "expectedRowPitch", true);
 
 } catch (e) {
     testFailed(e.description);

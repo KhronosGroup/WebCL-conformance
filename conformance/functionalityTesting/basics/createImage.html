@@ -41,7 +41,7 @@ try {
 
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
-    var webCLImage, memFlag, imageInfo, imageFormat;
+    var webCLImage, memFlag, imageInfo, imageFormat, elementsPerPixel, bytesPerElement, expectedRowPitch;
 
     var createAndVerifyImage = function(memFlagString, imageDescriptor) {
         try {
@@ -75,8 +75,11 @@ try {
                 return;
             }
 
-            if (imageInfo.rowPitch != imageDescriptor.rowPitch) {
-                testFailed("Verification of image's rowPitch. Expected : " + imageDescriptor.rowPitch + ". Obtained : " + imageInfo.rowPitch);
+            elementsPerPixel = wtu.getBytesForChannelOrder(imageDescriptor.channelOrder);
+            bytesPerElement = eval(wtu.getArrayTypeForChanneltype(imageDescriptor.channelType) + ".BYTES_PER_ELEMENT");
+            expectedRowPitch = imageDescriptor.width * elementsPerPixel * bytesPerElement;
+            if (imageInfo.rowPitch != expectedRowPitch) {
+                testFailed("Verification of image's rowPitch. Expected : " + expectedRowPitch + ". Obtained : " + imageInfo.rowPitch);
                 return;
             }
 
