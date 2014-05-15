@@ -143,56 +143,56 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernelCopy, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [releasedEvent]);", "INVALID_EVENT_WAIT_LIST");
 
     // Testing for exception "INVALID_CONTEXT"
+    kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
+    var webCLContext1 = wtu.createContext();
+    var webCLCommandQueue1 = wtu.createCommandQueue(webCLContext1);
+    var webCLProgram1 = wtu.createProgram(webCLContext1, kernelSource);
+    wtu.build(webCLProgram1, webCLDevices);
+    var webCLKernel1 = wtu.createKernel(webCLProgram1, "square");
+    var input1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var output1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    wtu.generateRandomFloat(data, count);
+    wtu.enqueueWriteBuffer(webCLCommandQueue1, input1, true, 0, BUFFER_SIZE, data);
+    wtu.setArg(webCLKernel1, 0, input1);
+    wtu.setArg(webCLKernel1, 1, output1);
+    wtu.setArg(webCLKernel1, 2, new Uint32Array([count]));
+
+    var webCLContext2 = wtu.createContext();
+    var webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2);
+    var webCLProgram2 = wtu.createProgram(webCLContext2, kernelSource);
+    wtu.build(webCLProgram2, webCLDevices);
+    var webCLKernel2 = wtu.createKernel(webCLProgram2, "square");
+    var input2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    var output2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_WRITE, BUFFER_SIZE);
+    wtu.generateRandomFloat(data, count);
+    wtu.enqueueWriteBuffer(webCLCommandQueue2, input2, true, 0, BUFFER_SIZE, data);
+    wtu.setArg(webCLKernel2, 0, input2);
+    wtu.setArg(webCLKernel2, 1, output2);
+    wtu.setArg(webCLKernel2, 2, new Uint32Array([count]));
+
+    shouldThrowExceptionName("webCLCommandQueue1.enqueueNDRangeKernel(webCLKernel2, workDim, globalWorkOffset, globalWorkSize, localWorkSize);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue2.enqueueNDRangeKernel(webCLKernel1, workDim, globalWorkOffset, globalWorkSize, localWorkSize);", "INVALID_CONTEXT");
+
+    var webCLUserEvent1 = wtu.createUserEvent(webCLContext1);
+    var webCLUserEvent2 = wtu.createUserEvent(webCLContext2);
+    shouldThrowExceptionName("webCLCommandQueue1.enqueueNDRangeKernel(webCLKernel1, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLUserEvent2]);", "INVALID_CONTEXT");
+    shouldThrowExceptionName("webCLCommandQueue2.enqueueNDRangeKernel(webCLKernel2, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLUserEvent1]);", "INVALID_CONTEXT");
+    wtu.setStatus(webCLUserEvent1, webcl.COMPLETE);
+    wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
+
+    var webCLEvent1 = wtu.createEvent();
+    wtu.enqueueNDRangeKernel(webCLCommandQueue1, webCLKernel1, workDim, globalWorkOffset, globalWorkSize, localWorkSize, null, webCLEvent1);
+    shouldThrowExceptionName("webCLCommandQueue2.enqueueNDRangeKernel(webCLKernel2, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLEvent1]);", "INVALID_CONTEXT");
+    var webCLEvent2 = wtu.createEvent();
+    wtu.enqueueNDRangeKernel(webCLCommandQueue2, webCLKernel2, workDim, globalWorkOffset, globalWorkSize, localWorkSize, null, webCLEvent2);
+    shouldThrowExceptionName("webCLCommandQueue1.enqueueNDRangeKernel(webCLKernel1, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLEvent2]);", "INVALID_CONTEXT");
+
+    // Testing for INVALID_PROGRAM_EXECUTABLE
     var webCLPlatform = wtu.getPlatform();
     var devices = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
     if (devices.length > 1) {
-        kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
         var webCLDevice1 = devices[0];
-        var webCLContext1 = wtu.createContext(webCLDevice1);
-        var webCLCommandQueue1 = wtu.createCommandQueue(webCLContext1, webCLDevice1);
-        var webCLProgram1 = wtu.createProgram(webCLContext1, kernelSource);
-        wtu.build(webCLProgram1, [webCLDevice1]);
-        var webCLKernel1 = wtu.createKernel(webCLProgram1, "square");
-        var input1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-        var output1 = wtu.createBuffer(webCLContext1, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-        wtu.generateRandomFloat(data, count);
-        wtu.enqueueWriteBuffer(webCLCommandQueue1, input1, true, 0, BUFFER_SIZE, data);
-        wtu.setArg(webCLKernel1, 0, input1);
-        wtu.setArg(webCLKernel1, 1, output1);
-        wtu.setArg(webCLKernel1, 2, new Uint32Array([count]));
-
         var webCLDevice2 = devices[1];
-        var webCLContext2 = wtu.createContext(webCLDevice2);
-        var webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2, webCLDevice2);
-        var webCLProgram2 = wtu.createProgram(webCLContext2, kernelSource);
-        wtu.build(webCLProgram2, [webCLDevice2]);
-        var webCLKernel2 = wtu.createKernel(webCLProgram2, "square");
-        var input2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-        var output2 = wtu.createBuffer(webCLContext2, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-        wtu.generateRandomFloat(data, count);
-        wtu.enqueueWriteBuffer(webCLCommandQueue2, input2, true, 0, BUFFER_SIZE, data);
-        wtu.setArg(webCLKernel2, 0, input2);
-        wtu.setArg(webCLKernel2, 1, output2);
-        wtu.setArg(webCLKernel2, 2, new Uint32Array([count]));
-
-        shouldThrowExceptionName("webCLCommandQueue1.enqueueNDRangeKernel(webCLKernel2, workDim, globalWorkOffset, globalWorkSize, localWorkSize);", "INVALID_CONTEXT");
-        shouldThrowExceptionName("webCLCommandQueue2.enqueueNDRangeKernel(webCLKernel1, workDim, globalWorkOffset, globalWorkSize, localWorkSize);", "INVALID_CONTEXT");
-
-        var webCLUserEvent1 = wtu.createUserEvent(webCLContext1);
-        var webCLUserEvent2 = wtu.createUserEvent(webCLContext2);
-        shouldThrowExceptionName("webCLCommandQueue1.enqueueNDRangeKernel(webCLKernel1, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLUserEvent2]);", "INVALID_CONTEXT");
-        shouldThrowExceptionName("webCLCommandQueue2.enqueueNDRangeKernel(webCLKernel2, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLUserEvent1]);", "INVALID_CONTEXT");
-        wtu.setStatus(webCLUserEvent1, webcl.COMPLETE);
-        wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
-
-        var webCLEvent1 = wtu.createEvent();
-        wtu.enqueueNDRangeKernel(webCLCommandQueue1, webCLKernel1, workDim, globalWorkOffset, globalWorkSize, localWorkSize, null, webCLEvent1);
-        shouldThrowExceptionName("webCLCommandQueue2.enqueueNDRangeKernel(webCLKernel2, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLEvent1]);", "INVALID_CONTEXT");
-        var webCLEvent2 = wtu.createEvent();
-        wtu.enqueueNDRangeKernel(webCLCommandQueue2, webCLKernel2, workDim, globalWorkOffset, globalWorkSize, localWorkSize, null, webCLEvent2);
-        shouldThrowExceptionName("webCLCommandQueue1.enqueueNDRangeKernel(webCLKernel1, workDim, globalWorkOffset, globalWorkSize, localWorkSize, [webCLEvent2]);", "INVALID_CONTEXT");
-
-        // Testing for INVALID_PROGRAM_EXECUTABLE
         webCLContextOn2Devices = wtu.createContext([webCLDevice1, webCLDevice2]);
         webCLProgramOn2Devices = wtu.createProgram(webCLContextOn2Devices, kernelSource);
         wtu.build(webCLProgramOn2Devices, [webCLDevice1]);
