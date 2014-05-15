@@ -6,8 +6,8 @@ enqueueReadBuffer.html
 enqueueReadBufferUsingKernel.html
 enqueueWriteBuffer.html
 enqueueWriteBufferUsingKernel.html
-bufferRectOperations.html
 enqueueReadImage.html
 enqueueWriteImage.html
 enqueueReadBufferRect.html
+enqueueWriteBufferRect.html
 finish.html

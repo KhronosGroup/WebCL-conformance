@@ -60,7 +60,7 @@ try {
     var hostSlicePitch = 0;
 
     /*
-     *  Testing for reading whole buffer of 256 values, of 4 bytes each.
+     *  Testing for reading whole buffer of 256 int32 values.
      */
     try {
         region = [16 * 4, 4, 4]; /* Read as 4 rows of 16 int32 elements each with 4 slice.*/
@@ -88,18 +88,17 @@ try {
     }
 
     /*
-     *  Testing for reading last 20 int32 values from buffer using readBufferRect.
+     *  Testing for reading 16 int32 values from end of buffer using readBufferRect.
      */
     try {
-        var partialReadSize = 20 * Int32Array.BYTES_PER_ELEMENT;
-        bufferOrigin = [BUFFER_SIZE_IN_BYTES - partialReadSize, 0, 0];
-        region = [20 * 4, 1, 1];
+        bufferOrigin = [0, 3, 3];
+        region = [16 * 4, 1, 1];
         result = new Int32Array(numberOfValues);
 
-        wtu.enqueueReadBufferRect(webCLCommandQueue, webCLBuffer, true, bufferOrigin, hostOriginConst, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, result);
+        wtu.enqueueReadBufferRect(webCLCommandQueue, webCLBuffer, true, bufferOrigin, hostOriginConst, region, 64, 256, hostRowPitch, hostSlicePitch, result);
 
-        var aData = new Int32Array(data.buffer, bufferOrigin[0], 20);
-        wtu.verifyResult(aData, result, 20, "reading last 20 int32 values of buffer using readBufferRect");
+        var aData = new Int32Array(data.buffer, BUFFER_SIZE_IN_BYTES - (16 * Int32Array.BYTES_PER_ELEMENT), 16);
+        wtu.verifyResult(aData, result, 16, "reading last 16 int32 values of buffer using readBufferRect");
     } catch(e) {
         testFailed(e.description);
     }
@@ -114,7 +113,7 @@ try {
 
         wtu.enqueueReadBufferRect(webCLCommandQueue, webCLBuffer, true, bufferOrigin, hostOriginConst, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, result);
 
-        // Copying values of 3rd row of bufferRect to aData.
+        // Copying values of 3rd row of input array to aData.
         var aData = new Int32Array(data.buffer, region[0] * bufferOrigin[1], 16);
         wtu.verifyResult(aData, result, aData.length, "reading from 3rd row of 16 int32 values of buffer using readBufferRect");
     } catch(e) {
@@ -131,7 +130,7 @@ try {
 
         wtu.enqueueReadBufferRect(webCLCommandQueue, webCLBuffer, true, bufferOrigin, hostOriginConst, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, result);
 
-        // Copying values of 2nd slice of bufferRect to aData.
+        // Copying values of 2nd slice of input array to aData.
         var aData = new Int32Array(data.buffer, region[0] * region[1] * bufferOrigin[2], 16 * region[1]);
         wtu.verifyResult(aData, result, aData.length, "reading from 2nd slice 16 in32 values of 1 row of buffer using readBufferRect");
     } catch(e) {
@@ -139,12 +138,12 @@ try {
     }
 
     /*
-     *  Testing for reading values written into 2nd row of hostPtr.
+     *  Testing for reading first 16 values from buffer, to be written into 2nd row of hostPtr.
      */
     try {
         hostOrigin = [0, 1, 0];
         region = [16 * 4, 1, 1];
-        result = new Int32Array(64 + 16);
+        result = new Int32Array(region[0] + 16);
 
         wtu.enqueueReadBufferRect(webCLCommandQueue, webCLBuffer, true, bufferOriginConst, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, result);
 
@@ -156,7 +155,7 @@ try {
     }
 
     /*
-     *  Testing for reading values written into 2nd slice of hostPtr.
+     *  Testing for reading a slice of values from buffer, to be written into 2nd slice of hostPtr.
      */
     try {
         hostOrigin = [0, 0, 2];
@@ -173,7 +172,7 @@ try {
     }
 
     /*
-     *  Testing for reading from 4th location of hostPtr.
+     *  Testing for reading 16 int32 values to be written from 4th location of hostPtr using readBufferRect.
      */
     try {
         hostOrigin = [4 * 4, 0, 0];
@@ -205,9 +204,9 @@ try {
 
         var flag = false;
         // Verifying alternate rows of buffer.
-        for (i = 0; i < 32; i += valuesPerRow) {
-            for (j = 0; j < valuesPerRow; j++) {
-                if (data[(2 * i) + j] != result[i+j]) {
+        for (i = 0, j = 0; i < region[0]; i += 2 * valuesPerRow, j+= valuesPerRow) {
+            for (z = 0; z < valuesPerRow; z++) {
+                if (data[i + z] != result[j + z]) {
                     flag = true;
                     break;
                 }
@@ -234,9 +233,9 @@ try {
         wtu.enqueueReadBufferRect(webCLCommandQueue, webCLBuffer, true, bufferOriginConst, hostOriginConst, regionValid, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, result);
 
         var flag = false;
-        for (i = 0; i < regionConst[0]; i += 32) { // 32 is values per Slice
-            for (j = 0; j < 32; j++) {
-                if (result[i+j] != data[(2 * i) + j]) {
+        for (i = 0, j = 0; i < regionConst[0]; i += 2 * valuesPerRow * regionValid[1], j += valuesPerRow * regionValid[1]) {
+            for (z = 0; z < valuesPerRow * regionValid[1] /* 16 * 2 */; z++) {
+                if (data[i + z] != result[j + z]) {
                     flag = true;
                     break;
                 }
@@ -263,9 +262,9 @@ try {
         wtu.enqueueReadBufferRect(webCLCommandQueue, webCLBuffer, true, bufferOriginConst, hostOriginConst, regionValid, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, result);
 
         var flag = false;
-        for (i = 0; i < 32; i += valuesPerRow) {
-            for (j = 0; j < valuesPerRow; j++) {
-                if (data[i+j] != result[(2 * i) + j]) {
+        for (i = 0, j = 0; i < regionValid[0]; i += 2 * valuesPerRow, j += valuesPerRow) {
+            for (z = 0; z < valuesPerRow; z++) {
+                if (data[j + z] != result[i + z]) {
                     flag = true;
                     break;
                 }
@@ -292,9 +291,9 @@ try {
         wtu.enqueueReadBufferRect(webCLCommandQueue, webCLBuffer, true, bufferOriginConst, hostOriginConst, regionValid, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, result);
 
         var flag = false;
-        for (i = 0; i < regionConst[0]; i += 32) { // 32 is values per Slice
-            for (j = 0; j < 32; j++) {
-                if (data[i+j] != result[(2 * i) + j]) {
+        for (i = 0, j = 0; i < regionConst[0]; i += 2 * valuesPerRow * regionValid[1], j += valuesPerRow * regionValid[1]) {
+            for (z = 0; z < valuesPerRow * regionValid[1] /* 16 * 2 */; z++) {
+                if (data[j + z] != result[i + z]) {
                     flag = true;
                     break;
                 }
