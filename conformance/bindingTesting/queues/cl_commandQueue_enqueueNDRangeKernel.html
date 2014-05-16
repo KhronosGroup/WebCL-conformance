@@ -106,7 +106,8 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, [10, 10, 10], globalWorkSize, localWorkSize);", "INVALID_GLOBAL_OFFSET");
     shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, [Math.pow(2,32), 1], globalWorkSize, localWorkSize);", "INVALID_GLOBAL_OFFSET");
 
-    shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, null, localWorkSize);", "INVALID_GLOBAL_WORK_SIZE");
+    shouldThrowTypeError("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, null, localWorkSize);");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, [], localWorkSize);", "INVALID_GLOBAL_WORK_SIZE");
     shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, [10], localWorkSize);", "INVALID_GLOBAL_WORK_SIZE");
     shouldThrowExceptionName("webCLCommandQueue.enqueueNDRangeKernel(webCLKernel, workDim, globalWorkOffset, [Math.pow(2,32), 2], localWorkSize);", "INVALID_GLOBAL_WORK_SIZE");
 
