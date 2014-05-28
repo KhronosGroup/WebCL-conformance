@@ -146,8 +146,8 @@ try {
 
         var webCLUserEvent1 = wtu.createUserEvent(webCLContext1);
         var webCLUserEvent2 = wtu.createUserEvent(webCLContext2);
-        shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteImage(webCLImage1, true, origin, region, imgData, [webCLUserEvent2]);", "INVALID_CONTEXT");
-        shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteImage(webCLImage2, true, origin, region, imgData, [webCLUserEvent1]);", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteImage(webCLImage1, false, origin, region, imgData, [webCLUserEvent2]);", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteImage(webCLImage2, false, origin, region, imgData, [webCLUserEvent1]);", "INVALID_CONTEXT");
         wtu.setStatus(webCLUserEvent1, webcl.COMPLETE);
         wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
 

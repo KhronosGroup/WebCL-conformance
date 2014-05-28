@@ -35,55 +35,72 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
+<div style="position:absolute; left:0px; top:0px; visibility:hidden" id="x">
+<video width="320" height="240" controls id = "videoID">
+    <source src="../../../resources/red-green.mp4" type="video/mp4" visibility="hidden">
+</video>
+</div>
 <script>
 try {
-    debug("WebCLContext :: createImage with HTMLVideoElement test case.");
-    debug("(CLenum memFlags, WebCLImageDescriptor descriptor, HTMLVideoElement srcVideo)\n");
+    video = document.getElementById("videoID");
+    video.addEventListener('loadeddata', runVideoInteropTests);
+} catch (e) {
+    testFailed("Failed to add listener to video element : " + e.name);
+}
+var video, webCLContext;
+function runVideoInteropTests() {
+    try {
+        debug("WebCLContext :: createImage with HTMLVideoElement test case.");
+        debug("(CLenum memFlags, HTMLVideoElement srcVideo)\n");
 
-    var wtu = WebCLTestUtils;
-    var webCLContext = wtu.createContext();
+        var wtu = WebCLTestUtils;
+        webCLContext = wtu.createContext();
+        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, video);", "WEBCL_EXTENSION_NOT_ENABLED");
+        if (!wtu.enableExtension(webcl, "WEBCL_html_video")) {
+            throw { description : "Failed to enable extension : WEBCL_html_video. Exitting..."};
+        }
 
-    var video = document.createElement('video');
-    video.src = "../../../resources/red-green.mp4";
-    video.setAttribute('type', "video/mp4");
-    video.width = "320";
-    video.height = "240";
+        wtu.releaseAll(webCLContext);
+        webCLContext = wtu.createContext();
 
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, video);", "WEBCL_EXTENSION_NOT_ENABLED");
-    if (!wtu.enableExtension(webcl, "WEBCL_html_video")) {
-        throw { description : "Failed to enable extension : WEBCL_html_video. Exitting..."};
+        shouldBeType("webCLContext.createImage(webcl.MEM_READ_ONLY, video);", "WebCLImage");
+
+        // Testing for exceptions.
+        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_WRITE_ONLY, video);", "INVALID_VALUE");
+        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, video);", "INVALID_VALUE");
+        shouldThrowExceptionName("webCLContext.createImage(invalid_CLenum, video);", "INVALID_VALUE");
+        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, invalid_video);", "INVALID_HOST_PTR");
+
+        var contextDeviceArray = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
+        var contextWidthMax = contextDeviceArray[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_WIDTH);
+        var contextHeightMax = contextDeviceArray[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT);
+        // finding the max value of the DEVICE_IMAGE2D_MAX_WIDTH & DEVICE_IMAGE2D_MAX_HEIGHT for the context devices.
+        for (i = 1; i < contextDeviceArray.length; i++) {
+            var deviceMaxWidth = contextDeviceArray[i].getInfo(webcl.DEVICE_IMAGE2D_MAX_WIDTH);
+            if (deviceMaxWidth > contextWidthMax)
+                contextWidthMax = deviceMaxWidth;
+            var deviceMaxHeight = contextDeviceArray[i].getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT);
+            if (deviceMaxHeight > contextHeightMax)
+                contextHeightMax = deviceMaxHeight;
+        }
+
+        video.width = contextWidthMax + 1;
+        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, video);", "INVALID_IMAGE_SIZE");
+
+        video.width = 10;
+        video.height = contextHeightMax + 1;
+        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, video);", "INVALID_IMAGE_SIZE");
+
+        setTimeout(function() {
+            wtu.appendPostJSToHTML(document);
+        }, 2000);
+
+    } catch(e) {
+        testFailed(e.description);
+        wtu.appendPostJSToHTML(document);
     }
-
-    shouldBeType("webCLContext.createImage(webcl.MEM_READ_ONLY, video);", "WebCLImage");
-
-    // Testing for exceptions.
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_WRITE_ONLY, video);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, video);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createImage(invalid_CLenum, video);", "INVALID_VALUE");
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, invalid_video);", "INVALID_HOST_PTR");
-
-    var webCLPlatform = wtu.getPlatform();
-    var webCLDevices = wtu.getDevices(webCLPlatform);
-
-    var deviceImageMaxWidth = webCLDevices[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_WIDTH);
-    var videoInvalidWidth = document.createElement('video');
-    videoInvalidWidth.src = "../../../resources/red-green.mp4";
-    videoInvalidWidth.setAttribute('type', "video/mp4");
-    videoInvalidWidth.width = deviceImageMaxWidth + 1;
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, videoInvalidWidth);", "INVALID_IMAGE_SIZE");
-
-    var deviceImageMaxHeight = webCLDevices[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT);
-    var videoInvalidHeight = document.createElement('video');
-    videoInvalidHeight.src = "../../../resources/red-green.mp4";
-    videoInvalidHeight.setAttribute('type', "video/mp4");
-    videoInvalidHeight.height = deviceImageMaxHeight + 1;
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, videoInvalidHeight);", "INVALID_IMAGE_SIZE");
-
-} catch(e) {
-    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>
-<script src="../../../resources/js-test-post.js"></script>
 </body>
 </html>

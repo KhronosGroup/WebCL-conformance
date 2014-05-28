@@ -1,4 +1,5 @@
 enqueueCopyBuffer.html
+enqueueCopyBufferRect.html
 enqueueCopyImage.html
 enqueueCopyImageToBuffer.html
 enqueueCopyBufferToImage.html

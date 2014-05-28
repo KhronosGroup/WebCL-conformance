@@ -169,8 +169,8 @@ try {
 
         var webCLUserEvent1 = wtu.createUserEvent(webCLContext1);
         var webCLUserEvent2 = wtu.createUserEvent(webCLContext2);
-        shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteBufferRect(webCLBuffer1, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [webCLUserEvent2]);", "INVALID_CONTEXT");
-        shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteBufferRect(webCLBuffer2, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [webCLUserEvent1]);", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteBufferRect(webCLBuffer1, false, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [webCLUserEvent2]);", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteBufferRect(webCLBuffer2, false, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [webCLUserEvent1]);", "INVALID_CONTEXT");
         wtu.setStatus(webCLUserEvent1, webcl.COMPLETE);
         wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
 

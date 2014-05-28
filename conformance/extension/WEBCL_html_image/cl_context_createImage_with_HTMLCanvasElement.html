@@ -65,16 +65,25 @@ try {
     shouldThrowExceptionName("webCLContext.createImage(invalid_CLenum, canvas);", "INVALID_VALUE");
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, invalid_canvas);", "INVALID_HOST_PTR");
 
-    var webCLPlatform = wtu.getPlatform();
-    var webCLDevices = wtu.getDevices(webCLPlatform);
-    var imageWidthMax = webCLDevices[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_WIDTH);
+    var contextDeviceArray = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
+    var contextWidthMax = contextDeviceArray[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_WIDTH);
+    var contextHeightMax = contextDeviceArray[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT);
+    // finding the max value of the DEVICE_IMAGE2D_MAX_WIDTH & DEVICE_IMAGE2D_MAX_HEIGHT for the context devices.
+    for (i = 1; i < contextDeviceArray.length; i++) {
+        var deviceMaxWidth = contextDeviceArray[i].getInfo(webcl.DEVICE_IMAGE2D_MAX_WIDTH);
+        if (deviceMaxWidth > contextWidthMax)
+            contextWidthMax = deviceMaxWidth;
+        var deviceMaxHeight = contextDeviceArray[i].getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT);
+        if (deviceMaxHeight > contextHeightMax)
+            contextHeightMax = deviceMaxHeight;
+    }
+
     var canvasInvalidWidth = document.getElementById("inputCanvas");
-    canvasInvalidWidth.width = imageWidthMax + 1;
+    canvasInvalidWidth.width = contextWidthMax + 1;
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, canvasInvalidWidth);", "INVALID_IMAGE_SIZE");
 
-    var imageHeightMax = webCLDevices[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT);
     var canvasInvalidHeight = document.getElementById("inputCanvas");
-    canvasInvalidHeight.width = imageHeightMax + 1;
+    canvasInvalidHeight.width = contextHeightMax + 1;
     shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, canvasInvalidHeight);", "INVALID_IMAGE_SIZE");
 
 } catch(e) {

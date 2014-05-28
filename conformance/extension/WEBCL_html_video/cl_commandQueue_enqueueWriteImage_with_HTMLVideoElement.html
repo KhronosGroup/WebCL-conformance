@@ -35,89 +35,114 @@
 <body>
 <div id="description"></div>
 <div id="console"></div>
+<div style="position:absolute; left:0px; top:0px; visibility:hidden" id="x">
+<video width="320" height="240" controls id = "videoID">
+    <source src="../../../resources/red-green.mp4" type="video/mp4" visibility="hidden">
+</video>
+</div>
 <script>
 try {
-    debug("WebCLCommandQueue enqueueWriteImage with HTMLVideoElement test case.");
-    debug("(WebCLImage image, CLboolean blockingWrite, HTMLVideoElement srcVideo, optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event)\n");
+    video = document.getElementById("videoID");
+    video.addEventListener('loadeddata', runVideoInteropTests);
+} catch (e) {
+    testFailed("Failed to add listener to video element : " + e.name);
+}
+var video, webCLContext, webCLCommandQueue, webCLImage, webCLImageDescriptor, webCLEvent, releasedImage, imageWidth, imageHeight;
+var webCLPlatform, webCLContext1, webCLContext2, webCLCommandQueue1, webCLCommandQueue2, webCLImage1, webCLImage2;
+var webCLEvent1, webCLEvent2, webCLUserEvent1, webCLUserEvent2, releasedEvent, webCLUserEvent;
+function runVideoInteropTests() {
+    try {
+        debug("WebCLCommandQueue enqueueWriteImage with HTMLVideoElement test case.");
+        debug("(WebCLImage image, CLboolean blockingWrite, HTMLVideoElement srcVideo, optional sequence<WebCLEvent>? eventWaitList, optional WebCLEvent? event)\n");
 
-    var wtu = WebCLTestUtils;
-    var webCLContext = wtu.createContext();
-    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+        var wtu = WebCLTestUtils;
+        webCLContext = wtu.createContext();
+        webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+        imageWidth = 100;
+        imageHeight = 100;
 
-    var video = document.createElement('video');
-    video.src = "../../../resources/red-green.mp4";
-    video.setAttribute('type', "video/mp4");
-    video.width = "320";
-    video.height = "240";
+        webCLImageDescriptor = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
+        webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptor);
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImage, true, video);", "WEBCL_EXTENSION_NOT_ENABLED");
 
-    var webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, video);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImage, true, video);", "WEBCL_EXTENSION_NOT_ENABLED");
-    if (!wtu.enableExtension(webcl, "WEBCL_html_video")) {
-        throw { description : "Failed to enable extension : WEBCL_html_video. Exitting..."};
-    }
+        if (!wtu.enableExtension(webcl, "WEBCL_html_video")) {
+            throw { description : "Failed to enable extension : WEBCL_html_video. Exitting..."};
+        }
 
-    var webCLImageRead = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, video);
-    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video);");
-    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video);");
+        wtu.releaseAll(webCLContext);
+        webCLContext = wtu.createContext();
+        webCLCommandQueue = wtu.createCommandQueue(webCLContext);
+        webCLEvent =  new WebCLEvent();
+        webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptor);
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, true, video);");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, false, video, [], webCLEvent);");
+        wtu.waitForEvents([webCLEvent]);
 
-    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, []);");
-    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, [], null);");
-    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, null);");
-    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, null, null);");
-    var webCLEvent = wtu.createEvent();
-    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, null, webCLEvent);");
-    webCLEvent = wtu.createEvent();
-    shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImageRead, false, video, [], webCLEvent);");
+        // Testing for nullable parameters.
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, true, video, []);");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, true, video, null);");
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, true, video, null, null);");
+        webCLEvent = wtu.createEvent();
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, true, video, null, webCLEvent);");
 
-    // Testing for exceptions.
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, invalid_video);", "INVALID_HOST_PTR");
+        // Testing with events.
+        webCLEvent = wtu.createEvent();
+        webCLCommandQueue.enqueueWriteImage(webCLImage, false, video, [], webCLEvent);
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, false, video, [webCLEvent]);");
+        webCLUserEvent = wtu.createUserEvent(webCLContext);
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, false, video, [webCLUserEvent]);");
+        wtu.setStatus(webCLUserEvent, webcl.COMPLETE);
+        webCLEvent = wtu.createEvent();
+        shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, true, video, [], webCLEvent);");
 
-    var releasedImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, video);
-    wtu.release(releasedImage);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(releasedImage, true, video);", "INVALID_MEM_OBJECT");
+        // Testing for exceptions.
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImage, true, invalid_video);", "INVALID_HOST_PTR");
 
-    // Testing for exception "INVALID_CONTEXT"
-    var webCLPlatform = wtu.getPlatform();
-    var devices = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
-    if (devices.length > 1) {
-        var webCLDevice1 = devices[0];
-        var webCLContext1 = wtu.createContext(webCLDevice1);
-        var webCLCommandQueue1 = wtu.createCommandQueue(webCLContext1, webCLDevice1);
-        var webCLImage1 = wtu.createImage(webCLContext1, webcl.MEM_READ_ONLY, video);
+        releasedImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, video);
+        wtu.release(releasedImage);
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(releasedImage, true, video);", "INVALID_MEM_OBJECT");
 
-        var webCLDevice2 = devices[1];
-        var webCLContext2 = wtu.createContext(webCLDevice2);
-        var webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2, webCLDevice2);
-        var webCLImage2 = wtu.createImage(webCLContext2, webcl.MEM_READ_ONLY, video);
+        // Testing for exception "INVALID_CONTEXT"
+        webCLContext1 = wtu.createContext();
+        webCLCommandQueue1 = wtu.createCommandQueue(webCLContext1);
+        webCLImage1 = wtu.createImage(webCLContext1, webcl.MEM_READ_ONLY, video);
+
+        webCLContext2 = wtu.createContext();
+        webCLCommandQueue2 = wtu.createCommandQueue(webCLContext2);
+        webCLImage2 = wtu.createImage(webCLContext2, webcl.MEM_READ_ONLY, video);
 
         shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteImage(webCLImage2, true, video);", "INVALID_CONTEXT");
         shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteImage(webCLImage1, true, video);", "INVALID_CONTEXT");
 
-        var webCLUserEvent1 = wtu.createUserEvent(webCLContext1);
-        var webCLUserEvent2 = wtu.createUserEvent(webCLContext2);
-        shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteImage(webCLImage1, true, video, [webCLUserEvent2]);", "INVALID_CONTEXT");
-        shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteImage(webCLImage2, true, video, [webCLUserEvent1]);", "INVALID_CONTEXT");
+        webCLUserEvent1 = wtu.createUserEvent(webCLContext1);
+        webCLUserEvent2 = wtu.createUserEvent(webCLContext2);
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteImage(webCLImage1, false, video, [webCLUserEvent2]);", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteImage(webCLImage2, false, video, [webCLUserEvent1]);", "INVALID_CONTEXT");
         wtu.setStatus(webCLUserEvent1, webcl.COMPLETE);
         wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
 
-        var webCLEvent1 = wtu.createEvent();
+        webCLEvent1 = wtu.createEvent();
         webCLCommandQueue1.enqueueWriteImage(webCLImage1, true, video, [], webCLEvent1);
         shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteImage(webCLImage2, true, video, [webCLEvent1]);", "INVALID_CONTEXT");
-        var webCLEvent2 = wtu.createEvent();
+        webCLEvent2 = wtu.createEvent();
         webCLCommandQueue2.enqueueWriteImage(webCLImage2, true, video, [], webCLEvent2);
         shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteImage(webCLImage1, true, video, [webCLEvent2]);", "INVALID_CONTEXT");
+
+        releasedEvent = wtu.createUserEvent(webCLContext);
+        shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImage, true, video, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
+
+        // FIXME To add test case to verify exception : INVALID_IMAGE_SIZE & INVALID_MEM_OBJECT.
+
+        setTimeout(function() {
+            wtu.appendPostJSToHTML(document);
+        }, 500);
+
+    } catch(e) {
+        testFailed(e.description);
+        wtu.appendPostJSToHTML(document);
     }
-
-    var releasedEvent = wtu.createUserEvent(webCLContext);
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageRead, true, video, [releasedEvent], webCLEvent);", "INVALID_EVENT_WAIT_LIST");
-
-    // FIXME To add test case to verify exception : INVALID_IMAGE_SIZE & INVALID_MEM_OBJECT.
-
-} catch (e) {
-    testFailed(e.description);
 }
 successfullyParsed = true;
 </script>
-<script src="../../../resources/js-test-post.js"></script>
 </body>
 </html>

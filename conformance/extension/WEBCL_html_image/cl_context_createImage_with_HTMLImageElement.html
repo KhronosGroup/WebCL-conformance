@@ -38,7 +38,8 @@
 <script>
 debug("WebCLContext :: createImage with HTMLImageElement test case.");
 debug("(CLenum memFlags, HTMLImageElement srcImage)\n");
-var image, webCLContext, webCLPlatform, webCLDevices, maxMemAllocSize = 0, invalid_image, imageInvalid;
+var image, webCLContext, webCLPlatform, webCLDevices, maxMemAllocSize = 0, invalid_image, imageInvalid, imageInvalidWidth, imageInvalidHeight;
+var contextDeviceArray, contextWidthMax, contextHeightMax, deviceMaxWidth, deviceMaxHeight;
 var wtu = WebCLTestUtils;
 webCLContext = wtu.createContext();
 
@@ -75,17 +76,24 @@ function execute() {
         imageInvalid.width = 0;
         shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, imageInvalid);", "INVALID_IMAGE_SIZE");
 
-        webCLPlatform = wtu.getPlatform();
-        webCLDevices = wtu.getDevices(webCLPlatform);
-        for (i = 0; i < webCLDevices.length; i++) {
-            if (maxMemAllocSize < webCLDevices[i].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE))
-                maxMemAllocSize = webCLDevices[i].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE);
+        contextDeviceArray = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
+        contextWidthMax = contextDeviceArray[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_WIDTH);
+        contextHeightMax = contextDeviceArray[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT);
+        // finding the max value of the DEVICE_IMAGE2D_MAX_WIDTH & DEVICE_IMAGE2D_MAX_HEIGHT for the context devices.
+        for (i = 1; i < contextDeviceArray.length; i++) {
+            deviceMaxWidth = contextDeviceArray[i].getInfo(webcl.DEVICE_IMAGE2D_MAX_WIDTH);
+            if (deviceMaxWidth > contextWidthMax)
+                contextWidthMax = deviceMaxWidth;
+            deviceMaxHeight = contextDeviceArray[i].getInfo(webcl.DEVICE_IMAGE2D_MAX_HEIGHT);
+            if (deviceMaxHeight > contextHeightMax)
+                contextHeightMax = deviceMaxHeight;
         }
-        maxMemAllocSize = webCLDevices[0].getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE);
-        maxMemAllocSize *= Int32Array.BYTES_PER_ELEMENT;
-        imageInvalid.height = maxMemAllocSize;
-        imageInvalid.width = maxMemAllocSize;
-        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, imageInvalid);", "INVALID_IMAGE_SIZE");
+        imageInvalidWidth = image;
+        imageInvalidWidth.width = contextWidthMax + 1;
+        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, imageInvalidWidth);", "INVALID_IMAGE_SIZE");
+        imageInvalidHeight = image;
+        imageInvalidHeight.height = contextHeightMax + 1;
+        shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, imageInvalidHeight);", "INVALID_IMAGE_SIZE");
 
     } catch(e) {
         testFailed(e.description);

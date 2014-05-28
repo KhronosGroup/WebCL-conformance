@@ -425,7 +425,7 @@ function shouldThrow(_a, _e)
     testFailed(_a + " should throw " + (typeof _e == "undefined" ? "an exception" : _ev) + ". Was " + _av + ".");
 }
 
-function shouldBeType(_a, _type, quite) {
+function shouldBeType(_a, _type, quiet) {
     var exception;
     var _av, _avPrototype;
 
@@ -440,7 +440,7 @@ function shouldBeType(_a, _type, quite) {
     if (exception)
         testFailed(_a + "should be an instance of " + _type + ". But threw exception " + exception.name);
     else if (_av instanceof  _typev) {
-        if (!quite)
+        if (!quiet)
             testPassed(_a + " is an instance of " + _type);
     } else
         testFailed(_a + " is not an instance of " + _type);
@@ -538,7 +538,7 @@ function shouldThrowExceptionName(_a, _e)
         testFailed(_a + " should throw " + _e + ". Threw " + exception.name + ".");
 }
 
-function shouldBeArrayOfType(_a, _type, quite)
+function shouldBeArrayOfType(_a, _type)
 {
     var exception;
     var _av;
@@ -568,7 +568,7 @@ function shouldBeArrayOfType(_a, _type, quite)
     }
 }
 
-function shouldBeTypeOrException(_a, _type, _e, isArray, quite)
+function shouldBeTypeOrException(_a, _type, _e, isArray, quiet)
 {
     if (typeof _a != "string" || typeof _type != "string" || typeof _e != "string")
         debug("WARN: shouldBe() expects string arguments");
@@ -591,7 +591,7 @@ function shouldBeTypeOrException(_a, _type, _e, isArray, quite)
     } else if (isArray)
        shouldBeArrayOfType(_a, _type);
     else if (_av instanceof  _typev) {
-        if (!quite)
+        if (!quiet)
             testPassed(_a + " is an instance of " + _type);
     } else
         testFailed(_a + " is not an instance of " + _type);
