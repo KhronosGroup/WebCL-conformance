@@ -186,7 +186,7 @@ try {
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, dstBuffer, srcOrigin, dstOrigin, region, srcRowPitch, srcSlicePitch, dstRowPitch, dstSlicePitchInvalid);", "INVALID_VALUE");
 
     shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, srcBuffer, srcOrigin, srcOrigin, region, srcRowPitch, srcSlicePitch, srcRowPitch, srcSlicePitch);", "MEM_COPY_OVERLAP");
-    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, srcBuffer, srcOrigin, [10, 10, 10], region, srcRowPitch, srcSlicePitch, srcRowPitch, srcSlicePitch);", "MEM_COPY_OVERLAP");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, srcBuffer, [0, 0, 0], [0, 1, 0], [2, 2, 1], srcRowPitch, srcSlicePitch, srcRowPitch, srcSlicePitch);", "MEM_COPY_OVERLAP");
     shouldBeUndefined("webCLCommandQueue.enqueueCopyBufferRect(srcBuffer, srcBuffer, srcOrigin, [20, 10, 10], [8 , 2, 1], srcRowPitch, srcSlicePitch, srcRowPitch, srcSlicePitch);");
 
     // Testing for exception "INVALID_CONTEXT"
