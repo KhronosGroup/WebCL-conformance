@@ -1,3 +1,5 @@
 WEBCL_html_image/00_test_list.txt
 WEBCL_html_video/00_test_list.txt
 KHR_gl_sharing/00_test_list.txt
+KHR_fp64/00_test_list.txt
+KHR_fp16/00_test_list.txt

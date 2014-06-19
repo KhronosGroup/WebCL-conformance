@@ -92,3 +92,14 @@ __kernel void kernelFloat(
     if (i < count)
         output[i] = input[i];
 }
+
+__kernel void kernelDouble(
+   __global double* input,
+   __global double* output,
+   unsigned int count
+   )
+{
+    unsigned int i = get_global_id(0);
+    if (i < count)
+        output[i] = input[i];
+}

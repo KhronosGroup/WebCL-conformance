@@ -28,10 +28,10 @@
 <head>
 <meta charset="utf-8">
     <title>WebCLContext createFromGLBuffer conformance test.</title>
-    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
-    <script src="../../../resources/js-test-pre.js"></script>
-    <script src="../../../resources/cl_utils.js"></script>
-    <script src="../../../resources/clgl_utils.js"></script>
+    <link rel="stylesheet" href="../../../../resources/js-test-style.css"/>
+    <script src="../../../../resources/js-test-pre.js"></script>
+    <script src="../../../../resources/cl_utils.js"></script>
+    <script src="../../../../resources/clgl_utils.js"></script>
 </head>
 <body>
 <div id="description"></div>
@@ -49,29 +49,30 @@ try {
 
     var canvas = document.getElementById("inputCanvas");
     var glContext = canvas.getContext("experimental-webgl");
+    var glBuffer = clgl.createBuffer(glContext);
+    clgl.bindBuffer(glContext, glContext.ARRAY_BUFFER, glBuffer);
 
+    var webCLContext = wtu.createContext();
+    shouldThrowExceptionName("webCLContext.createFromGLBuffer(webcl.MEM_READ_ONLY, glBuffer);", "WEBCL_EXTENSION_NOT_ENABLED");
     if (!wtu.enableExtension(webcl, "KHR_gl_sharing")) {
         throw { description : "Failed to enable extension : KHR_gl_sharing. Exitting..."};
     }
 
-    var glBuffer = clgl.createBuffer(glContext);
-    clgl.bindBuffer(glContext, glContext.ARRAY_BUFFER, glBuffer);
-
+    wtu.releaseAll(webCLContext);
     var webCLGLContext = wtu.createContext(glContext);
 
-    // Testing for memFlags.
+    // Testing with valid memFlags.
     shouldBeType("webCLGLContext.createFromGLBuffer(webcl.MEM_READ_ONLY, glBuffer);", "WebCLBuffer");
     shouldBeType("webCLGLContext.createFromGLBuffer(webcl.MEM_WRITE_ONLY, glBuffer);", "WebCLBuffer");
     shouldBeType("webCLGLContext.createFromGLBuffer(webcl.MEM_READ_WRITE, glBuffer);", "WebCLBuffer");
 
-    // Testing for invalid memFlags.
+    // Testing for exceptions.
     shouldThrowExceptionName("webCLGLContext.createFromGLBuffer(invalid_CLenum, glBuffer);", "INVALID_VALUE");
 
-    // Testing for invalid Buffer.
     var glBufferUnbound = clgl.createBuffer(glContext);
     shouldThrowExceptionName("webCLGLContext.createFromGLBuffer(webcl.MEM_READ_WRITE, glBufferUnbound);", "INVALID_GL_OBJECT");
 
-    var webCLContext = wtu.createContext();
+    webCLContext = wtu.createContext();
     shouldThrowExceptionName("webCLContext.createFromGLBuffer(webcl.MEM_READ_WRITE, glBuffer);", "INVALID_CONTEXT");
 
 } catch(e) {
@@ -79,6 +80,6 @@ try {
 }
 successfullyParsed = true;
 </script>
-<script src="../../../resources/js-test-post.js"></script>
+<script src="../../../../resources/js-test-post.js"></script>
 </body>
 </html>

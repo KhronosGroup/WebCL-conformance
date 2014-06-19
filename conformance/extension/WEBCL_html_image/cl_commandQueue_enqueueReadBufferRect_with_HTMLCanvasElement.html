@@ -181,10 +181,10 @@ try {
         wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
 
         var webCLEvent1 = wtu.createEvent();
-        webCLCommandQueue1.enqueueReadBufferRect(webCLBuffer1, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent1);
+        wtu.enqueueReadBufferRect(webCLCommandQueue1, webCLBuffer1, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent1);
         shouldThrowExceptionName("webCLCommandQueue2.enqueueReadBufferRect(webCLBuffer2, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [webCLEvent1]);", "INVALID_CONTEXT");
         var webCLEvent2 = wtu.createEvent();
-        webCLCommandQueue2.enqueueReadBufferRect(webCLBuffer2, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent2);
+        wtu.enqueueReadBufferRect(webCLCommandQueue2, webCLBuffer2, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent2);
         shouldThrowExceptionName("webCLCommandQueue1.enqueueReadBufferRect(webCLBuffer1, true, bufferOrigin, dstOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [webCLEvent2]);", "INVALID_CONTEXT");
     }
 

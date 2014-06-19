@@ -42,6 +42,7 @@ try {
     image.onload = execute;
 } catch(e) {
     testFailed("Unable to load HTML image element : " + e.name);
+    wtu.appendPostJSToHTML();
 }
 var webCLContext, webCLCommandQueue, webCLBufferRead, webCLBufferWrite, webCLBufferReadWrite, bufferRowPitch, bufferSlicePitch, bufferSize;
 var bufferOrigin, srcOrigin, region, webCLBuffer, releasedBuffer, bufferOriginInvalid, bufferOriginOutOfBound, srcOriginInvalid, srcOriginOutOfBound, regionInvalid, regionOutOfBound, bufferRowPitchInvalid, bufferSlicePitchInvalid;
@@ -183,10 +184,10 @@ function execute() {
             wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
 
             webCLEvent1 = wtu.createEvent();
-            webCLCommandQueue1.enqueueWriteBufferRect(webCLBuffer1, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, [], webCLEvent1);
+            wtu.enqueueWriteBufferRect( webCLCommandQueue1, webCLBuffer1, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, [], webCLEvent1);
             shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteBufferRect(webCLBuffer2, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, [webCLEvent1]);", "INVALID_CONTEXT");
             webCLEvent2 = wtu.createEvent();
-            webCLCommandQueue2.enqueueWriteBufferRect(webCLBuffer2, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, [], webCLEvent2);
+            wtu.enqueueWriteBufferRect( webCLCommandQueue2, webCLBuffer2, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, [], webCLEvent2);
             shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteBufferRect(webCLBuffer1, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, image, [webCLEvent2]);", "INVALID_CONTEXT");
         }
 
@@ -202,7 +203,7 @@ function execute() {
         testFailed(e.description);
     }
 
-    wtu.appendPostJSToHTML(document);
+    wtu.appendPostJSToHTML();
 }
 successfullyParsed = true;
 </script>

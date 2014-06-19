@@ -130,6 +130,11 @@ var runForAlltypes = function(vectorSize, kernelSource)
         results = new Float32Array(vectorSize);
         runAndTest(webCLCommandQueue, webCLKernel, inputArray, results);
 
+        webCLKernel = webCLProgram.createKernel("kernelDouble");
+        inputArray = wtu.generateData(Float64Array, vectorSize);
+        results = new Float64Array(vectorSize);
+        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results);
+
     } catch (e) {
         testFailed("WebCLKernel setArg() vector" + vectorSize + " input testing." + e.message);
         return;

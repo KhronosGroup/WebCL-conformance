@@ -28,9 +28,9 @@
 <head>
 <meta charset="utf-8">
     <title>WebCL createContext with WebGLRenderingContext conformance test.</title>
-    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
-    <script src="../../../resources/js-test-pre.js"></script>
-    <script src="../../../resources/cl_utils.js"></script>
+    <link rel="stylesheet" href="../../../../resources/js-test-style.css"/>
+    <script src="../../../../resources/js-test-pre.js"></script>
+    <script src="../../../../resources/cl_utils.js"></script>
 </head>
 <body>
 <div id="description"></div>
@@ -61,6 +61,7 @@ try {
     shouldBeTypeOrException("webcl.createContext(glContext, webcl.DEVICE_TYPE_GPU);", "WebCLContext", "DEVICE_NOT_FOUND");
     shouldBeTypeOrException("webcl.createContext(glContext, webcl.DEVICE_TYPE_ACCELERATOR);", "WebCLContext", "DEVICE_NOT_FOUND");
     shouldBeType("webcl.createContext(glContext, webcl.DEVICE_TYPE_DEFAULT);", "WebCLContext");
+    shouldBeType("webcl.createContext(glContext, webcl.DEVICE_TYPE_ALL);", "WebCLContext");
 
     shouldThrowExceptionName("webcl.createContext(glContext, invalid_CLenum);", "INVALID_DEVICE_TYPE");
 
@@ -78,6 +79,11 @@ try {
 
     shouldThrowExceptionName("webcl.createContext(glContext, webCLPlatform, invalid_CLenum);", "INVALID_DEVICE_TYPE");
 
+    /*
+     *  Creating context on WebGLRenderingContext & WebCLDevice and WebGLRenderingContext & sequence of WebCLDevices.
+     */
+    debug("\nWebGLRenderingContext gl, WebCLDevice device)");
+    debug("WebGLRenderingContext gl, sequence<WebCLDevice> devices)");
     var getAndValidateDevices = function(webCLPlatform, type) {
         try {
             var webCLDevice = wtu.getDevices(webCLPlatform, type);
@@ -91,13 +97,6 @@ try {
         }
     }
 
-    debug("\nWebGLRenderingContext gl, WebCLDevice device)");
-    debug("WebGLRenderingContext gl, sequence<WebCLDevice> devices)");
-
-    /*
-     *  Creating context on WebCLDevice.
-     *  Creating context on sequence of devices.
-     */
     var webCLDevicesCPU = getAndValidateDevices(webCLPlatform, webcl.DEVICE_TYPE_CPU);
     if (webCLDevicesCPU) {
         shouldBeType("webcl.createContext(glContext, webCLDevicesCPU[0]);", "WebCLContext");
@@ -116,18 +115,21 @@ try {
         shouldBeType("webcl.createContext(glContext, webCLDevicesACCELERATOR);", "WebCLContext");
     }
 
+    /*
+     *  Creating context on sequence of default and all devices.
+     */
     var webCLDevicesDEFAULT = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_DEFAULT);
     shouldBeType("webcl.createContext(glContext, webCLDevicesDEFAULT);", "WebCLContext");
     var webCLDevicesALL = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
     shouldBeType("webcl.createContext(glContext, webCLDevicesALL);", "WebCLContext");
 
-    // FIXME :: add test case to validate invalid WebGL context.
+    // FIXME To add testcases to verify exceptions INVALID_OPERATION, DEVICE_NOT_FOUND, DEVICE_NOT_AVAILABLE, INVALID_PLATFORM, INVALID_GL_SHAREGROUP_REFERENCE_KHR.
 
 } catch(e) {
     testFailed(e.description);
 }
 successfullyParsed = true;
 </script>
-<script src="../../../resources/js-test-post.js"></script>
+<script src="../../../../resources/js-test-post.js"></script>
 </body>
 </html>

@@ -135,10 +135,10 @@ try {
         wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
 
         var webCLEvent1 = wtu.createEvent();
-        webCLCommandQueue1.enqueueReadBuffer(webCLBuffer1, true, bufferOffset, numBytes, canvas, [], webCLEvent1);
+        wtu.enqueueReadBuffer(webCLCommandQueue1, webCLBuffer1, true, bufferOffset, numBytes, canvas, [], webCLEvent1);
         shouldThrowExceptionName("webCLCommandQueue2.enqueueReadBuffer(webCLBuffer2, true, bufferOffset, numBytes, canvas, [webCLEvent1])", "INVALID_CONTEXT");
         var webCLEvent2 = wtu.createEvent();
-        webCLCommandQueue2.enqueueReadBuffer(webCLBuffer2, true, bufferOffset, numBytes, canvas, [], webCLEvent2);
+        wtu.enqueueReadBuffer(webCLCommandQueue2, webCLBuffer2, true, bufferOffset, numBytes, canvas, [], webCLEvent2);
         shouldThrowExceptionName("webCLCommandQueue1.enqueueReadBuffer(webCLBuffer1, true, bufferOffset, numBytes, canvas, [webCLEvent2])", "INVALID_CONTEXT");
     }
 

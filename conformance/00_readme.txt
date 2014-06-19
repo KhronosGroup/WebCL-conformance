@@ -8,6 +8,6 @@ on windows
 
 on OSX / Linux
 
-   ls -1 *.html >00_test_list.txt
+   ls *.html > 00_test_list.txt
 
 

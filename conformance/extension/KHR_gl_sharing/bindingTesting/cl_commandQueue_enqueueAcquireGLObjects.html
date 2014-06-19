@@ -28,10 +28,10 @@
 <head>
 <meta charset="utf-8">
     <title>WebCLCommandQueue enqueueAcquireGLObjects conformance test.</title>
-    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
-    <script src="../../../resources/js-test-pre.js"></script>
-    <script src="../../../resources/cl_utils.js"></script>
-    <script src="../../../resources/clgl_utils.js"></script>
+    <link rel="stylesheet" href="../../../../resources/js-test-style.css"/>
+    <script src="../../../../resources/js-test-pre.js"></script>
+    <script src="../../../../resources/cl_utils.js"></script>
+    <script src="../../../../resources/clgl_utils.js"></script>
 </head>
 <body>
 <div id="description"></div>
@@ -62,8 +62,9 @@ try {
         throw { description : "Failed to enable extension : KHR_gl_sharing. Exitting..."};
     }
 
-    webCLContext = wtu.createContext(webCLDevices);
-    webCLCommandQueue = wtu.createCommandQueue(webCLContext, webCLDevices[0]);
+    wtu.releaseAll(webCLContext);
+    webCLContext = wtu.createContext();
+    webCLCommandQueue = wtu.createCommandQueue(webCLContext);
     webCLMemoryObject = wtu.createBuffer(webCLContext, webcl.MEM_READ_ONLY, BUFFER_SIZE);
 
     var glBuffer = clgl.createBuffer(glContext);
@@ -114,6 +115,6 @@ try {
 }
 successfullyParsed = true;
 </script>
-<script src="../../../resources/js-test-post.js"></script>
+<script src="../../../../resources/js-test-post.js"></script>
 </body>
 </html>

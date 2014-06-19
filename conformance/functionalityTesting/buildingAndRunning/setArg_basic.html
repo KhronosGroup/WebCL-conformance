@@ -45,7 +45,8 @@ var kernel_arg_values = [
     [256, 4294967295, 4294967296, 0, -1], // UInt
     [[0, 5000], [50, 10], [2147483647, 2147483647], [2147483648, 2147483648], [-2147483648, -2147483648], [-2147483649, -2147483649]], // Long
     [[0, 1898989], [90, 10], [4294967295, 4294967295], [4294967296, 4294967296], [0, 0], [-1, -1]], // ULong
-    [676767.69, 340282346638528859811704183484516925440, 340282300000000000000000000000000000010, 0, -1] // Float
+    [676767.6875, 3.4E+38, 3.4E+39, 1.2E-38, 1.2E-39], // Float
+    [21345678.123454321, 1.8E+308, 1.8E+309, 2.2E-308, 2.2E-309] // Double
 ];
 
 var kernel_arg_expected_values = [
@@ -57,7 +58,8 @@ var kernel_arg_expected_values = [
     [256, 4294967295, 0, 0, 4294967295],
     [[0, 5000], [50, 10], [2147483647, 2147483647], [-2147483648, -2147483648], [-2147483648, -2147483648], [2147483647, 2147483647]],
     [[0, 1898989], [90, 10], [4294967295, 4294967295], [0, 0], [0, 0], [4294967295, 4294967295]],
-    [676767.69, 340282346638528859811704183484516925440, 340282300000000000000000000000000000000, 0, -1],
+    [676767.6875, 3.4E+38, 3.4E+38, 1.2E-38, 1.2E-39],
+    [21345678.123454321, 1.8E+308, 1.8E+309, 2.2E-308, 2.2E-309]
 ];
 
 /* Generic function to run a "kernel" which copies the input values "inputArray" into a output buffer.
@@ -92,7 +94,7 @@ var runAndTest = function(commandqueue, kernel, inputArray, resultArray, expecte
         if (flag && y == expectedArray.length && y == inputArray.length)
             testPassed("Test passed for kernel [" + kernelName + "]. Got expected value : " + resultString);
         else
-            testFailed("Test failed. Expected value : " + expectedArray + " Obtained value: " + resultString);
+            testFailed("Test failed for kernel [" + kernelName + "]. Expected value : " + expectedArray + " Obtained value: " + resultString);
     } catch (e) {
         testFailed("WebCLKernel setArg() basic test throws exception: " + e.description);
     }
@@ -175,6 +177,11 @@ try {
     inputArray = new Float32Array(kernel_arg_values[8]);
     results = new Float32Array(kernel_arg_values[8].length);
     runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[8]);
+
+    webCLKernel = webCLProgram.createKernel("kernelDouble");
+    inputArray = new Float64Array(kernel_arg_values[9]);
+    results = new Float64Array(kernel_arg_values[9].length);
+    runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[9]);
 
 } catch (e) {
     testFailed("WebCLKernel setArg() basic type throws exception: " + e.message);

@@ -28,10 +28,10 @@
 <head>
 <meta charset="utf-8">
     <title>WebCLContext createFromGLRenderbuffer conformance test.</title>
-    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
-    <script src="../../../resources/js-test-pre.js"></script>
-    <script src="../../../resources/cl_utils.js"></script>
-    <script src="../../../resources/clgl_utils.js"></script>
+    <link rel="stylesheet" href="../../../../resources/js-test-style.css"/>
+    <script src="../../../../resources/js-test-pre.js"></script>
+    <script src="../../../../resources/cl_utils.js"></script>
+    <script src="../../../../resources/clgl_utils.js"></script>
 </head>
 <body>
 <div id="description"></div>
@@ -49,35 +49,31 @@ try {
 
     var canvas = document.getElementById("inputCanvas");
     var glContext = canvas.getContext("experimental-webgl");
+    var glRenderBuffer = clgl.createRenderbuffer(glContext);
+    clgl.bindRenderbuffer(glContext, glContext.RENDERBUFFER, glRenderBuffer);
+    glContext.renderbufferStorage(glContext.RENDERBUFFER, glContext.RGBA4, canvas.width, canvas.height);
 
+    var webCLContext = wtu.createContext();
+    shouldThrowExceptionName("webCLContext.createFromGLRenderbuffer(webcl.MEM_READ_ONLY, glRenderBuffer);", "WEBCL_EXTENSION_NOT_ENABLED");
     if (!wtu.enableExtension(webcl, "KHR_gl_sharing")) {
         throw { description : "Failed to enable extension : KHR_gl_sharing. Exitting..."};
     }
 
-    var glRenderBuffer = clgl.createRenderbuffer(glContext);
-    clgl.bindRenderbuffer(glContext, glContext.RENDERBUFFER, glRenderBuffer);
+    wtu.releaseAll(webCLContext);
     var webCLGLContext = wtu.createContext(glContext);
 
-    // Testing for MEM_READ_ONLY Buffer.
+    // Testing with valid memFlags.
     shouldBeType("webCLGLContext.createFromGLRenderbuffer(webcl.MEM_READ_ONLY, glRenderBuffer);", "WebCLImage");
-
-    // Testing for MEM_WRITE_ONLY Buffer.
     shouldBeType("webCLGLContext.createFromGLRenderbuffer(webcl.MEM_WRITE_ONLY, glRenderBuffer);", "WebCLImage");
-
-    // Testing for MEM_READ_WRITE Buffer.
     shouldBeType("webCLGLContext.createFromGLRenderbuffer(webcl.MEM_READ_WRITE, glRenderBuffer);", "WebCLImage");
 
-    // Testing for invalid memFlags.
+    // Testing for exceptions.
     shouldThrowExceptionName("webCLGLContext.createFromGLRenderbuffer(invalid_CLenum, glRenderBuffer);", "INVALID_VALUE");
 
-    // Testing for invalid Renderbuffer
     var glRenderBufferUnbound = clgl.createRenderbuffer(glContext)
     shouldThrowExceptionName("webCLGLContext.createFromGLRenderbuffer(webcl.MEM_READ_ONLY, glRenderBufferUnbound);", "INVALID_GL_OBJECT");
 
-    /*
-    *  Creating without glContext.
-    */
-    var webCLContext = wtu.createContext();
+    webCLContext = wtu.createContext();
     shouldThrowExceptionName("webCLContext.createFromGLRenderbuffer(webcl.MEM_READ_WRITE, glRenderBuffer);", "INVALID_CONTEXT");
 
     // FIXME : To add test cases to check exceptions INVALID_IMAGE_FORMAT_DESCRIPTOR and INVALID_OPERATION.
@@ -87,6 +83,6 @@ try {
 }
 successfullyParsed = true;
 </script>
-<script src="../../../resources/js-test-post.js"></script>
+<script src="../../../../resources/js-test-post.js"></script>
 </body>
 </html>

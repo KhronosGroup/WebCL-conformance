@@ -56,3 +56,10 @@ __kernel void kernelFloat(
 {
    output[0] = input;
 }
+
+__kernel void kernelDouble(
+   double2 input,
+   __global double2* output)
+{
+   output[0] = input;
+}

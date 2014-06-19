@@ -27,48 +27,33 @@
 <html>
 <head>
 <meta charset="utf-8">
-    <title>finish conformance test.</title>
-    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
-    <script src="../../../resources/js-test-pre.js"></script>
-    <script src="../../../resources/cl_utils.js"></script>
+    <title>WebCL constants check conformance test, in extension KHR_fp16.</title>
+    <link rel="stylesheet" href="../../../../resources/js-test-style.css"/>
+    <script src="../../../../resources/js-test-pre.js"></script>
+    <script src="../../../../resources/cl_utils.js"></script>
 </head>
 <body>
 <div id="description"></div>
 <div id="console"></div>
 <script>
-var callback = function()
-{
-    // webCLEvent is expected to be in COMPLETE state by the time callback is called.
-    if (webCLEvent.getInfo(webcl.EVENT_COMMAND_EXECUTION_STATUS) == webcl.COMPLETE)
-        testPassed("webCLCommandQueue.finish(callback)");
-    else
-        testFailed("webCLCommandQueue.finish(callback)");
-}
 try {
-    debug("finish callback functionality test case.");
+    debug("WebCL constants check test case in extension KHR_fp16.\n");
 
+    debug("Testing KHR_fp16 constants before enabling extension.\n");
+    shouldBeValueOrUndefined("webcl.DEVICE_PREFERRED_VECTOR_WIDTH_HALF", "0x1034");
+    shouldBeValueOrUndefined("webcl.DEVICE_NATIVE_VECTOR_WIDTH_HALF", "0x103C");
+
+    debug("\nEnabling extension : KHR_fp16.\n");
     var wtu = WebCLTestUtils;
-    var webCLContext = wtu.createContext();
-    var webCLCommandQueue = wtu.createCommandQueue(webCLContext);
-
-    var srcBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-    var dstBuffer = wtu.createBuffer(webCLContext, webcl.MEM_READ_WRITE, BUFFER_SIZE);
-    var webCLEvent = wtu.createEvent();
-    var webCLUserEvent = wtu.createUserEvent(webCLContext);
-    wtu.enqueueCopyBuffer(webCLCommandQueue, srcBuffer, dstBuffer, 0, 0, BUFFER_SIZE, [webCLUserEvent], webCLEvent);
-    wtu.setStatus(webCLUserEvent, webcl.COMPLETE);
-
-    wtu.finish(webCLCommandQueue, callback);
-
-    setTimeout(function() {
-        wtu.appendPostJSToHTML();
-    }, 2000);
+    wtu.enableExtension(webcl, "KHR_fp16");
+    shouldBe("webcl.DEVICE_PREFERRED_VECTOR_WIDTH_HALF", "0x1034");
+    shouldBe("webcl.DEVICE_NATIVE_VECTOR_WIDTH_HALF", "0x103C");
 
 } catch(e) {
     testFailed(e.description);
-    wtu.appendPostJSToHTML();
 }
 successfullyParsed = true;
 </script>
+<script src="../../../../resources/js-test-post.js"></script>
 </body>
 </html>

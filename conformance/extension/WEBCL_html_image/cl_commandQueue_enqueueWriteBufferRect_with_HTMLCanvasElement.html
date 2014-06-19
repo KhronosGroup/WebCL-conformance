@@ -175,10 +175,10 @@ try {
         wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
 
         var webCLEvent1 = wtu.createEvent();
-        webCLCommandQueue1.enqueueWriteBufferRect(webCLBuffer1, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent1);
+        wtu.enqueueWriteBufferRect( webCLCommandQueue1, webCLBuffer1, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent1);
         shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteBufferRect(webCLBuffer2, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [webCLEvent1]);", "INVALID_CONTEXT");
         var webCLEvent2 = wtu.createEvent();
-        webCLCommandQueue2.enqueueWriteBufferRect(webCLBuffer2, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent2);
+        wtu.enqueueWriteBufferRect( webCLCommandQueue2, webCLBuffer2, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [], webCLEvent2);
         shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteBufferRect(webCLBuffer1, true, bufferOrigin, srcOrigin, region, bufferRowPitch, bufferSlicePitch, canvas, [webCLEvent2]);", "INVALID_CONTEXT");
     }
 

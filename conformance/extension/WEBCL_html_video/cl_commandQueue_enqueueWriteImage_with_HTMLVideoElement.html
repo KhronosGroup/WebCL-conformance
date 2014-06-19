@@ -46,6 +46,7 @@ try {
     video.addEventListener('loadeddata', runVideoInteropTests);
 } catch (e) {
     testFailed("Failed to add listener to video element : " + e.name);
+    wtu.appendPostJSToHTML();
 }
 var video, webCLContext, webCLCommandQueue, webCLImage, webCLImageDescriptor, webCLEvent, releasedImage, imageWidth, imageHeight;
 var webCLPlatform, webCLContext1, webCLContext2, webCLCommandQueue1, webCLCommandQueue2, webCLImage1, webCLImage2;
@@ -87,7 +88,7 @@ function runVideoInteropTests() {
 
         // Testing with events.
         webCLEvent = wtu.createEvent();
-        webCLCommandQueue.enqueueWriteImage(webCLImage, false, video, [], webCLEvent);
+        wtu.enqueueWriteImage(webCLCommandQueue, webCLImage, false, video, [], webCLEvent);
         shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, false, video, [webCLEvent]);");
         webCLUserEvent = wtu.createUserEvent(webCLContext);
         shouldBeUndefined("webCLCommandQueue.enqueueWriteImage(webCLImage, false, video, [webCLUserEvent]);");
@@ -122,10 +123,10 @@ function runVideoInteropTests() {
         wtu.setStatus(webCLUserEvent2, webcl.COMPLETE);
 
         webCLEvent1 = wtu.createEvent();
-        webCLCommandQueue1.enqueueWriteImage(webCLImage1, true, video, [], webCLEvent1);
+        wtu.enqueueWriteImage(webCLCommandQueue1, webCLImage1, true, video, [], webCLEvent1);
         shouldThrowExceptionName("webCLCommandQueue2.enqueueWriteImage(webCLImage2, true, video, [webCLEvent1]);", "INVALID_CONTEXT");
         webCLEvent2 = wtu.createEvent();
-        webCLCommandQueue2.enqueueWriteImage(webCLImage2, true, video, [], webCLEvent2);
+        wtu.enqueueWriteImage(webCLCommandQueue2, webCLImage2, true, video, [], webCLEvent2);
         shouldThrowExceptionName("webCLCommandQueue1.enqueueWriteImage(webCLImage1, true, video, [webCLEvent2]);", "INVALID_CONTEXT");
 
         releasedEvent = wtu.createUserEvent(webCLContext);
@@ -134,12 +135,12 @@ function runVideoInteropTests() {
         // FIXME To add test case to verify exception : INVALID_IMAGE_SIZE & INVALID_MEM_OBJECT.
 
         setTimeout(function() {
-            wtu.appendPostJSToHTML(document);
+            wtu.appendPostJSToHTML();
         }, 500);
 
     } catch(e) {
         testFailed(e.description);
-        wtu.appendPostJSToHTML(document);
+        wtu.appendPostJSToHTML();
     }
 }
 successfullyParsed = true;

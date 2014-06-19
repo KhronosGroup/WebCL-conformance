@@ -8,6 +8,7 @@ __kernel void kernelVectorTwo(
     long2 inputLong,
     ulong2 inputULong,
     float2 inputFloat,
+    double2 inputDouble,
     __global float2* output)
 {
     output[0] = convert_float2(inputChar);
@@ -19,6 +20,7 @@ __kernel void kernelVectorTwo(
     output[6] = convert_float2(inputLong);
     output[7] = convert_float2(inputULong);
     output[8] = convert_float2(inputFloat);
+    output[9] = convert_float2(inputDouble);
 }
 
 __kernel void kernelVectorThree(
@@ -31,6 +33,7 @@ __kernel void kernelVectorThree(
     long3 inputLong,
     ulong3 inputULong,
     float3 inputFloat,
+    double3 inputDouble,
     __global float3* output)
 {
     output[0] = convert_float3(inputChar);
@@ -42,6 +45,7 @@ __kernel void kernelVectorThree(
     output[6] = convert_float3(inputLong);
     output[7] = convert_float3(inputULong);
     output[8] = convert_float3(inputFloat);
+    output[9] = convert_float3(inputDouble);
 }
 
 __kernel void kernelVectorFour(
@@ -54,6 +58,7 @@ __kernel void kernelVectorFour(
     long4 inputLong,
     ulong4 inputULong,
     float4 inputFloat,
+    double4 inputDouble,
     __global float4* output)
 {
     output[0] = convert_float4(inputChar);
@@ -65,6 +70,7 @@ __kernel void kernelVectorFour(
     output[6] = convert_float4(inputLong);
     output[7] = convert_float4(inputULong);
     output[8] = convert_float4(inputFloat);
+    output[9] = convert_float4(inputDouble);
 }
 
 __kernel void kernelVectorEight(
@@ -77,6 +83,7 @@ __kernel void kernelVectorEight(
     long8 inputLong,
     ulong8 inputULong,
     float8 inputFloat,
+    double8 inputDouble,
     __global float8* output)
 {
     output[0] = convert_float8(inputChar);
@@ -88,6 +95,7 @@ __kernel void kernelVectorEight(
     output[6] = convert_float8(inputLong);
     output[7] = convert_float8(inputULong);
     output[8] = convert_float8(inputFloat);
+    output[9] = convert_float8(inputDouble);
 }
 
 __kernel void kernelVectorSixteen(
@@ -100,6 +108,7 @@ __kernel void kernelVectorSixteen(
     long16 inputLong,
     ulong16 inputULong,
     float16 inputFloat,
+    double16 inputDouble,
     __global float16* output)
 {
     output[0] = convert_float16(inputChar);
@@ -111,4 +120,5 @@ __kernel void kernelVectorSixteen(
     output[6] = convert_float16(inputLong);
     output[7] = convert_float16(inputULong);
     output[8] = convert_float16(inputFloat);
+    output[9] = convert_float16(inputDouble);
 }

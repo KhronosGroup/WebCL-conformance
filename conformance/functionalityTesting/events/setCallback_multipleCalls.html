@@ -93,12 +93,12 @@ try {
         else
             testFailed("webCLEvent did not call callback for 3 times. It called " + userEventCallbackCount + " times.");
 
-        wtu.appendPostJSToHTML(document);
+        wtu.appendPostJSToHTML();
     }, 500);
 
 } catch(e) {
     testFailed(e.description);
-    wtu.appendPostJSToHTML(document);
+    wtu.appendPostJSToHTML();
 }
 successfullyParsed = true;
 </script>

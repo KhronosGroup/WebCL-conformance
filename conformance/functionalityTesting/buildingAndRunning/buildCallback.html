@@ -62,12 +62,12 @@ try {
         if (!callbackFlag)
             testFailed("webCLProgram did not call callback, as expected.");
 
-        wtu.appendPostJSToHTML(document);
+        wtu.appendPostJSToHTML();
     }, 500);
 
 } catch(e) {
     testFailed(e.description);
-    wtu.appendPostJSToHTML(document);
+    wtu.appendPostJSToHTML();
 }
 successfullyParsed = true;
 </script>

@@ -122,16 +122,6 @@ function start() {
     }
   }
 
-  function createWebCLContext()
-  {
-    var context = self.webcl;
-    if(typeof(webcl) === "undefined" || !context) {
-        console.error("WebCL compute context is yet to be defined");
-        throw { name : "WebCLException", message : "WebCL compute context is yet to be defined."};
-    }
-    return context;
-  }
-
   var reportType = WebCLTestHarnessModule.TestHarness.reportType;
   var pageCount = 0;
   var folderCount = 0;
@@ -212,9 +202,6 @@ function start() {
         }
     }
 
-    if (reporter.noWebCL) {
-      button.disabled = true;
-    }
     div.appendChild(button);
     var a = reporter.localDoc.createElement('a');
     a.href = url;
@@ -383,9 +370,7 @@ function start() {
       that.run();
       Results.style.display = "block";
     };
-    if (reporter.noWebCL) {
-      button.disabled = true;
-    }
+
     div.appendChild(button);
     var h = doc.createElement('span');
     h.appendChild(doc.createTextNode(this.name));
@@ -496,8 +481,6 @@ function start() {
     this.totalPages = 0;
     this.pagesByURL = {};
     //var canvas = document.getElementById("webclcheck");
-    var ctx = createWebCLContext();
-    this.noWebCL = !ctx;
     this.contextInfo = {};
     this.root = new Folder(this, null, 0, "all");
     while (this.resultElem.hasChildNodes()) {
@@ -706,11 +689,6 @@ function start() {
   Reporter.prototype.ready = function() {
     var loading = document.getElementById("loading");
     loading.style.display = "none";
-    if (!this.noWebCL) {
-      var button = document.getElementById("runTestsButton");
-      button.disabled = false;
-      this.executeListenerEvents_("ready");
-    }
   };
 
   Reporter.prototype.reportFunc = function(type, url, msg, success, skipped, isFolder) {
@@ -893,17 +871,19 @@ function start() {
       textbutton.setAttribute("value", "display text summary");
     }
   };
-  if (reporter.noWebCL) {
-    button.disabled = true;
-    var elem = document.getElementById("nowebcl");
-    elem.style.display = "";
-    reporter.postResultsToServer("Browser does not appear to support WebCL");
-  }
 }
 
 var webCLPlatforms;
 var webCLDevices;
 function initCL() {
+    // Check for support of WebCL by browser.
+    if (!self.webcl || typeof(webcl) === "undefined") {
+        console.error("Browser does not appear to support WebCL");
+        var elem = document.getElementById("nowebcl");
+        elem.style.display = "block";
+        return;
+    }
+
     // Fetch available platform and populate. By default, 0th platform is selected.
     var option = document.createElement("option");
     var platforms = document.getElementById("platforms");

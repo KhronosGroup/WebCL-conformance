@@ -402,14 +402,16 @@ var enqueueReadBuffer = function(webCLCommandQueue, buffer, blockingRead, buffer
     }
 }
 
-var enqueueWriteBuffer = function(webCLCommandQueue, webCLBuffer, blockingWrite, bufferOffset, numBytes, hostPtr, eventWaitList, webCLEvent) {
+var enqueueWriteBuffer = function(webCLCommandQueue, webCLBuffer, blockingWrite, bufferOffset, arg5, arg6, arg7, arg8) {
     try {
-        if (typeof(webCLEvent) != 'undefined')
-            webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, blockingWrite, bufferOffset, numBytes, hostPtr, eventWaitList, webCLEvent);
-        else if (typeof(eventWaitList) != 'undefined')
-            webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, blockingWrite, bufferOffset, numBytes, hostPtr, eventWaitList);
-        else
-            webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, blockingWrite, bufferOffset, numBytes, hostPtr);
+        if (arguments.length == 8)
+            webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, blockingWrite, bufferOffset, arg5, arg6, arg7, arg8);
+        else if (arguments.length == 7)
+            webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, blockingWrite, bufferOffset, arg5, arg6, arg7);
+        else if (arguments.length == 6)
+            webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, blockingWrite, bufferOffset, arg5, arg6);
+        else if (arguments.length == 5)
+            webCLCommandQueue.enqueueWriteBuffer(webCLBuffer, blockingWrite, bufferOffset, arg5);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueWriteBuffer threw exception : " + e.name;
         throw e;
@@ -430,28 +432,36 @@ var enqueueCopyBufferRect = function(webCLCommandQueue, srcBuffer, dstBuffer, sr
     }
 }
 
-var enqueueReadBufferRect = function(webCLCommandQueue, buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList, webCLEvent) {
+var enqueueReadBufferRect = function(webCLCommandQueue, buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9, arg10, arg11, arg12, arg13) {
     try {
-        if (typeof(webCLEvent) != 'undefined')
-            webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList, webCLEvent);
-        else if (typeof(eventWaitList) != 'undefined')
-            webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList);
-        else
-            webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr);
+        if (arguments.length == 13)
+            webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9, arg10, arg11, arg12, arg13);
+        else if (arguments.length == 12)
+            webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9, arg10, arg11, arg12);
+        else if (arguments.length == 11)
+            webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9, arg10, arg11);
+        else if (arguments.length == 10)
+            webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9, arg10);
+        else if (arguments.length == 9)
+            webCLCommandQueue.enqueueReadBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueReadBufferRect threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueWriteBufferRect = function(webCLCommandQueue, buffer, blockingWrite, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList, webCLEvent) {
+var enqueueWriteBufferRect = function(webCLCommandQueue, buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9, arg10, arg11, arg12, arg13) {
     try {
-        if (typeof(webCLEvent) != 'undefined')
-            webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingWrite, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList, webCLEvent);
-        else if (typeof(eventWaitList) != 'undefined')
-            webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingWrite, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr, eventWaitList);
-        else
-            webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingWrite, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, hostRowPitch, hostSlicePitch, hostPtr);
+        if (arguments.length == 13)
+            webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9, arg10, arg11, arg12, arg13);
+        else if (arguments.length == 12)
+            webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9, arg10, arg11, arg12);
+        else if (arguments.length == 11)
+            webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9, arg10, arg11);
+        else if (arguments.length == 10)
+            webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9, arg10);
+        else if (arguments.length == 9)
+            webCLCommandQueue.enqueueWriteBufferRect(buffer, blockingRead, bufferOrigin, hostOrigin, region, bufferRowPitch, bufferSlicePitch, arg9);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueWriteBufferRect threw exception : " + e.name;
         throw e;
@@ -472,28 +482,36 @@ var enqueueCopyImage = function(webCLCommandQueue, srcImage, dstImage, srcOrigin
     }
 }
 
-var enqueueReadImage = function(webCLCommandQueue, image, blockingRead, origin, region, hostRowPitch, dst, eventWaitList, webCLEvent) {
+var enqueueReadImage = function(webCLCommandQueue, image, blockingRead, origin, region, arg6, arg7, arg8, arg9) {
     try {
-        if (typeof(webCLEvent) != 'undefined')
-            webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, hostRowPitch, dst, eventWaitList, webCLEvent);
-        else if (typeof(eventWaitList) != 'undefined')
-            webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, hostRowPitch, dst, eventWaitList);
-        else
-            webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, hostRowPitch, dst);
+        if (arguments.length == 9)
+            webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, arg6, arg7, arg8, arg9);
+        else if (arguments.length == 8)
+            webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, arg6, arg7, arg8);
+        else if (arguments.length == 7)
+            webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, arg6, arg7);
+        else if (arguments.length == 6)
+            webCLCommandQueue.enqueueReadImage(image, blockingRead, origin, region, arg6);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueReadImage threw exception : " + e.name;
         throw e;
     }
 }
 
-var enqueueWriteImage = function(webCLCommandQueue, image, blockingWrite, origin, region, hostRowPitch, hostPtr, eventWaitList, webCLEvent) {
+var enqueueWriteImage = function(webCLCommandQueue, image, blockingWrite, arg4, arg5, arg6, arg7, arg8, arg9) {
     try {
-        if (typeof(webCLEvent) != 'undefined')
-            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, origin, region, hostRowPitch, hostPtr, eventWaitList, webCLEvent);
-        else if (typeof(eventWaitList) != 'undefined')
-            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, origin, region, hostRowPitch, hostPtr, eventWaitList);
-        else
-            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, origin, region, hostRowPitch, hostPtr);
+        if (arguments.length == 9)
+            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, arg4, arg5, arg6, arg7, arg8, arg9);
+        else if (arguments.length == 8)
+            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, arg4, arg5, arg6, arg7, arg8);
+        else if (arguments.length == 7)
+            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, arg4, arg5, arg6, arg7);
+        else if (arguments.length == 6)
+            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, arg4, arg5, arg6);
+        else if (arguments.length == 5)
+            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, arg4, arg5);
+        else if (arguments.length == 4)
+            webCLCommandQueue.enqueueWriteImage(image, blockingWrite, arg4);
     } catch(e) {
         e.description = "WebCLCommandQueue :: enqueueWriteImage threw exception : " + e.name;
         throw e;
@@ -690,12 +708,13 @@ var setCallback = function(event, commandExecCallbackType, callback)
     }
 }
 
-var appendPostJSToHTML = function(document)
+var appendPostJSToHTML = function()
 {
     var script = document.createElement('script');
-    script.src = '../../../resources/js-test-post.js';
+    // Conformance test-suite is expected to be host at webkit-webcl-conformance folder. Thus, providing absolute path to post.js file from that folder.
+    script.src = "/resources/js-test-post.js";
     script.type = 'text/javascript';
-    document.getElementsByTagName('head')[0].appendChild(script);
+    window.document.getElementsByTagName('head')[0].appendChild(script);
 }
 
 return {

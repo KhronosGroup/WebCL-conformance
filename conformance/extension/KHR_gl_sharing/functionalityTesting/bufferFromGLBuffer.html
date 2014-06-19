@@ -27,10 +27,11 @@
 <html>
 <head>
 <meta charset="utf-8">
-    <title>WebCLContext getGLContext conformance test.</title>
-    <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
-    <script src="../../../resources/js-test-pre.js"></script>
-    <script src="../../../resources/cl_utils.js"></script>
+    <title>bufferFromGLBuffer functionality test in extension KHR_gl_sharing.</title>
+    <link rel="stylesheet" href="../../../../resources/js-test-style.css"/>
+    <script src="../../../../resources/js-test-pre.js"></script>
+    <script src="../../../../resources/cl_utils.js"></script>
+    <script src="../../../../resources/clgl_utils.js"></script>
 </head>
 <body>
 <div id="description"></div>
@@ -40,9 +41,11 @@
 </div>
 <script>
 try {
-    debug("WebCLContext :: getGLContext test case.");
+    debug("bufferFromGLBuffer functionality test in extension KHR_gl_sharing.");
 
     var wtu = WebCLTestUtils;
+    var clgl = WebCLGLTestUtils;
+
     var canvas = document.getElementById("inputCanvas");
     var glContext = canvas.getContext("experimental-webgl");
 
@@ -50,17 +53,36 @@ try {
         throw { description : "Failed to enable extension : KHR_gl_sharing. Exitting..."};
     }
 
-    var webCLGLContext = wtu.createContext(glContext);
-    shouldBeType("webCLGLContext.getGLContext();", "WebGLRenderingContext");
+    var glBuffer = clgl.createBuffer(glContext);
+    clgl.bindBuffer(glContext, glContext.ARRAY_BUFFER, glBuffer);
 
-    var webCLContext = wtu.createContext();
-    shouldThrowExceptionName("webCLContext.getGLContext();", "INVALID_CONTEXT");
+    var webCLGLContext = wtu.createContext(glContext);
+    var webCLCommandQueue = wtu.createCommandQueue(webCLGLContext);
+    var numberOfValues = 100;
+    var maxInt32Value = 2147483647;
+
+    var data1 = new Int32Array(numberOfValues);
+    var result1 = new Int32Array(numberOfValues);
+    wtu.generateRandomNumberInRange(data1, 0, maxInt32Value, numberOfValues);
+    glContext.bufferData(glContext.ARRAY_BUFFER, data1, glContext.DYNAMIC_DRAW);
+    var webCLBuffer = webCLGLContext.createFromGLBuffer(webcl.MEM_READ_ONLY, glBuffer);
+    // Verifying results in webCLBuffer with values provided to bufferData.
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, true, 0, numberOfValues * Int32Array.BYTES_PER_ELEMENT, result1);
+    wtu.verifyResult(data1, result1, numberOfValues, "Matching values obtained from WebGL buffer object");
+
+    // Modifying values in bufferData and expecting it to be changed in associated WebCL Buffer.
+    var data2 = new Int32Array(numberOfValues);
+    var result2 = new Int32Array(numberOfValues);
+    wtu.generateRandomNumberInRange(data2, 0, maxInt32Value, numberOfValues);
+    glContext.bufferData(glContext.ARRAY_BUFFER, data2, glContext.DYNAMIC_DRAW);
+    wtu.enqueueReadBuffer(webCLCommandQueue, webCLBuffer, true, 0, numberOfValues * Int32Array.BYTES_PER_ELEMENT, result2);
+    wtu.verifyResult(data2, result2, numberOfValues, "Matching values after GL object is changed by WebGL");
 
 } catch(e) {
     testFailed(e.description);
 }
 successfullyParsed = true;
 </script>
-<script src="../../../resources/js-test-post.js"></script>
+<script src="../../../../resources/js-test-post.js"></script>
 </body>
 </html>

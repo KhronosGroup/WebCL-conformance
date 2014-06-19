@@ -46,6 +46,7 @@ try {
     video.addEventListener('loadeddata', runVideoInteropTests);
 } catch (e) {
     testFailed("Failed to add listener to video element : " + e.name);
+    wtu.appendPostJSToHTML();
 }
 var video, webCLContext;
 function runVideoInteropTests() {
@@ -92,12 +93,12 @@ function runVideoInteropTests() {
         shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_ONLY, video);", "INVALID_IMAGE_SIZE");
 
         setTimeout(function() {
-            wtu.appendPostJSToHTML(document);
+            wtu.appendPostJSToHTML();
         }, 2000);
 
     } catch(e) {
         testFailed(e.description);
-        wtu.appendPostJSToHTML(document);
+        wtu.appendPostJSToHTML();
     }
 }
 successfullyParsed = true;

@@ -43,6 +43,7 @@ __kernel void kernelLong(
 {
    output[0] = input;
 }
+
 __kernel void kernelULong(
    ulong3 input,
    __global ulong3* output)
@@ -53,6 +54,13 @@ __kernel void kernelULong(
 __kernel void kernelFloat(
    float3 input,
    __global float3* output)
+{
+   output[0] = input;
+}
+
+__kernel void kernelDouble(
+   double3 input,
+   __global double3* output)
 {
    output[0] = input;
 }

@@ -8,6 +8,7 @@ __kernel void kernelAllDatatypes(
     long inputLong,
     unsigned long inputULong,
     float inputFloat,
+    double inputDouble,
     __global float* output)
 {
     output[0] = convert_float(inputChar);
@@ -19,4 +20,5 @@ __kernel void kernelAllDatatypes(
     output[6] = convert_float(inputLong);
     output[7] = convert_float(inputULong);
     output[8] = convert_float(inputFloat);
+    output[9] = convert_float(inputDouble);
 }
