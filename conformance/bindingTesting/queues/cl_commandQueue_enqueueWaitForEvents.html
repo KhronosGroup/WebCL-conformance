@@ -52,7 +52,7 @@ try {
     shouldBeUndefined("webCLCommandQueue.enqueueWaitForEvents([webCLUserEvent]);");
 
     // Testing for Exceptions.
-    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents([]);", "INVALID_EVENT_WAIT_LIST");
+    shouldThrowExceptionName("webCLCommandQueue.enqueueWaitForEvents([]);", "INVALID_VALUE");
 
     var releasedEvent = wtu.createUserEvent(webCLContext);
     wtu.release(releasedEvent);
