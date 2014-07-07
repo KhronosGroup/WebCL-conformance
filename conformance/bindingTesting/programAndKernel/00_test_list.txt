@@ -4,4 +4,5 @@ cl_program_createKernel_async.html
 cl_program_createKernelsInProgram_sync.html
 cl_program_createKernelsInProgram_async.html
 cl_kernel_setArg.html
-cl_kernel_getArgInfo.html
+cl_kernel_getArgInfo_sync.html
+cl_kernel_getArgInfo_async.html
