@@ -11,5 +11,6 @@ cl_program_getinfo.html
 cl_sampler_getinfo.html
 cl_event_getProfilingInfo.html
 cl_kernel_getWorkGroupInfo.html
-cl_program_getBuildInfo.html
+cl_program_getBuildInfo_sync.html
+cl_program_getBuildInfo_async.html
 cl_context_getSupportedImageFormats.html
