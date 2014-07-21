@@ -65,7 +65,7 @@ try {
     // Testing for Exceptions.
     shouldThrowExceptionName("webCLProgram.getBuildInfo(webCLDevice, null);", "INVALID_VALUE");
 
-    // Testing for exception : INVALID_DEVICE. 
+    // Testing for exception : INVALID_DEVICE.
     var devices = wtu.getDevices(webCLPlatform, webcl.DEVICE_TYPE_ALL);
     if (devices.length > 1) {
         var webCLDevice1 = devices[0];
