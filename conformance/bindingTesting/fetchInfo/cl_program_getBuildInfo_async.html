@@ -82,7 +82,7 @@ try {
     try {
         wtu.build(webCLProgram3, webCLDevices);
     } catch(e) {
-        shouldBe("typeof " + "webCLProgram3.getBuildInfo(webCLDevice1, webcl.//PROGRAM_BUILD_LOG);", "'string'");
+        shouldBe("typeof " + "webCLProgram3.getBuildInfo(webCLDevice1, webcl.PROGRAM_BUILD_LOG);", "'string'");
     }
 
     setTimeout(function() {
