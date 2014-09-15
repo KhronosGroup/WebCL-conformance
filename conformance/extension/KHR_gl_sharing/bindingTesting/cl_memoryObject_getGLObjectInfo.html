@@ -58,6 +58,7 @@ try {
 
     var glBuffer = clgl.createBuffer(glContext);
     clgl.bindBuffer(glContext, glContext.ARRAY_BUFFER, glBuffer);
+    glContext.bufferData(glContext.ARRAY_BUFFER, new Uint8Array(10), glContext.STATIC_DRAW);
     var webCLBufferMemoryObject = clgl.createFromGLBuffer(webCLGLContext, webcl.MEM_READ_ONLY, glBuffer);
     shouldBeType("webCLBufferMemoryObject.getGLObjectInfo();", "WebCLGLObjectInfo");
     shouldBeType("webCLBufferMemoryObject.getGLObjectInfo().glObject;", "WebGLBuffer");
@@ -78,6 +79,7 @@ try {
     var glTexture = clgl.createTexture(glContext);
     clgl.bindTexture(glContext, glContext.TEXTURE_2D, glTexture);
     var miplevel = 1;
+    glContext.texImage2D(glContext.TEXTURE_2D, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
     var webCLTextureMemoryObject = clgl.createFromGLTexture(webCLGLContext, webcl.MEM_READ_ONLY, glContext.TEXTURE_2D, miplevel, glTexture);
     shouldBeType("webCLTextureMemoryObject.getGLObjectInfo();", "WebCLGLObjectInfo");
     shouldBeType("webCLTextureMemoryObject.getGLObjectInfo().glObject;", "WebGLTexture");
