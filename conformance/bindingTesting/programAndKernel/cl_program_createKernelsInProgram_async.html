@@ -64,6 +64,7 @@ try {
     wtu.build(webCLProgram, webCLDevies, '', callback);
 
     setTimeout(function() {
+        notifyFinishedToHarness();
         if (!callbackFlag)
             testFailed("webCLProgram did not call callback, as expected.");
 
@@ -72,6 +73,7 @@ try {
 
 } catch(e) {
     testFailed(e.description);
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML(document);
 }
 successfullyParsed = true;

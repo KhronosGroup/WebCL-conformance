@@ -68,6 +68,7 @@ try {
     wtu.build(webCLProgram, webCLDevices, "", callback);
 
     setTimeout(function() {
+        notifyFinishedToHarness();
         if (!callbackFlag)
             testFailed("webCLProgram did not call callback, as expected.");
 
@@ -75,6 +76,7 @@ try {
     }, 2000);
 
 } catch (e) {
+    notifyFinishedToHarness();
     testFailed(e.description);
     wtu.appendPostJSToHTML(document);
 }

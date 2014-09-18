@@ -61,11 +61,13 @@ try {
     wtu.finish(webCLCommandQueue, callback);
 
     setTimeout(function() {
+        notifyFinishedToHarness();
         wtu.appendPostJSToHTML();
     }, 2000);
 
 } catch(e) {
     testFailed(e.description);
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML();
 }
 successfullyParsed = true;

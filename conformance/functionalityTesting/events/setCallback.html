@@ -80,11 +80,13 @@ try {
     webcl.waitForEvents([webCLEvent]);
 
     setTimeout(function() {
+        notifyFinishedToHarness();
         wtu.appendPostJSToHTML();
     }, 500);
 
 } catch(e) {
     testFailed(e.description);
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML();
 }
 successfullyParsed = true;

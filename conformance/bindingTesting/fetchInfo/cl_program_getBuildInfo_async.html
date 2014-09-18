@@ -102,6 +102,7 @@ try {
         }
 
         setTimeout(function() {
+            notifyFinishedToHarness();
             if (!callbackFlag2)
                 testFailed("webCLProgram2 did not call callback, as expected.");
 
@@ -112,6 +113,7 @@ try {
 
 } catch(e) {
     testFailed(e.description);
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML(document);
 }
 successfullyParsed = true;

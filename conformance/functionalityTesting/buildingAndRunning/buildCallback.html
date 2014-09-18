@@ -59,6 +59,7 @@ try {
 
     // Wait for 500 ms for callback to be called.
     setTimeout(function() {
+        notifyFinishedToHarness();
         if (!callbackFlag)
             testFailed("webCLProgram did not call callback, as expected.");
 
@@ -67,6 +68,7 @@ try {
 
 } catch(e) {
     testFailed(e.description);
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML();
 }
 successfullyParsed = true;
