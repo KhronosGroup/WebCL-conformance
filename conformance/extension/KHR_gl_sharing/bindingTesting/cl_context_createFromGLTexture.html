@@ -70,31 +70,32 @@ try {
     glTexture = clgl.createTexture(glContext);
     clgl.bindTexture(glContext, glContext.TEXTURE_CUBE_MAP, glTexture);
     glContext.texImage2D(glContext.TEXTURE_CUBE_MAP_POSITIVE_X, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
+    glContext.texImage2D(glContext.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
+    glContext.texImage2D(glContext.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
+    glContext.texImage2D(glContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
+    glContext.texImage2D(glContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
+    glContext.texImage2D(glContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
+
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_ONLY, glContext.TEXTURE_CUBE_MAP_POSITIVE_X, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_WRITE_ONLY, glContext.TEXTURE_CUBE_MAP_POSITIVE_X, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_WRITE, glContext.TEXTURE_CUBE_MAP_POSITIVE_X, mipLevel, glTexture);", "WebCLImage");
 
-    glContext.texImage2D(glContext.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_ONLY, glContext.TEXTURE_CUBE_MAP_NEGATIVE_X, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_WRITE_ONLY, glContext.TEXTURE_CUBE_MAP_NEGATIVE_X, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_WRITE, glContext.TEXTURE_CUBE_MAP_NEGATIVE_X, mipLevel, glTexture);", "WebCLImage");
 
-    glContext.texImage2D(glContext.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_ONLY, glContext.TEXTURE_CUBE_MAP_POSITIVE_Y, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_WRITE_ONLY, glContext.TEXTURE_CUBE_MAP_POSITIVE_Y, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_WRITE, glContext.TEXTURE_CUBE_MAP_POSITIVE_Y, mipLevel, glTexture);", "WebCLImage");
 
-    glContext.texImage2D(glContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_ONLY, glContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_WRITE_ONLY, glContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_WRITE, glContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, mipLevel, glTexture);", "WebCLImage");
 
-    glContext.texImage2D(glContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_ONLY, glContext.TEXTURE_CUBE_MAP_POSITIVE_Z, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_WRITE_ONLY, glContext.TEXTURE_CUBE_MAP_POSITIVE_Z, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_WRITE, glContext.TEXTURE_CUBE_MAP_POSITIVE_Z, mipLevel, glTexture);", "WebCLImage");
 
-    glContext.texImage2D(glContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_ONLY, glContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_WRITE_ONLY, glContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_WRITE, glContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, mipLevel, glTexture);", "WebCLImage");
