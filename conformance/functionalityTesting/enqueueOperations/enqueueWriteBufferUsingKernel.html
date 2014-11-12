@@ -55,7 +55,7 @@ var executeKernel = function (webCLContext, kernelName, webCLDevices, webCLComma
         wtu.setArg(webCLKernel, 1, output);
 
         var globalWorkSize = [SIZE];
-        var localWorkSize = [webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
+        var localWorkSize = [gcd(webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE), SIZE)];
         wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkSize.length, null, globalWorkSize, localWorkSize);
         wtu.enqueueReadBuffer(webCLCommandQueue, output, true, 0, SIZE * data.BYTES_PER_ELEMENT, result);
         correct = 0;

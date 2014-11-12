@@ -65,7 +65,7 @@ try {
     webCLCommandQueue.enqueueWriteBuffer(input, true, 0, BUFFER_SIZE, data);
 
     globalWorkSize = [count];
-    localWorkSize = [webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
+    localWorkSize = [gcd(webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE), count)];
 
     webCLKernel.setArg(0, input);
     webCLKernel.setArg(1, output);

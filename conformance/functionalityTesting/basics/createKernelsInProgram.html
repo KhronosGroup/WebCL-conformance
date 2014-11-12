@@ -116,7 +116,7 @@ try {
             wtu.setArg(kernelCopy, 1, output);
 
             globalWorkSize = [SIZE];
-            localWorkSize = [kernelCopy.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
+            localWorkSize = [gcd(kernelCopy.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE), SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelCopy, globalWorkSize.length, null, globalWorkSize, localWorkSize);
             wtu.enqueueReadBuffer(webCLCommandQueue, output, true, 0, BUFFER_SIZE, resultInt);
 
@@ -148,7 +148,7 @@ try {
             wtu.setArg(kernelSquare, 2, new Uint32Array([count]));
 
             globalWorkSize = [SIZE];
-            localWorkSize = [kernelSquare.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
+            localWorkSize = [gcd(kernelSquare.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE), SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelSquare, globalWorkSize.length, null , globalWorkSize, localWorkSize);
             wtu.enqueueReadBuffer(webCLCommandQueue, output, true, 0, BUFFER_SIZE, resultFloat);
 
@@ -187,7 +187,7 @@ try {
             wtu.setArg(kernelFloatToInt, 1, output);
 
             globalWorkSize = [SIZE];
-            localWorkSize = [kernelFloatToInt.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
+            localWorkSize = [gcd(kernelFloatToInt.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE), SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelFloatToInt, globalWorkSize.length, null, globalWorkSize, localWorkSize);
             wtu.enqueueReadBuffer(webCLCommandQueue, output, true, 0, BUFFER_SIZE, resultInt);
 
@@ -240,9 +240,9 @@ try {
             wtu.setArg(kernelFloatToInt, 1, outputIntBuffer);
 
             globalWorkSize = [SIZE];
-            localWorkSize = [kernelSquare.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
+            localWorkSize = [gcd(kernelSquare.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE), SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelSquare, globalWorkSize.length, null, globalWorkSize, localWorkSize);
-            localWorkSize = [kernelFloatToInt.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
+            localWorkSize = [gcd(kernelFloatToInt.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE), SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelFloatToInt, globalWorkSize.length, null, globalWorkSize, localWorkSize);
             wtu.enqueueReadBuffer(webCLCommandQueue, outputSquareBuffer, true, 0, BUFFER_SIZE, resultFloat);
             wtu.enqueueReadBuffer(webCLCommandQueue, outputIntBuffer, true, 0, BUFFER_SIZE, resultInt);
@@ -306,9 +306,9 @@ try {
             wtu.setArg(kernelSample_test2, 1, outputSample_test2);
 
             globalWorkSize = [SIZE];
-            localWorkSize = [kernelSample_test.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
+            localWorkSize = [gcd(kernelSample_test.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE), SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelSample_test, globalWorkSize.length, null, globalWorkSize, localWorkSize);
-            localWorkSize = [kernelSample_test2.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
+            localWorkSize = [gcd(kernelSample_test2.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE), SIZE)];
             wtu.enqueueNDRangeKernel(webCLCommandQueue, kernelSample_test2, globalWorkSize.length, null , globalWorkSize, localWorkSize);
             wtu.enqueueReadBuffer(webCLCommandQueue, outputSample_test, true, 0, BUFFER_SIZE, resultInt);
             wtu.enqueueReadBuffer(webCLCommandQueue, outputSample_test2, true, 0, BUFFER_SIZE, resultFloat);

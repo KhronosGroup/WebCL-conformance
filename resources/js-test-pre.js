@@ -145,6 +145,13 @@ function testFailed(msg)
         debug('<span><span class="fail">FAIL</span> ' + escapeHTML(msg) + '</span>');
 }
 
+function gcd(_n, _m)
+{
+    if (_m == 0)
+        return _n;
+    return gcd(_m, _n % _m);
+}
+
 function areArraysEqual(_a, _b)
 {
     try {

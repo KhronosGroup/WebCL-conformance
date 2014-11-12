@@ -94,7 +94,7 @@ try {
             wtu.setArg(webCLKernel, 1, output);
 
             var globalWorkSize = [SIZE];
-            var localWorkSize = [webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE)];
+            var localWorkSize = [gcd(webCLKernel.getWorkGroupInfo(webCLDevices[0], webcl.KERNEL_WORK_GROUP_SIZE), SIZE)];
 
             wtu.enqueueNDRangeKernel(webCLCommandQueue, webCLKernel, globalWorkSize.length, null, globalWorkSize, localWorkSize);
 
