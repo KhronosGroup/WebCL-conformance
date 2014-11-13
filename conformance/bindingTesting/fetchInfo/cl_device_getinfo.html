@@ -110,7 +110,7 @@ try {
         else
             testFailed("webCLDevice.getInfo(webcl.DEVICE_ADDRESS_BITS) is neither 32 nor 64 bits.");
 
-        var expectedDeviceMaxMemAllocSize = webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_SIZE) / 4 > 1000000 ? (webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_SIZE)) / 4 : 1000000;
+        var expectedDeviceMaxMemAllocSize = webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_SIZE) / 4 > 1000000 ? Math.floor((webCLDevice.getInfo(webcl.DEVICE_GLOBAL_MEM_SIZE)) / 4) : 1000000;
 
         shouldBeGreaterThanOrEqual("webCLDevice.getInfo(webcl.DEVICE_MAX_MEM_ALLOC_SIZE)", "expectedDeviceMaxMemAllocSize");
 
