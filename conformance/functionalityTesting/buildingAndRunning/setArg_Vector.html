@@ -39,7 +39,7 @@
 
 /* Generic function to run a "kernel" which copies the input values "inputArray" into a output buffer.
    Later verify the values read from the output buffer into a "resultArray" against "inputArray". */
-var runAndTest = function(commandqueue, kernel, inputArray, resultArray, ulongFlag)
+var runAndTest = function(commandqueue, kernel, inputArray, resultArray, realSize, ulongFlag)
 {
     try {
         var kernelName = kernel.getInfo(webcl.KERNEL_FUNCTION_NAME);
@@ -58,14 +58,14 @@ var runAndTest = function(commandqueue, kernel, inputArray, resultArray, ulongFl
         if(ulongFlag == undefined)
             ulongFlag = 0;
         var flag = true, resultString = "";
-        for (y = 0; y < resultArray.length; y++) {
+        for (y = 0; y < realSize; y++) {
             resultString = resultString + resultArray[y] + ", ";
             if (resultArray[y].toPrecision(2) != (inputArray[y] + ulongFlag).toPrecision(2)) {
                 flag = false;
                 break;
             }
         }
-        if (flag && y == inputArray.length)
+        if (flag && y == realSize)
             testPassed("Test passed for kernel [" + kernelName + "]. Got expected value : " + resultString);
         else
             testFailed("Test failed. Expected value : " + inputArray + " Obtained value: " + resultString);
@@ -75,10 +75,17 @@ var runAndTest = function(commandqueue, kernel, inputArray, resultArray, ulongFl
 }
 
 /* Run a kernel for vector size and verify the output. Runs only for one set of data. */
-var runForAlltypes = function(vectorSize, kernelSource)
+var runForAlltypes = function(realSize, kernelSource)
 {
     try {
         debug("<br/>WebCLKernel setArg() vector" + vectorSize + " input testing.");
+        /* (From OpenCL spec)For 3-component vector data types, the size of the data type is 4 * sizeof(component). This
+          means that a 3-component vector data type will be aligned to a 4 * sizeof(component) boundary.*/
+        var vectorSize;
+        if (realSize === 3)
+            vectorSize = 4;
+        else
+            vectorSize = realSize;
 
         webCLProgram = wtu.createProgram(webCLContext, kernelSource);
         wtu.build(webCLProgram, webCLDevices);
@@ -86,57 +93,57 @@ var runForAlltypes = function(vectorSize, kernelSource)
         webCLKernel = webCLProgram.createKernel("kernelChar");
         var inputArray = wtu.generateData(Int8Array, vectorSize);
         var results = new Int8Array(vectorSize);
-        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results);
+        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, realSize);
 
         webCLKernel = webCLProgram.createKernel("kernelUChar");
         inputArray = wtu.generateData(Uint8Array, vectorSize);
         results = new Uint8Array(vectorSize);
-        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results);
+        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, realSize);
 
         webCLKernel = webCLProgram.createKernel("kernelShort");
         inputArray = wtu.generateData(Int16Array, vectorSize);
         results = new Int16Array(vectorSize);
-        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results);
+        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, realSize);
 
         webCLKernel = webCLProgram.createKernel("kernelUShort");
         inputArray = wtu.generateData(Uint16Array, vectorSize);
         results = new Uint16Array(vectorSize);
-        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results);
+        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, realSize);
 
         webCLKernel = webCLProgram.createKernel("kernelInt");
         inputArray = wtu.generateData(Int32Array, vectorSize);
         results = new Int32Array(vectorSize);
-        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results);
+        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, realSize);
 
         webCLKernel = webCLProgram.createKernel("kernelUInt");
         inputArray = wtu.generateData(Uint32Array, vectorSize);
         results = new Uint32Array(vectorSize);
-        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results);
+        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, realSize);
 
         // Since Int64Aray is not supoprted by WebKit need to use vectorSize Int3vectorSize elements.
         // So copy the input into a Int32Array of length * vectorSize size and pass it as input.
         var input = wtu.generateData(Int32Array, vectorSize * 2);
         results = new Int32Array(vectorSize * 2);
         webCLKernel = webCLProgram.createKernel("kernelLong");
-        runAndTest(webCLCommandQueue, webCLKernel, input, results);
+        runAndTest(webCLCommandQueue, webCLKernel, input, results, realSize);
 
         input = wtu.generateData(Uint32Array, vectorSize * 2);
         results = new Uint32Array(vectorSize * 2);
         webCLKernel = webCLProgram.createKernel("kernelULong");
-        runAndTest(webCLCommandQueue, webCLKernel, input, results, 1);
+        runAndTest(webCLCommandQueue, webCLKernel, input, results, realSize, 1);
 
         webCLKernel = webCLProgram.createKernel("kernelFloat");
         inputArray = wtu.generateData(Float32Array, vectorSize);
         results = new Float32Array(vectorSize);
-        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results);
+        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, realSize);
 
         webCLKernel = webCLProgram.createKernel("kernelDouble");
         inputArray = wtu.generateData(Float64Array, vectorSize);
         results = new Float64Array(vectorSize);
-        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results);
+        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, realSize);
 
     } catch (e) {
-        testFailed("WebCLKernel setArg() vector" + vectorSize + " input testing." + e.message);
+        testFailed("WebCLKernel setArg() vector" + realSize + " input testing." + e.message);
         return;
     }
 }
