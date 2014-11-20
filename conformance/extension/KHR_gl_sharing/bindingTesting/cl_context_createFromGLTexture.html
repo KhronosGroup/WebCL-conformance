@@ -62,6 +62,7 @@ try {
     var glTexture = clgl.createTexture(glContext);
     clgl.bindTexture(glContext, glContext.TEXTURE_2D, glTexture);
     var mipLevel = 0;
+    glContext.texImage2D(glContext.TEXTURE_2D, 0, glContext.RGBA, glContext.RGBA, glContext.UNSIGNED_BYTE, canvas);
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_ONLY, glContext.TEXTURE_2D, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_WRITE_ONLY, glContext.TEXTURE_2D, mipLevel, glTexture);", "WebCLImage");
     shouldBeType("webCLGLContext.createFromGLTexture(webcl.MEM_READ_WRITE, glContext.TEXTURE_2D, mipLevel, glTexture);", "WebCLImage");

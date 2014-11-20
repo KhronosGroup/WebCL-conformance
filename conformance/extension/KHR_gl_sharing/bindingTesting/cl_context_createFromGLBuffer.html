@@ -51,6 +51,7 @@ try {
     var glContext = canvas.getContext("experimental-webgl");
     var glBuffer = clgl.createBuffer(glContext);
     clgl.bindBuffer(glContext, glContext.ARRAY_BUFFER, glBuffer);
+    glContext.bufferData(glContext.ARRAY_BUFFER, new Uint8Array(10), glContext.STATIC_DRAW);
 
     var webCLContext = wtu.createContext();
     shouldThrowExceptionName("webCLContext.createFromGLBuffer(webcl.MEM_READ_ONLY, glBuffer);", "WEBCL_EXTENSION_NOT_ENABLED");
