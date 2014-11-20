@@ -78,8 +78,8 @@ try {
             elementsPerPixel = wtu.getBytesForChannelOrder(imageDescriptor.channelOrder);
             bytesPerElement = eval(wtu.getArrayTypeForChanneltype(imageDescriptor.channelType) + ".BYTES_PER_ELEMENT");
             expectedRowPitch = imageDescriptor.width * elementsPerPixel * bytesPerElement;
-            if (imageInfo.rowPitch != expectedRowPitch) {
-                testFailed("Verification of image's rowPitch. Expected : " + expectedRowPitch + ". Obtained : " + imageInfo.rowPitch);
+            if (imageInfo.rowPitch < expectedRowPitch) {
+                testFailed("Verification of image's rowPitch. Expected greater or equal : " + expectedRowPitch + ". Obtained : " + imageInfo.rowPitch);
                 return;
             }
 
