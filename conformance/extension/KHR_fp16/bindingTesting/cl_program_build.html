@@ -36,6 +36,19 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
+function select_FP16_device(devices) {
+  var i,device;
+
+  for(i=0;i<devices.length;i++) {
+    var dev=devices[i];
+    if(dev.enableExtension('KHR_fp16')) {
+      device=dev;
+      break;
+    }
+  }
+  return (i==devices.length) ? null : device;
+}
+
 try {
     debug("WebCLProgram :: build() test case in extension KHR_fp16.\n");
 
@@ -43,21 +56,22 @@ try {
     var kernelSource = wtu.readKernel("../../../../resources/kernels/half.cl");
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
-    var webCLDevice = wtu.getDevices(webCLPlatform);
+    var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLProgramBeforeEnablingExtension = wtu.createProgram(webCLContext, kernelSource);
-    shouldThrowExceptionName("webCLProgramBeforeEnablingExtension.build(webCLDevice);", "WEBCL_EXTENSION_NOT_ENABLED");
-
-    if (!wtu.enableExtension(webcl, "KHR_fp16")) {
-        throw { description : "Failed to enable extension : KHR_fp16. Exitting..."};
-    }
+    shouldThrowExceptionName("webCLProgramBeforeEnablingExtension.build(webCLDevices);", "WEBCL_EXTENSION_NOT_ENABLED");
 
     wtu.releaseAll(webCLContext);
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
-    var webCLDevice = wtu.getDevices(webCLPlatform);
+    var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLProgramAfterEnablingExtension = wtu.createProgram(webCLContext, kernelSource);
-    shouldBeUndefined("webCLProgramAfterEnablingExtension.build(webCLDevice);");
-
+    var deviceFP16=select_FP16_device(webCLDevices);
+    if(deviceFP16) {
+        shouldBeUndefined("webCLProgramAfterEnablingExtension.build(deviceFP16);");
+    }
+    else {
+        debug("KHR_fp16 extension not supported on this machine");
+    }
 } catch (e) {
     testFailed(e.description);
 }

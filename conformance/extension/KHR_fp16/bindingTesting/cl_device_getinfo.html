@@ -36,6 +36,19 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
+function select_FP16_device(devices) {
+  var i,device;
+
+  for(i=0;i<devices.length;i++) {
+    var dev=devices[i];
+    if(dev.enableExtension('KHR_fp16')) {
+      device=dev;
+      break;
+    }
+  }
+  return (i==devices.length) ? null : device;
+}
+
 try {
     debug("WebCLDevice :: getInfo() test case in extension KHR_fp16.\n");
 
@@ -53,23 +66,18 @@ try {
         shouldBe("webCLDevice.getInfo(webcl.DEVICE_NATIVE_VECTOR_WIDTH_HALF)", "0");
     }
 
-    if (!wtu.enableExtension(webcl, "KHR_fp16")) {
-        throw { description : "Failed to enable extension : KHR_fp16. Exitting..."};
-    }
-
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
-
     debug("After enabling extension:");
     debug("Test ran for " + webCLDevices.length + " devices.");
     for (var i = 0; i < webCLDevices.length; i++) {
-        debug("\nFor " + i + " th device:");
         var webCLDevice = webCLDevices[i];
-
-        shouldBeNonZero("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_HALF)");
-        shouldBeNonZero("webCLDevice.getInfo(webcl.DEVICE_NATIVE_VECTOR_WIDTH_HALF)");
+        if(webCLDevice.enableExtension('KHR_fp16')) { // test only for devices supporting KHR_fp16
+            debug("\nFor " + i + " th device:");
+            shouldBeNonZero("webCLDevice.getInfo(webcl.DEVICE_PREFERRED_VECTOR_WIDTH_HALF)");
+            shouldBeNonZero("webCLDevice.getInfo(webcl.DEVICE_NATIVE_VECTOR_WIDTH_HALF)");
+        }
     }
-
 } catch (e) {
     testFailed(e.description);
 }
