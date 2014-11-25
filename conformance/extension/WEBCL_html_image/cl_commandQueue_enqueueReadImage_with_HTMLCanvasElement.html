@@ -148,10 +148,10 @@ try {
 
         var webCLEvent1 = wtu.createEvent();
         wtu.enqueueReadImage( webCLCommandQueue1, webCLImage1, true, origin, region, canvas, [], webCLEvent1);
-        shouldThrowExceptionName("webCLCommandQueue2.enqueueReadImage(webCLImage2, true, origin, region, canvas, [], webCLEvent1);", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue1.enqueueReadImage(webCLImage2, true, origin, region, canvas, [], webCLEvent1);", "INVALID_CONTEXT");
         var webCLEvent2 = wtu.createEvent();
         wtu.enqueueReadImage( webCLCommandQueue2, webCLImage2, true, origin, region, canvas, [], webCLEvent2);
-        shouldThrowExceptionName("webCLCommandQueue1.enqueueReadImage(webCLImage1, true, origin, region, canvas, [], webCLEvent2);", "INVALID_CONTEXT");
+        shouldThrowExceptionName("webCLCommandQueue2.enqueueReadImage(webCLImage1, true, origin, region, canvas, [], webCLEvent2);", "INVALID_CONTEXT");
     }
 
     var releasedEvent = wtu.createUserEvent(webCLContext);
