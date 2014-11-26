@@ -38,18 +38,6 @@
 <script>
 </script>
 <script>
-function select_FP64_device(devices) {
-  var i,device;
-
-  for(i=0;i<devices.length;i++) {
-    var dev=devices[i];
-    if(dev.enableExtension('KHR_fp64')) {
-      device=dev;
-      break;
-    }
-  }
-  return (i==devices.length) ? null : device;
-}
 
 try {
     debug("WebCLKernel :: setArg() test case.");
@@ -61,7 +49,7 @@ try {
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
-    var deviceFP64=select_FP64_device(webCLDevices);
+    var deviceFP64 = wtu.select_FP64_device(webCLDevices);
     if(deviceFP64)
         webCLDevices=[deviceFP64];
 

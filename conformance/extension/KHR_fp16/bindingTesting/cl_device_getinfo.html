@@ -36,19 +36,6 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-function select_FP16_device(devices) {
-  var i,device;
-
-  for(i=0;i<devices.length;i++) {
-    var dev=devices[i];
-    if(dev.enableExtension('KHR_fp16')) {
-      device=dev;
-      break;
-    }
-  }
-  return (i==devices.length) ? null : device;
-}
-
 try {
     debug("WebCLDevice :: getInfo() test case in extension KHR_fp16.\n");
 

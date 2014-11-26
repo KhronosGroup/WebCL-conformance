@@ -36,18 +36,6 @@
 <div id="console"></div>
 <body>
 <script>
-function select_FP64_device(devices) {
-  var i,device;
-
-  for(i=0;i<devices.length;i++) {
-    var dev=devices[i];
-    if(dev.enableExtension('KHR_fp64')) {
-      device=dev;
-      break;
-    }
-  }
-  return (i==devices.length) ? null : device;
-}
 
 /* Generic function to run a "kernel" which copies the input values "inputArray" into a output buffer.
    Later verify the values read from the output buffer into a "resultArray" against "inputArray". */
@@ -170,7 +158,7 @@ try {
     wtu = WebCLTestUtils;
     webCLPlatform = wtu.getPlatform();
     webCLDevices = wtu.getDevices(webCLPlatform);
-    deviceFP64=select_FP64_device(webCLDevices);
+    deviceFP64 = wtu.select_FP64_device(webCLDevices);
     if(deviceFP64)
         webCLDevices=[deviceFP64];
 

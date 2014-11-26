@@ -36,19 +36,6 @@
 <div id="description"></div>
 <div id="console"></div>
 <script>
-function select_FP16_device(devices) {
-  var i,device;
-
-  for(i=0;i<devices.length;i++) {
-    var dev=devices[i];
-    if(dev.enableExtension('KHR_fp16')) {
-      device=dev;
-      break;
-    }
-  }
-  return (i==devices.length) ? null : device;
-}
-
 try {
     debug("Running a kernel to copy half value, in KHR_fp16 extension.");
 
@@ -57,7 +44,7 @@ try {
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
-    var deviceFP16=select_FP16_device(webCLDevices);
+    var deviceFP16 = wtu.select_FP16_device(webCLDevices);
     if(deviceFP16) {
         webCLDevices=[deviceFP16];
 
