@@ -57,7 +57,7 @@ try {
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
-    var deviceFP16=select_FP16_device();
+    var deviceFP16=select_FP16_device(webCLDevices);
     if(deviceFP16) {
         webCLDevices=[deviceFP16];
 
