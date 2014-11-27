@@ -75,11 +75,13 @@ try {
             testPassed("Callback was not called for webCLEvent, which was released after registering.");
         if (flagForUserEvent)
             testPassed("Callback was not called for webCLUserEvent, which was released after registering.");
+        notifyFinishedToHarness();
         wtu.appendPostJSToHTML();
     }, 500);
 
 } catch(e) {
     testFailed(e.description);
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML();
 }
 successfullyParsed = true;
