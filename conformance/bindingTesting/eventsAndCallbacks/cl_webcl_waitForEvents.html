@@ -53,7 +53,7 @@ try {
     var webCLEvent = wtu.createEvent();
     shouldThrowExceptionName("webcl.waitForEvents([webCLEvent]);", "INVALID_EVENT_WAIT_LIST");
     webCLEvent = wtu.createEvent();
-    shouldBeUndefined("webcl.waitForEvents([webCLEvent], callback);");
+    shouldThrowExceptionName("webcl.waitForEvents([webCLEvent], callback);", "INVALID_EVENT_WAIT_LIST");
     shouldThrowTypeError("webcl.waitForEvents([webCLEvent], new Object());");
 
     /*
