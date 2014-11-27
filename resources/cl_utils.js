@@ -717,6 +717,32 @@ var appendPostJSToHTML = function()
     window.document.getElementsByTagName('head')[0].appendChild(script);
 }
 
+var select_FP16_device = function(devices) {
+  var i,device;
+
+  for(i=0;i<devices.length;i++) {
+    var dev=devices[i];
+    if(dev.enableExtension('KHR_fp16')) {
+      device=dev;
+      break;
+    }
+  }
+  return (i==devices.length) ? null : device;
+}
+
+var select_FP64_device = function(devices) {
+  var i,device;
+
+  for(i=0;i<devices.length;i++) {
+    var dev=devices[i];
+    if(dev.enableExtension('KHR_fp64')) {
+      device=dev;
+      break;
+    }
+  }
+  return (i==devices.length) ? null : device;
+}
+
 return {
 createContext:createContext,
 createProgram:createProgram,
@@ -765,6 +791,8 @@ waitForEvents:waitForEvents,
 finish:finish,
 setCallback:setCallback,
 appendPostJSToHTML:appendPostJSToHTML,
+select_FP64_device:select_FP64_device,
+select_FP16_device:select_FP16_device,
 none:false
 };
 }());

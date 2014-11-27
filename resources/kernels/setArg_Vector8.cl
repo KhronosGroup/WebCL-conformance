@@ -57,9 +57,13 @@ __kernel void kernelFloat(
    output[0] = input;
 }
 
+#ifdef ENABLE_FP64
+#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+
 __kernel void kernelDouble(
    double8 input,
    __global double8* output)
 {
    output[0] = input;
 }
+#endif

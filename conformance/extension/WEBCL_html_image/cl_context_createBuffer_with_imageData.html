@@ -84,9 +84,6 @@ try {
     var canvasHuge = canvasContext.createImageData(maxMemAllocSize + 1, maxMemAllocSize + 1);
     shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imgDataHugeLength);", "INVALID_IMAGE_SIZE");
 
-    var imgDataInvalidSize = canvasContext.createImageData(canvas.width + 1, canvas.height + 1);
-    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imgDataInvalidSize);", "INVALID_HOST_PTR");
-
 } catch(e) {
     testFailed(e.description);
 }

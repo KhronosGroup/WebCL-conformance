@@ -43,21 +43,22 @@ try {
     var kernelSource = wtu.readKernel("../../../../resources/kernels/half.cl");
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
-    var webCLDevice = wtu.getDevices(webCLPlatform);
+    var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLProgramBeforeEnablingExtension = wtu.createProgram(webCLContext, kernelSource);
-    shouldThrowExceptionName("webCLProgramBeforeEnablingExtension.build(webCLDevice);", "WEBCL_EXTENSION_NOT_ENABLED");
-
-    if (!wtu.enableExtension(webcl, "KHR_fp16")) {
-        throw { description : "Failed to enable extension : KHR_fp16. Exitting..."};
-    }
+    shouldThrowExceptionName("webCLProgramBeforeEnablingExtension.build(webCLDevices);", "WEBCL_EXTENSION_NOT_ENABLED");
 
     wtu.releaseAll(webCLContext);
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
-    var webCLDevice = wtu.getDevices(webCLPlatform);
+    var webCLDevices = wtu.getDevices(webCLPlatform);
     var webCLProgramAfterEnablingExtension = wtu.createProgram(webCLContext, kernelSource);
-    shouldBeUndefined("webCLProgramAfterEnablingExtension.build(webCLDevice);");
-
+    var deviceFP16 = wtu.select_FP16_device(webCLDevices);
+    if(deviceFP16) {
+        shouldBeUndefined("webCLProgramAfterEnablingExtension.build(deviceFP16);");
+    }
+    else {
+        debug("KHR_fp16 extension not supported on this machine");
+    }
 } catch (e) {
     testFailed(e.description);
 }

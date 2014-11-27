@@ -106,13 +106,16 @@ try {
     var wtu = WebCLTestUtils;
     webCLPlatform = wtu.getPlatform();
     webCLDevices = wtu.getDevices(webCLPlatform);
+    var deviceFP64 = wtu.select_FP64_device(webCLDevices);
+    if(deviceFP64)
+        webCLDevices=[deviceFP64];
 
     webCLContext = wtu.createContext();
     webCLCommandQueue = wtu.createCommandQueue(webCLContext);
 
     var kernelSource = wtu.readKernel("../../../resources/kernels/setArg_basic_functionality.cl");
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-    wtu.build(webCLProgram, webCLDevices);
+    wtu.build(webCLProgram, webCLDevices, deviceFP64==null ? "" : "-DENABLE_FP64");
 
     webCLKernel = webCLProgram.createKernel("kernelChar");
     var inputArray = new Int8Array(kernel_arg_values[0]);
@@ -178,11 +181,12 @@ try {
     results = new Float32Array(kernel_arg_values[8].length);
     runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[8]);
 
-    webCLKernel = webCLProgram.createKernel("kernelDouble");
-    inputArray = new Float64Array(kernel_arg_values[9]);
-    results = new Float64Array(kernel_arg_values[9].length);
-    runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[9]);
-
+    if(deviceFP64) {
+        webCLKernel = webCLProgram.createKernel("kernelDouble");
+        inputArray = new Float64Array(kernel_arg_values[9]);
+        results = new Float64Array(kernel_arg_values[9].length);
+        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, kernel_arg_expected_values[9]);
+    }
 } catch (e) {
     testFailed("WebCLKernel setArg() basic type throws exception: " + e.message);
 }

@@ -88,7 +88,7 @@ var runForAlltypes = function(realSize, kernelSource)
             vectorSize = realSize;
 
         webCLProgram = wtu.createProgram(webCLContext, kernelSource);
-        wtu.build(webCLProgram, webCLDevices);
+        wtu.build(webCLProgram, webCLDevices, deviceFP64==null ? "" : "-DENABLE_FP64");
 
         webCLKernel = webCLProgram.createKernel("kernelChar");
         var inputArray = wtu.generateData(Int8Array, vectorSize);
@@ -137,10 +137,12 @@ var runForAlltypes = function(realSize, kernelSource)
         results = new Float32Array(vectorSize);
         runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, realSize);
 
-        webCLKernel = webCLProgram.createKernel("kernelDouble");
-        inputArray = wtu.generateData(Float64Array, vectorSize);
-        results = new Float64Array(vectorSize);
-        runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, realSize);
+        if(deviceFP64) {
+            webCLKernel = webCLProgram.createKernel("kernelDouble");
+            inputArray = wtu.generateData(Float64Array, vectorSize);
+            results = new Float64Array(vectorSize);
+            runAndTest(webCLCommandQueue, webCLKernel, inputArray, results, realSize);
+        }
 
     } catch (e) {
         testFailed("WebCLKernel setArg() vector" + realSize + " input testing." + e.message);
@@ -149,11 +151,16 @@ var runForAlltypes = function(realSize, kernelSource)
 }
 
 var wtu, webCLPlatform, webCLDevices, webCLContext, webCLCommandQueue, webCLProgram, webCLKernel;
+var deviceFP64=null;
+
 try {
     debug("WebCLKernel setArg() VectorvectorSize type testing.");
     wtu = WebCLTestUtils;
     webCLPlatform = wtu.getPlatform();
     webCLDevices = wtu.getDevices(webCLPlatform);
+    deviceFP64 = wtu.select_FP64_device(webCLDevices);
+    if(deviceFP64)
+        webCLDevices=[deviceFP64];
 
     webCLContext = wtu.createContext();
     webCLCommandQueue = wtu.createCommandQueue(webCLContext);
