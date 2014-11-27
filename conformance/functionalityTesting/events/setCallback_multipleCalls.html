@@ -92,12 +92,13 @@ try {
             testPassed("webCLEvent called callback 3 times, as expected.");
         else
             testFailed("webCLEvent did not call callback for 3 times. It called " + userEventCallbackCount + " times.");
-
+        notifyFinishedToHarness();
         wtu.appendPostJSToHTML();
     }, 500);
 
 } catch(e) {
     testFailed(e.description);
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML();
 }
 successfullyParsed = true;

@@ -105,6 +105,7 @@ try {
     image.onload = execute;
 } catch(e) {
     testFailed("Unable to load HTML image element : " + e.name);
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML();
 }
 function execute() {
@@ -125,7 +126,7 @@ function execute() {
     } catch(e) {
         testFailed(e.description);
     }
-
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML();
 }
 successfullyParsed = true;

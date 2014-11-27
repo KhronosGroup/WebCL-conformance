@@ -42,6 +42,7 @@ try {
     image.onload = execute;
 } catch(e) {
     testFailed("Unable to load HTML image element : " + e.name);
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML();
 }
 var webCLContext, webCLCommandQueue, webCLImageRead, webCLImageWrite, webCLImageReadWrite, origin, region, imageWidth, imageHeight, webCLImageDescriptorReadWrite, webCLImage;
@@ -166,13 +167,12 @@ function execute() {
         webCLUserEvent = wtu.createUserEvent(webCLContext);
         wtu.setStatus(webCLUserEvent, -1);
         shouldThrowExceptionName("webCLCommandQueue.enqueueWriteImage(webCLImageReadWrite, true, origin, region, image, [webCLUserEvent]);", "EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST");
-
          // FIXME To add test case to verify exception : INVALID_IMAGE_SIZE.
 
     } catch (e) {
         testFailed(e.description);
     }
-
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML();
 }
 successfullyParsed = true;
