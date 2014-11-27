@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebCL Conformance - Test Guidelines</title>
+<link rel="stylesheet" href="https://stackedit.io/res-min/themes/base.css" />
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body><div class="container"><h1 id="contributing-webcl-conformance-tests-guidelines">Contributing WebCL conformance tests Guidelines</h1>
+
+<p>Thank you for contributing to the WebCL conformance tests. <br>
+Please try to follow these guidelines when submitting a test.</p>
+
+<ul>
+<li><p>All changes and/or new tests should go in the conformance/  folder</p></li>
+<li><p>Please use the following License with <code>yyyy</code> at the first line to be <br>
+replaced with year of development of that file.</p></li>
+</ul>
+
+<p>These lines appears at the top of every html and js file under conformance/ and resources/</p>
+
+<pre><code>&lt;!--
+/*
+** Copyright (C) `yyyy` Samsung Electronics Corporation. All rights reserved.
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided the following conditions
+** are met:
+**
+** 1.  Redistributions of source code must retain the above copyright
+** notice, this list of conditions and the following disclaimer.
+**
+** 2.  Redistributions in binary form must reproduce the above copyright
+** notice, this list of conditions and the following disclaimer in the
+** documentation and/or other materials provided with the distribution.
+**
+** THIS SOFTWARE IS PROVIDED BY SAMSUNG ELECTRONICS CORPORATION AND ITS
+** CONTRIBUTORS "AS IS", AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+** BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+** FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SAMSUNG
+** ELECTRONICS CORPORATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+** INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING
+** BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED AND ON ANY THEORY
+** OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+** NEGLIGENCE OR OTHERWISE ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+** EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/ --&gt;
+</code></pre>
+
+<ul>
+<li><p>Please use code similar to the code in existing tests <br>
+Ideally, copy an existing test and modify it for your new test. Try not to duplicate <br>
+code that already exists where approriate.</p></li>
+<li><p>If adding a new test edit the approriate 00_test_list.txt file <br>
+Each folder has a 00_test_list.txt file that lists the test in that folder</p></li>
+<li><p>All HTML files are required to have this included.</p>
+
+<pre><code>    resources/js-test-pre.js
+</code></pre>
+
+<p>which even includes all helper functions <code>shouldBeXXX</code></p></li>
+<li><p>All HTML files are required to have this included</p>
+
+<pre><code>resources/cl_utils.js
+</code></pre>
+
+<p>in order to use utility functions.</p></li>
+<li><p>use the functions in WebCLTestUtils (wtu) rather than duplicating functionality.</p>
+
+<p>All the API routed through WebCLTestUtils will evaluate the API and in case of exception, <br>
+it stores it in <code>description</code> field and helps in tracking failure, if any.</p>
+
+<p>In particular, as much as possible, keep the WebCL code in your test specific <br>
+to the issue being tested and try to use the helper functions to handle common setup.</p>
+
+<p>Examples:</p>
+
+<ul><li><p>to create a WebCL context call  <code>WebCLTestUtils.createContext</code>.</p>
+
+<ul><li>When called without param, it will create a WebCLContext on selected devices.</li>
+<li>When called with deviceType it will create a WebCLContext for given type of device &amp; selected platform.</li></ul></li>
+<li><p>When running in a new tab as a web page, the same will be called with WebCL implementation default values.</p>
+
+<ul><li>use WebCLTestUtils.getPlatform and WebCLTestUtils.getDevices to retrive selected devices, rather than native webcl API’s.</li>
+<li>use functions like WeCLTestUtils.createBuffer, WeCLTestUtils.createSampler etc <br>
+to create respective WebCL Objects to have a stack trace of exceptions.</li></ul></li></ul></li>
+<li><p>All HTML files must have a </p></li>
+<li><p>Code/Tag Order</p>
+
+<pre><code>&lt;div id="description"&gt;&lt;/div&gt;
+&lt;div id="console"&gt;&lt;/div&gt;
+&lt;script&gt;
+var wtu = WebCLTestUtils;
+...
+</code></pre></li>
+<li><p>Ending Tests : Tests that are short and run synchronously end with</p>
+
+<pre><code>&lt;script src="../../resources/js-test-post.js"&gt;&lt;/script&gt;
+</code></pre></li>
+<li><p>Tests that invoke a callback function generally needs to be waited for before proceeding with <br>
+execution, to keep track of correct number of pass/fail rate. <br>
+So <code>setTimeOut</code> function is used to move to next test case if present test case fails to call callback or to <br>
+add script file js-test-post.js in case if present test case is the last test and is failing to call callback.</p></li>
+<li><p>The test harness requries the global variable <code>successfullyParsed</code> to be set to true. <br>
+This usually appears at the end of a file.</p>
+
+<pre><code>var successfullyParsed = true;
+</code></pre></li>
+<li><p>All files must start with <code>debug</code> statement mentioning about file and signature of API to <br>
+be tested (if applicable)</p></li>
+<li><p>Entire file must be embedded in try-catch block and details of caught failure of any API in the <br>
+course of file will be stored in <code>description</code> field (when API are routed via resources/cl_utils.js) <br>
+of exception and the same to be printed as a failure.</p></li>
+</ul></div></body>
+</html>
