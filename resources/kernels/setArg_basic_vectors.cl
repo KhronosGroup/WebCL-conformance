@@ -240,4 +240,5 @@ __kernel void kernelVectorSixteen(
     output[6] = convert_float16(inputLong);
     output[7] = convert_float16(inputULong);
     output[8] = convert_float16(inputFloat);
+}
 #endif
