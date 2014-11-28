@@ -68,8 +68,6 @@ try {
 
     // Testing for exceptions.
     shouldThrowExceptionName("webCLContext.createBuffer(invalid_CLenum, imgData);", "INVALID_VALUE");
-    var imgDataInvalid = canvasContext.createImageData(-10, -10);
-    shouldThrowExceptionName("webCLContext.createBuffer(webcl.MEM_READ_WRITE, imgDataInvalid);", "INVALID_HOST_PTR");
 
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
