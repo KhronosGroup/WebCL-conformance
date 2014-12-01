@@ -47,16 +47,17 @@ try {
     var webCLProgramBeforeEnablingExtension = wtu.createProgram(webCLContext, kernelSource);
     shouldThrowExceptionName("webCLProgramBeforeEnablingExtension.build(webCLDevice);", "WEBCL_EXTENSION_NOT_ENABLED");
 
-    if (!wtu.enableExtension(webcl, "KHR_fp64")) {
-        throw { description : "Failed to enable extension : KHR_fp64. Exitting..."};
-    }
-
     wtu.releaseAll(webCLContext);
     var webCLContext = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
     var webCLDevice = wtu.getDevices(webCLPlatform);
     var webCLProgramAfterEnablingExtension = wtu.createProgram(webCLContext, kernelSource);
-    shouldBeUndefined("webCLProgramAfterEnablingExtension.build(webCLDevice);");
+    var deviceFP64 = wtu.select_FP64_device(webCLDevice);
+    if (deviceFP64) {
+       shouldBeUndefined("webCLProgramAfterEnablingExtension.build(deviceFP64);");
+    } else {
+       debug("KHR_fp64 extension not supported on this machine");
+    }
 
 } catch (e) {
     testFailed(e.description);
