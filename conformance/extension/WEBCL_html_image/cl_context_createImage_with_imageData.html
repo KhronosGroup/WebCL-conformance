@@ -68,8 +68,6 @@ try {
 
     // Testing for exceptions.
     shouldThrowExceptionName("webCLContext.createImage(invalid_CLenum, imgData);", "INVALID_VALUE");
-    var imgDataInvalid = canvasContext.createImageData(-10, -10);
-    shouldThrowExceptionName("webCLContext.createImage(webcl.MEM_READ_WRITE, imgDataInvalid);", "INVALID_HOST_PTR");
 
     var contextDeviceArray = webCLContext.getInfo(webcl.CONTEXT_DEVICES);
     var contextWidthMax = contextDeviceArray[0].getInfo(webcl.DEVICE_IMAGE2D_MAX_WIDTH);
