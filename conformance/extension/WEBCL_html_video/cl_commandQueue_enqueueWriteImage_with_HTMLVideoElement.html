@@ -46,6 +46,7 @@ try {
     video.addEventListener('loadeddata', runVideoInteropTests);
 } catch (e) {
     testFailed("Failed to add listener to video element : " + e.name);
+    notifyFinishedToHarness();
     wtu.appendPostJSToHTML();
 }
 var video, webCLContext, webCLCommandQueue, webCLImage, webCLImageDescriptor, webCLEvent, releasedImage, imageWidth, imageHeight;
@@ -135,11 +136,13 @@ function runVideoInteropTests() {
         // FIXME To add test case to verify exception : INVALID_IMAGE_SIZE & INVALID_MEM_OBJECT.
 
         setTimeout(function() {
+            notifyFinishedToHarness();
             wtu.appendPostJSToHTML();
         }, 500);
 
     } catch(e) {
         testFailed(e.description);
+        notifyFinishedToHarness();
         wtu.appendPostJSToHTML();
     }
 }
