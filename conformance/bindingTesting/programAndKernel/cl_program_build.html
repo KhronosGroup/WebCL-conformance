@@ -90,13 +90,13 @@ try {
         shouldBeUndefined("webCLProgram.build(webCLDeviceACCELERATOR);");
 
     // Testing for build-options.
-    var webCLDevice = wtu.getDevices(webCLPlatform);
+    webCLDevice = wtu.getDevices(webCLPlatform);
     webCLContext = wtu.createContext();
     webCLProgram = wtu.createProgram(webCLContext, kernelSource);
 
     shouldBeUndefined("webCLProgram.build();");
-    shouldBeUndefined("webCLProgram.build(webCLDevice);");
     shouldBeUndefined("webCLProgram.build(null, \"-cl-opt-disable\");");
+    shouldBeUndefined("webCLProgram.build(webCLDevice);");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-D SIZE\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-D SIZE=1024\");");
     shouldBeUndefined("webCLProgram.build(webCLDevice, \"-cl-opt-disable\");");
