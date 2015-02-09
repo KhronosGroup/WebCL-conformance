@@ -44,6 +44,7 @@ try {
     var wtu = WebCLTestUtils;
     var webCLContext = wtu.createContext();
 
+    var WebCLImageDescriptor = Object;
     shouldBeArrayOfType("webCLContext.getSupportedImageFormats()", "WebCLImageDescriptor");
     shouldBeArrayOfType("webCLContext.getSupportedImageFormats(webcl.MEM_READ_ONLY)", "WebCLImageDescriptor");
     shouldBeArrayOfType("webCLContext.getSupportedImageFormats(webcl.MEM_WRITE_ONLY)", "WebCLImageDescriptor");
