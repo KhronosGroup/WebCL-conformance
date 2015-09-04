@@ -40,6 +40,7 @@
 <script>
 var callbackFlag1 = false, callbackFlag2 = false;
 var webCLProgram1, webCLProgram2, webCLProgram3;
+var webCLDevice1, webCLDevice2;
 var callback1 = function (event) {
     if (webCLProgram1) {
         callbackFlag1 = true;
@@ -54,8 +55,8 @@ var callback2 = function (event) {
     if (webCLProgram2) {
         callbackFlag2 = true;
 
-        var webCLDevice2 = webCLDevices[1];
-        shouldThrowExceptionName("webCLProgram1.getBuildInfo(webCLDevice2, webcl.PROGRAM_BUILD_STATUS);", "INVALID_DEVICE");
+        webCLDevice2 = webCLDevices[1];
+        shouldThrowExceptionName("webCLProgram2.getBuildInfo(webCLDevice2, webcl.PROGRAM_BUILD_STATUS);", "INVALID_DEVICE");
     } else
         testFailed("WebCLProgram2 is not a valid object.");
 };
@@ -67,7 +68,7 @@ try {
     var webCLContext1 = wtu.createContext();
     var webCLPlatform = wtu.getPlatform();
     var webCLDevices = wtu.getDevices(webCLPlatform);
-    var webCLDevice1 = webCLDevices[0];
+    webCLDevice1 = webCLDevices[0];
 
     var kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
     var webCLProgram1 = wtu.createProgram(webCLContext1, kernelSource);
@@ -91,7 +92,7 @@ try {
 
         // Testing for exception : INVALID_DEVICE.
         if (webCLDevices.length > 1) {
-            var webCLDevice1 = webCLDevices[0];
+            webCLDevice1 = webCLDevices[0];
             var webCLContext2 = wtu.createContext(webCLDevice1);
 
             kernelSource = wtu.readKernel("../../../resources/kernels/square.cl");
@@ -102,10 +103,9 @@ try {
         }
 
         setTimeout(function() {
-            notifyFinishedToHarness();
             if (!callbackFlag2)
                 testFailed("webCLProgram2 did not call callback, as expected.");
-
+            notifyFinishedToHarness();
             wtu.appendPostJSToHTML(document);
         }, 2000);
 
