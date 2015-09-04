@@ -48,6 +48,7 @@ try {
 
     var webCLImageDescriptorReadWrite = wtu.getSupportedImageFormats(webCLContext, webcl.MEM_READ_WRITE, imageWidth, imageHeight);
     webCLImage = wtu.createImage(webCLContext, webcl.MEM_READ_ONLY, webCLImageDescriptorReadWrite);
+    var WebCLImageDescriptor = Object;
     shouldBeType("webCLImage.getInfo()", WebCLImageDescriptor);
     shouldBe("webCLImage.getInfo().width", "imageWidth", true);
     shouldBe("webCLImage.getInfo().height", "imageHeight", true);

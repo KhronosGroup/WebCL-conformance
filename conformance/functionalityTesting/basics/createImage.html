@@ -50,6 +50,7 @@ try {
 
             imageInfo = webCLImage.getInfo();
 
+            var WebCLImageDescriptor = Object;
             if (!(imageInfo instanceof WebCLImageDescriptor)) {
                 testFailed("webCLImage.getInfo was not of the type WebCLImageDescriptor.");
                 return;
