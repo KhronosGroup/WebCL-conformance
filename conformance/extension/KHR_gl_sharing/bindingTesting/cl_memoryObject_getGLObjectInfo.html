@@ -60,6 +60,7 @@ try {
     clgl.bindBuffer(glContext, glContext.ARRAY_BUFFER, glBuffer);
     glContext.bufferData(glContext.ARRAY_BUFFER, new Uint8Array(10), glContext.STATIC_DRAW);
     var webCLBufferMemoryObject = clgl.createFromGLBuffer(webCLGLContext, webcl.MEM_READ_ONLY, glBuffer);
+    var WebCLGLObjectInfo = Object;
     shouldBeType("webCLBufferMemoryObject.getGLObjectInfo();", "WebCLGLObjectInfo");
     shouldBeType("webCLBufferMemoryObject.getGLObjectInfo().glObject;", "WebGLBuffer");
     shouldBe("webCLBufferMemoryObject.getGLObjectInfo().type", "webcl.GL_OBJECT_BUFFER");
