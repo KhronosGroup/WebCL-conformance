@@ -54,7 +54,7 @@ try {
     var webCLProgramAfterEnablingExtension = wtu.createProgram(webCLContext, kernelSource);
     var deviceFP16 = wtu.select_FP16_device(webCLDevices);
     if(deviceFP16) {
-        shouldBeUndefined("webCLProgramAfterEnablingExtension.build(deviceFP16);");
+        shouldBeUndefined("webCLProgramAfterEnablingExtension.build([deviceFP16]);");
     }
     else {
         debug("KHR_fp16 extension not supported on this machine");
