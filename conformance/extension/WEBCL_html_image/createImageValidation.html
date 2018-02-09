@@ -101,7 +101,7 @@ try {
  */
 try {
     var image = new Image();
-    image.src = "../../../resources/pebbleHalf.jpg";
+    image.src = "../../../resources/pebbleHalf.png";
     image.onload = execute;
 } catch(e) {
     testFailed("Unable to load HTML image element : " + e.name);
@@ -112,6 +112,7 @@ function execute() {
     try {
         var canvasForImage = document.getElementById("inputCanvasForImage");
         var canvasContextForImage = canvasForImage.getContext("2d");
+        canvasContextForImage.imageSmoothingEnabled = false;
         canvasContextForImage.drawImage(image, 0, 0);
         var dataOfImage = canvasContextForImage.getImageData(0, 0, canvasForImage.width, canvasForImage.height);
 
